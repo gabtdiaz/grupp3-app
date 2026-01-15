@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\grupp3-app.Api.props" />
+</Project>
