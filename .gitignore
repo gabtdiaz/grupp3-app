@@ -1,4 +1,3 @@
-@"
 # Dependencies
 node_modules/
 package-lock.json
@@ -14,6 +13,16 @@ obj/
 *.exe
 *.pdb
 
+# Sensitive files
+/appsettings.Development.json
+/appsettings..json
+!/appsettings.json
+/.env
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+
 # Environment variables
 .env
 .env.local
@@ -26,11 +35,37 @@ appsettings.Development.json
 *.user
 *.suo
 .vs/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+*.userosscache
+.userprefs
+*.nupkg
+.snupkg
+**/packages/
 
 # Frontend specific
-npm-debug.log*
+node_modules/
+dist/
+dist-ssr/
+.local
+npm-debug.log
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Testing
 coverage/
@@ -54,4 +89,7 @@ Thumbs.db
 # Azure
 *.pubxml
 *.publishsettings
-"@ | Set-Content .gitignore
+
+#Other
+*.log
+coverage/
