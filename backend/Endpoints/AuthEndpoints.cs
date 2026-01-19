@@ -61,6 +61,12 @@ public static class AuthEndpoints
         ApplicationDbContext context,
         ITokenService tokenService)
     {
+        // Validate input
+        if (!MiniValidator.TryValidate(loginDto, out var errors))
+        {
+            return Results.ValidationProblem(errors);
+        }
+
         // Find user
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
