@@ -38,7 +38,10 @@ public static class AuthEndpoints
         var user = new User
         {
             Email = registerDto.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+            FirstName = registerDto.FirstName, 
+            LastName = registerDto.LastName,  
+            City = registerDto.City 
         };
 
         // Save to database
@@ -49,7 +52,7 @@ public static class AuthEndpoints
         var userDto = new UserDto
         {
             Email = user.Email,
-            DisplayName = $"{registerDto.FirstName} {registerDto.LastName[0]}",
+            DisplayName = $"{user.FirstName} {user.LastName[0]}",
             Token = tokenService.CreateToken(user)
         };
 
@@ -91,7 +94,7 @@ public static class AuthEndpoints
         var userDto = new UserDto
         {
             Email = user.Email,
-            DisplayName = user.Email.Split('@')[0], 
+            DisplayName = $"{user.FirstName} {user.LastName[0]}",  
             Token = tokenService.CreateToken(user)
         };
 
