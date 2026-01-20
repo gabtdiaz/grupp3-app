@@ -27,13 +27,13 @@ public class User
     // Navigation properties
     public ICollection<Event> CreatedEvents { get; set; } = new List<Event>();
     public ICollection<EventParticipant> EventParticipants { get; set; } = new List<EventParticipant>();
-    public ICollection<EventComment> Comments { get; set; } = new List<EventComment>();
+    public ICollection<EventComment> EventComments { get; set; } = new List<EventComment>();
 }
 
 public enum Gender
 {
-    Man = 0,
-    Kvinna = 1,
-    Annat = 2,
-    VillInteUppge = 3,
+    Man = 1,
+    Kvinna = 2,
+    Annat = 3,
+    VillInteUppge = 4,
 }

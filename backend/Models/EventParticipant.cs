@@ -10,7 +10,7 @@ public class EventParticipant
 
     // Navigation properties
     public User User { get; set; } = null!;
-    public User Event { get; set; } = null!;
+    public Event Event { get; set; } = null!;
 }
 
 public enum ParticipantStatus
