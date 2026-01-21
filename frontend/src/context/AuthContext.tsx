@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { api } from "../api/api";
+import { api, TOKEN_KEY } from "../api/api";
 
 
 type LoginRequest = {
@@ -16,12 +16,7 @@ type RegisterRequest = {
 };
 
 type AuthResponse = {
-  email?: string;
-  displayName?: string;
-  token?: string;
-
-  Email?: string;
-  DisplayName?: string;
+   token?: string;
   Token?: string;
 };
 
@@ -45,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * om den finns -> användaren räknas som inloggad
    */
   useEffect(() => {
-    const saved = localStorage.getItem("auth_token");
+    const saved = localStorage.getItem(TOKEN_KEY);
     if (saved) setToken(saved);
   }, []);
 
@@ -63,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const newToken = res.data.token ?? res.data.Token;
   if (!newToken) throw new Error("Backend returnerade ingen token.");
 
-  localStorage.setItem("auth_token", newToken);
+  localStorage.setItem(TOKEN_KEY, newToken);
   setToken(newToken);
 }
 
@@ -80,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Om register returnerar token, spara direkt:
   if (newToken) {
-    localStorage.setItem("auth_token", newToken);
+    localStorage.setItem(TOKEN_KEY, newToken);
     setToken(newToken);
     return;
   }
@@ -94,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    *  tar bort token överallt
    */
   function logout() {
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem(TOKEN_KEY);
     setToken(null);
   }
 
