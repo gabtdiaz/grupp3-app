@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using grupp3_app.Api.Models;
+using grupp3_app.Api.Validation;
 
 namespace grupp3_app.Api.DTOs.Event;
 
@@ -19,6 +20,8 @@ public class CreateEventDto
     
     [Required(ErrorMessage = "Start date and time is required")]
     public DateTime StartDateTime { get; set; }
+    
+    [EndDateTimeAfterStart]
     public DateTime? EndDateTime { get; set; }
     public string? ImageUrl { get; set; }
     
