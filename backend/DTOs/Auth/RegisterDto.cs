@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using grupp3_app.Api.Models;
 using grupp3_app.Api.Validation;
 
+//hej
+
 namespace grupp3_app.Api.DTOs.Auth;
 
 public class RegisterDto
