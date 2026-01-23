@@ -69,5 +69,6 @@ app.UseCors("AllowFrontend");
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
+app.MapEventEndpoints();
 
 app.Run();
