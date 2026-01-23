@@ -103,14 +103,20 @@ public static class EventEndpoints
         if (e == null)
             return Results.NotFound();
 
+        if (!Enum.TryParse<EventCategory>(dto.Category, true, out var category))
+            return Results.BadRequest($"Invalid category: {dto.Category}");
+
+        if (!Enum.TryParse<GenderRestriction>(dto.GenderRestriction, true, out var genderRestriction))
+            return Results.BadRequest($"Invalid gender restriction: {dto.GenderRestriction}");
+
         e.Title = dto.Title;
         e.Description = dto.Description;
         e.Location = dto.Location;
         e.StartDateTime = dto.StartDateTime;
         e.EndDateTime = dto.EndDateTime;
         e.ImageUrl = dto.ImageUrl;
-        e.Category = Enum.Parse<EventCategory>(dto.Category);
-        e.GenderRestriction = Enum.Parse<GenderRestriction>(dto.GenderRestriction);
+        e.Category = category;
+        e.GenderRestriction = genderRestriction;
         e.MaxParticipants = dto.MaxParticipants;
         e.MinimumAge = dto.MinimumAge;
         e.UpdatedAt = DateTime.UtcNow;
@@ -118,6 +124,7 @@ public static class EventEndpoints
         await context.SaveChangesAsync();
         return Results.NoContent();
     }
+
 
     // DELETE /api/events/{id} tar bort event
     private static async Task<IResult> DeleteEvent(int id, ApplicationDbContext context)
@@ -133,7 +140,7 @@ public static class EventEndpoints
     }
 
     //tar eventet från databasen, plockar ut de fält vi vill visa i frontend 
-    //och gör om vissa värden
+    //och gör om vissa värden, enums
     private static EventDto MapToEventDto(Event e, User user)
     {
         return new EventDto
