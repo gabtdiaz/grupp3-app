@@ -131,23 +131,36 @@ public static class ProfileEndpoints
         {
             return Results.NotFound("User not found");
         }
+
+        // Calculate age
+        var age = CalculateAge(userProfile.DateOfBirth);
     
         // Map to ProfileDto (public view)
-        var profileDto = new ProfileDto
+        var publicProfileDto = new PublicProfileDto
         {
             Id = userProfile.Id,
-            Email = userProfile.Email,
-            FirstName = userProfile.FirstName,
-            LastName = userProfile.LastName,
-            DateOfBirth = userProfile.DateOfBirth,
-            Gender = userProfile.Gender,
+            DisplayName = $"{userProfile.FirstName} {userProfile.LastName[0]}",
+            Age = age,
             City = userProfile.City,
             ProfileImageUrl = userProfile.ProfileImageUrl,
             Bio = userProfile.Bio,
             Interests = userProfile.Interests,
-            CreatedAt = userProfile.CreatedAt
         };
 
-        return Results.Ok(profileDto);
+        return Results.Ok(publicProfileDto);
+    }
+
+    // Helper method
+    private static int CalculateAge(DateTime dateOfBirth)
+    {
+        var today = DateTime.Today;
+        var age = today.Year - dateOfBirth.Year;
+
+        if (dateOfBirth.Date > today.AddYears(-age))
+        {
+            age--;
+        }
+
+        return age;
     }
 }
