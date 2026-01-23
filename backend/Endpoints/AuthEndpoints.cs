@@ -40,7 +40,9 @@ public static class AuthEndpoints
             Email = registerDto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
             FirstName = registerDto.FirstName, 
-            LastName = registerDto.LastName,  
+            LastName = registerDto.LastName, 
+            DateOfBirth = registerDto.DateOfBirth,
+            Gender = registerDto.Gender, 
             City = registerDto.City 
         };
 

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BackgroundImage } from "../components/BackgroundImage";
+import { BackgroundImage } from "../components/ui/BackgroundImage";
 
 export default function Home() {
   const navigate = useNavigate();

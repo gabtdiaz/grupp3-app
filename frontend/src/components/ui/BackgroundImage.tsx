@@ -6,7 +6,7 @@ export const BackgroundImage = () => {
         backgroundImage: `
           url("/logo-black.png"),
           url("/phone-background.svg"),
-          url("/colour-background.png")
+          url("/index-background.png")
         `,
         backgroundSize: "auto 18rem, contain, cover",
         backgroundPosition: "top -1rem center, center, center",
