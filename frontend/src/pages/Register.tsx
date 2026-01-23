@@ -3,8 +3,7 @@ import { useMultiStepForm } from "../hooks/useMultiStepForm";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-
-  const { step, formData, handleNext, handleBack, handleChange, handleSubmit } =
+  const { step, formData, error, isSubmitting, handleNext, handleBack, handleChange, handleSubmit } =
     useMultiStepForm();
 
   return (
@@ -154,7 +153,7 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
               </div>
-
+              {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
               <div className="flex gap-4">
                 <button
                   onClick={handleBack}
@@ -164,9 +163,10 @@ export default function RegisterPage() {
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949]disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
-                  REGISTRERA
+                  {isSubmitting ? "REGISTRERAR..." : "REGISTRERA"}
                 </button>
               </div>
             </>
