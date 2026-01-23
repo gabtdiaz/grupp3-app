@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using grupp3_app.Api.Data;
 using grupp3_app.Api.Endpoints;
+using grupp3_app.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,8 +48,7 @@ builder.Services.AddCors(options =>
 });
 
 // Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerWithAuth();
 
 var app = builder.Build();
 
@@ -68,5 +68,6 @@ app.UseCors("AllowFrontend");
 
 // Map endpoints
 app.MapAuthEndpoints();
+app.MapProfileEndpoints();
 
 app.Run();
