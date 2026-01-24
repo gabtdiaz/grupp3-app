@@ -62,13 +62,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseSecurityHeaders();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
 
 // Map endpoints
 app.MapAuthEndpoints();
-app.MapProfileEndpoints();
 app.MapEventEndpoints();
+app.MapProfileEndpoints();
 
 app.Run();
