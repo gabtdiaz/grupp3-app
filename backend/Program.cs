@@ -18,7 +18,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 // Database 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-    
+
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -33,7 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-builder.Services.AddAuthorization(); 
+builder.Services.AddAuthorization();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -69,5 +69,6 @@ app.UseCors("AllowFrontend");
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
+app.MapEventEndpoints();
 
 app.Run();
