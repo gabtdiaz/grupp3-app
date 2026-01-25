@@ -21,7 +21,6 @@ export function useMultiStepForm(initialStep = 1) {
   };
 
   const handleSubmit = () => {
-    // Validering och submit-logik här
     console.log("Registrera användare:", formData);
   };
 
