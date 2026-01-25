@@ -27,19 +27,28 @@ public static class EventEndpoints
     private static async Task<IResult> CreateEvent(
         CreateEventDto dto,
         ApplicationDbContext context,
-        HttpContext httpContext)
+        HttpContext httpContext,
+        ILogger<Program> logger)
     {
         if (!MiniValidator.TryValidate(dto, out var errors))
+        {
+            logger.LogWarning("Event creation validation failed");
             return Results.ValidationProblem(errors);
+        }
 
         //hämta userId
         var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                           ?? httpContext.User.FindFirst("sub")?.Value;
 
         if (userIdClaim == null)
+        {
+            logger.LogWarning("Unauthorized event creation attempt: User ID not found"); 
             return Results.Unauthorized();
+        }
 
         var userId = int.Parse(userIdClaim);
+        logger.LogInformation("User {UserId} creating event: {Title}", userId, dto.Title);
+
         var user = await context.Users.FindAsync(userId);
         if (user == null)
             return Results.NotFound("User not found");
@@ -66,42 +75,62 @@ public static class EventEndpoints
         context.Events.Add(newEvent);
         await context.SaveChangesAsync();
 
+        logger.LogInformation("Event {EventId} created successfully by user {UserId}", newEvent.Id, userId);
+
         return Results.Created($"/api/events/{newEvent.Id}", MapToEventDto(newEvent, user));
     }
 
     // GET /api/events hämtar alla event
-    private static async Task<IResult> GetAllEvents(ApplicationDbContext context)
+    private static async Task<IResult> GetAllEvents(ApplicationDbContext context, ILogger<Program> logger)
     {
+        logger.LogInformation("Fetching all events");
+
         var events = await context.Events
             .Include(e => e.CreatedBy)
             .ToListAsync();
 
         var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy)).ToList();
+
+        logger.LogInformation("Retrieved {EventCount} events", dtos.Count);
         return Results.Ok(dtos);
     }
 
     // GET /api/events/{id} hämtaqr event med Id
-    private static async Task<IResult> GetEventById(int id, ApplicationDbContext context)
+    private static async Task<IResult> GetEventById(int id, ApplicationDbContext context, ILogger<Program> logger)
     {
+        logger.LogInformation("Fetching event {EventId}", id);
+
         var e = await context.Events
             .Include(ev => ev.CreatedBy)
             .FirstOrDefaultAsync(ev => ev.Id == id);
 
         if (e == null)
+        {
+            logger.LogWarning("Event {EventId} not found", id); 
             return Results.NotFound();
+        }
 
         return Results.Ok(MapToEventDto(e, e.CreatedBy));
     }
 
     // PUT /api/events/{id} uppdaterar event
-    private static async Task<IResult> UpdateEvent(int id, UpdateEventDto dto, ApplicationDbContext context)
+    private static async Task<IResult> UpdateEvent(
+        int id, UpdateEventDto dto, 
+        ApplicationDbContext context, 
+        ILogger<Program> logger)
     {
         if (!MiniValidator.TryValidate(dto, out var errors))
+        {
+            logger.LogWarning("Event update validation failed for event {EventId}", id);
             return Results.ValidationProblem(errors);
+        }
 
         var e = await context.Events.FindAsync(id);
         if (e == null)
+        {
+            logger.LogWarning("Event {EventId} not found for update", id);
             return Results.NotFound();
+        }
 
         if (!Enum.TryParse<EventCategory>(dto.Category, true, out var category))
             return Results.BadRequest($"Invalid category: {dto.Category}");
@@ -122,20 +151,31 @@ public static class EventEndpoints
         e.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
+
+        logger.LogInformation("Event {EventId} updated successfully", id);
         return Results.NoContent();
     }
 
 
     // DELETE /api/events/{id} tar bort event
-    private static async Task<IResult> DeleteEvent(int id, ApplicationDbContext context)
+    private static async Task<IResult> DeleteEvent(
+        int id,
+        ApplicationDbContext context,
+        ILogger<Program> logger)
     {
+        logger.LogInformation("Trying to delete event {EventId}", id);
+
         var e = await context.Events.FindAsync(id);
         if (e == null)
+        {
+            logger.LogWarning("Event {EventId} not found for deletion", id);
             return Results.NotFound();
+        }
 
         context.Events.Remove(e);
         await context.SaveChangesAsync();
 
+        logger.LogInformation("Event {EventId} deleted successfully", id);
         return Results.NoContent();
     }
 
