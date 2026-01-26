@@ -5,6 +5,10 @@ import { useAuth } from "../context/AuthContext";
 
 console.log("LOADED useMultiStepForm FILE");
 
+function toCamelCaseKey(key: string) {
+  return key.length > 0 ? key[0].toLowerCase() + key.slice(1) : key;
+}
+
 export function useMultiStepForm(initialStep = 1) {
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -18,9 +22,12 @@ export function useMultiStepForm(initialStep = 1) {
     password: "",
     confirmPassword: "",
     city: "",
+    dateOfBirth: "",
+    gender: "",
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleNext = () => {
@@ -33,13 +40,14 @@ export function useMultiStepForm(initialStep = 1) {
     setStep((s) => s - 1);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async () => {
@@ -49,14 +57,25 @@ export function useMultiStepForm(initialStep = 1) {
       setError("Lösenorden matchar inte.");
       return;
     }
+    if (!formData.dateOfBirth) {
+    setError("Du måste ange födelsedatum.");
+    return;
+  }
 
-    
+  if (!formData.gender) {
+    setError("Du måste välja kön.");
+    return;
+  }
+
     const payload = {
       email: formData.email,
       password: formData.password,
       firstName: formData.firstName,
       lastName: formData.lastName,
       city: formData.city || "Unknown", 
+
+      dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
+      gender:Number(formData.gender),
     };
 
     try {
@@ -68,15 +87,27 @@ export function useMultiStepForm(initialStep = 1) {
       // 4) Vid lyckad register
       navigate("/");
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const msg =
-          (typeof err.response?.data === "string" && err.response.data) ||
-          (err.response?.data?.detail as string) ||
-          "Registreringen misslyckades.";
-        setError(msg);
-      } else {
-        setError("Registreringen misslyckades.");
-      }
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as any;
+
+    if (data?.errors) {
+      const errors: Record<string, string> = {};
+
+      Object.entries(data.errors).forEach(([key, value]) => {
+        const camelKey = toCamelCaseKey(key);
+        errors[camelKey] = (value as string[])[0];
+      });
+
+      setFieldErrors(errors);
+      setError(null);
+    } else if (typeof data === "string") {
+      setError(data);
+    } else {
+      setError("Registreringen misslyckades.");
+    }
+  } else {
+    setError("Registreringen misslyckades.");
+  }
     } finally {
       setIsSubmitting(false);
     }
@@ -87,6 +118,7 @@ export function useMultiStepForm(initialStep = 1) {
     formData,
     error,
     isSubmitting,
+    fieldErrors,
     handleNext,
     handleBack,
     handleChange,
