@@ -43,10 +43,21 @@ steps:
     displayName: "Backend: Publish"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
+  - script: dir $(Build.ArtifactStagingDirectory)
+    displayName: "List files before deploy"
+
+  - task: ArchiveFiles@2
+    displayName: "Zip for deployment"
+    inputs:
+      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
+      includeRootFolder: false
+      archiveType: "zip"
+      archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+
   - task: AzureWebApp@1
     displayName: "Deploy to Azure"
     inputs:
       azureSubscription: "$(AZURE_SERVICE_CONNECTION)"
       appType: "webApp"
       appName: "$(WEBAPP_NAME)"
-      package: "$(Build.ArtifactStagingDirectory)/app.zip"
+      package: "$(Build.ArtifactStagingDirectory)app.zip"
