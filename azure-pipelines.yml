@@ -1,5 +1,8 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+      - fix-pipeline # Din branch
 
 pool:
   vmImage: ubuntu-latest
