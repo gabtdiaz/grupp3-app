@@ -55,6 +55,6 @@ steps:
     displayName: 'Deploy to Azure'
     inputs:
     azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
-    appType: 'webAppLinux'
+    appType: 'webApp'
     appName: '$(WEBAPP_NAME)'
     package: '$(Build.ArtifactStagingDirectory)/app.zip'
