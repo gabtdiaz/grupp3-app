@@ -89,4 +89,6 @@ app.MapAuthEndpoints();
 app.MapEventEndpoints();
 app.MapProfileEndpoints();
 
+app.MapFallbackToFile("index.html");  // React Router fallback
+
 app.Run();
