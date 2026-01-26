@@ -45,7 +45,7 @@ steps:
   - task: ArchiveFiles@2
     displayName: "Zip for deployment"
     inputs:
-      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
+      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish --no-build"
       includeRootFolder: false
       archiveType: "zip"
       archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
