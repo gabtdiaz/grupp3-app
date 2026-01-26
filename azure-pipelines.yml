@@ -2,10 +2,13 @@ trigger:
   branches:
     include:
       - main
-      - fix-pipeline # Din branch
 
 pool:
   vmImage: ubuntu-latest
+
+variables:
+  AZURE_SERVICE_CONNECTION: 'FriendZoneConnection'
+  WEBAPP_NAME: 'friendzone-app'
 
 steps:
   # Frontend
@@ -33,3 +36,25 @@ steps:
   - script: dotnet build backend.sln --configuration Release --no-restore
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+    # Publish and Deploy
+
+  - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
+  displayName: 'Backend: Publish'
+  workingDirectory: '$(Build.SourcesDirectory)/backend'
+
+  - task: ArchiveFiles@2
+    displayName: 'Zip for deployment'
+    inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/publish'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+
+  - task: AzureWebApp@1
+    displayName: 'Deploy to Azure'
+    inputs:
+    azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+    appType: 'webAppLinux'
+    appName: '$(WEBAPP_NAME)'
+    package: '$(Build.ArtifactStagingDirectory)/app.zip'
