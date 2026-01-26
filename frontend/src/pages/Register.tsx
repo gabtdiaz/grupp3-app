@@ -3,8 +3,7 @@ import { useMultiStepForm } from "../hooks/useMultiStepForm";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-
-  const { step, formData, handleNext, handleBack, handleChange, handleSubmit } =
+  const { step, formData, error, isSubmitting,fieldErrors, handleNext, handleBack, handleChange, handleSubmit } =
     useMultiStepForm();
 
   return (
@@ -38,6 +37,9 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
+                {fieldErrors.firstName && (
+  <p className="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>
+)}
               </div>
 
               <div className="mb-8">
@@ -50,9 +52,14 @@ export default function RegisterPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
-                />
+                  />
+                  {fieldErrors?.lastName && (
+                 <p className="text-red-500 text-sm mb-4 text-center">{fieldErrors.lastName}</p>
+                   )}
               </div>
-
+               {error && (
+                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+              )}
               <div className="flex gap-4">
                 <button
                   onClick={() => navigate("/")}
@@ -90,6 +97,9 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
               </div>
+             {fieldErrors.email && (
+               <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+                )}
 
               <div className="flex gap-4">
                 <button
@@ -140,6 +150,9 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
+                {fieldErrors.password && (
+  <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+)}
               </div>
 
               <div className="mb-8">
@@ -153,8 +166,10 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
+                {fieldErrors.confirmPassword && (
+  <p className="text-red-500 text-sm mt-1">{fieldErrors.confirmPassword}</p>
+)}
               </div>
-
               <div className="flex gap-4">
                 <button
                   onClick={handleBack}
@@ -163,10 +178,90 @@ export default function RegisterPage() {
                   TILLBAKA
                 </button>
                 <button
-                  onClick={handleSubmit}
-                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  onClick={handleNext}
+                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
-                  REGISTRERA
+                  FORTSÄTT
+                </button>
+              </div>
+            </>
+          )}
+                    {step === 4 && (
+            <>
+              <div className="fixed top-39 left-26 text-center">
+                <h1 className="text-4xl font-[Spicy_Rice] text-white">
+                  Lite mer om dig
+                </h1>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-gray-600 text-sm mb-2">Stad</label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                />
+                {fieldErrors.city && (
+             <p className="text-red-500 text-sm mt-1">{fieldErrors.city}</p>
+)}
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-gray-600 text-sm mb-2">
+                  Födelsedatum
+                </label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                />
+                {fieldErrors.dateofbirth && (
+                <p className="text-red-500 text-sm mt-1">
+                   {fieldErrors.dateofbirth}
+               </p>
+                )}
+              </div>
+
+              <div className="mb-8">
+                <label className="block text-gray-600 text-sm mb-2">Kön</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
+                >
+                  <option value="">Välj</option>
+                  <option value="0">Man</option>
+                  <option value="1">Kvinna</option>
+                  <option value="2">Annat</option>
+                </select>
+                {fieldErrors.gender && (
+  <p className="text-red-500 text-sm mt-1">{fieldErrors.gender}</p>
+)}
+              </div>
+
+              {error && (
+                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+              )}
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handleBack}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                >
+                  TILLBAKA
+                </button>
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                >
+                  {isSubmitting ? "REGISTRERAR..." : "REGISTRERA"}
                 </button>
               </div>
             </>

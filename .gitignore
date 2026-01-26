@@ -14,9 +14,6 @@ obj/
 *.pdb
 
 # Sensitive files
-/appsettings.Development.json
-/appsettings..json
-!/appsettings.json
 /.env
 /.env.local
 /.env.development.local
@@ -32,6 +29,7 @@ obj/
 
 # Backend specific
 appsettings.Development.json
+appsettings.Production.json
 *.user
 *.suo
 .vs/

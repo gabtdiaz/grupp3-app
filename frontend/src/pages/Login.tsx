@@ -1,8 +1,28 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-export default function Home() {
+import { useAuth } from "../context/AuthContext";
+export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin() {
+    setError(null);
+    setLoading(true);
+
+    try {
+      await login({ email, password });
+      navigate("/"); // eller /events, /profile etc
+    } catch (err) {
+      setError("Fel e-postadress eller lösenord.");
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <>
       <div
@@ -28,6 +48,8 @@ export default function Home() {
             <label className="block text-gray-600 text-sm">E-postadress:</label>
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
             />
           </div>
@@ -36,10 +58,17 @@ export default function Home() {
             <label className="block text-gray-600 text-sm">Lösenord:</label>
             <input
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
             />
           </div>
-
+          {error && (
+            <div className="mb-4 text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
+          
           <div className="flex gap-4">
             <button
               onClick={() => navigate("/")}
@@ -48,7 +77,11 @@ export default function Home() {
               AVBRYT
             </button>
 
-            <button className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200">
+            <button
+              onClick={handleLogin}
+              disabled={loading}
+              className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200"
+            >
               LOGGA IN
             </button>
           </div>
