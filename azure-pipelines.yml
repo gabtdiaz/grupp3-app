@@ -1,31 +1,32 @@
-trigger: 
-- main
+trigger:
+  - main
 
-pool: 
+pool:
   vmImage: ubuntu-latest
 
 steps:
+  # Frontend
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "22.x"
+    displayName: "Install Node.js"
 
-# Frontend
-- task: NodeTool@0
-  inputs: 
-    versionSpec: '22.x'
-  displayName: "Install Node.js"
+  - script: |
+      npm install
+      npm run build
+    displayName: "Frontend: Install and build"
+    workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
-- script: npm install
-  displayName: 'Install frontend dependencies'
-  workingDirectory: '$(Build.SourcesDirectory)/frontend'
+    # Backend
+  - task: UseDotNet@2
+    inputs:
+      version: "9.x"
+    displayName: "Install .NET 9"
 
-  # Backend
-- task: UseDotNet@2
-  inputs:
-   version: '9.x'
-  displayName: 'Install .NET 9'
+  - script: dotnet restore
+    displayName: "Restore backend"
+    workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-- script: dotnet restore
-  displayName: 'Restore backend'
-  workingDirectory: '$(Build.SourcesDirectory)/backend'
-    
-- script: dotnet build --configuration Release
-  displayName: 'Build backend'
-  workingDirectory: '$(Build.SourcesDirectory)/backend'
+  - script: dotnet build --configuration Release --no-restore
+    displayName: "Build backend"
+    workingDirectory: "$(Build.SourcesDirectory)/backend"
