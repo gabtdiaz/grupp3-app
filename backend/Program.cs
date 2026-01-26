@@ -50,6 +50,9 @@ builder.Services.AddCors(options =>
 // Swagger
 builder.Services.AddSwaggerWithAuth();
 
+// Rate Limiting
+builder.Services.AddRateLimiting(builder.Configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,9 +64,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseRateLimiting();
 app.UseSecurityHeaders();
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
