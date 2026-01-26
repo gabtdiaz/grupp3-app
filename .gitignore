@@ -12,6 +12,8 @@ obj/
 *.dll
 *.exe
 *.pdb
+wwwroot/
+
 
 # Sensitive files
 /.env
