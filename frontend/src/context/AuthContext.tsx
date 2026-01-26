@@ -12,6 +12,8 @@ type RegisterRequest = {
   password: string;
   firstName: string;
   lastName: string;
+  dateOfBirth: string;
+  gender: number;
   city: string;
 };
 
