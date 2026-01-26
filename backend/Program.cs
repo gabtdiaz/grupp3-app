@@ -74,11 +74,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseRateLimiting();
 app.UseSecurityHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowFrontend");
 
 // Servera statiska filer (React-appen från wwwroot)
 app.UseDefaultFiles();

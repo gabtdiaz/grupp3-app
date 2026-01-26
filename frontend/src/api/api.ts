@@ -10,7 +10,7 @@ export const TOKEN_KEY = "auth_token";
  * baseURL tas från .env (VITE_API_URL).
  */
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "https://localhost:5001",
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:5011",
   headers: {
     "Content-Type": "application/json",
   },
@@ -22,7 +22,7 @@ export const api = axios.create({
  * - Hämtar token från localStorage och skickar den som Bearer token.
  */
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("TOKEN_KEY");
+  const token = localStorage.getItem(TOKEN_KEY);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

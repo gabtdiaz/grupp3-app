@@ -63,12 +63,12 @@ export default function Login() {
               className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
             />
           </div>
-
-          {/* NY! Får Build-fel när pipeline triggas då error ej användes, la bara en random stil ändra gärna /g */}
           {error && (
-            <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+            <div className="mb-4 text-red-600 text-sm text-center">
+              {error}
+            </div>
           )}
-
+          
           <div className="flex gap-4">
             <button
               onClick={() => navigate("/")}
