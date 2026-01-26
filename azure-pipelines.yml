@@ -1,31 +1,60 @@
-trigger: 
-- main
+trigger:
+  branches:
+    include:
+      - main
 
-pool: 
+pool:
   vmImage: ubuntu-latest
 
+variables:
+  AZURE_SERVICE_CONNECTION: "FriendZoneConnection"
+  WEBAPP_NAME: "friendzone-app"
+
 steps:
+  # Frontend
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "22.x"
+    displayName: "Install Node.js"
 
-# Frontend
-- task: NodeTool@0
-  inputs: 
-    versionSpec: '22.x'
-  displayName: "Install Node.js"
+  - script: |
+      npm install
+      npm run build
+    displayName: "Frontend: Install and build"
+    workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
-- script: npm install
-  displayName: 'Install frontend dependencies'
-  workingDirectory: '$(Build.SourcesDirectory)/frontend'
+    # Backend
+  - task: UseDotNet@2
+    inputs:
+      version: "9.x"
+    displayName: "Install .NET 9"
 
-  # Backend
-- task: UseDotNet@2
-  inputs:
-   version: '9.x'
-  displayName: 'Install .NET 9'
+  - script: dotnet restore backend.sln
+    displayName: "Restore backend"
+    workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-- script: dotnet restore
-  displayName: 'Restore backend'
-  workingDirectory: '$(Build.SourcesDirectory)/backend'
-    
-- script: dotnet build --configuration Release
-  displayName: 'Build backend'
-  workingDirectory: '$(Build.SourcesDirectory)/backend'
+  - script: dotnet build backend.sln --configuration Release --no-restore
+    displayName: "Build backend"
+    workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+    # Publish and Deploy
+
+  - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
+    displayName: "Backend: Publish"
+    workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+  - task: ArchiveFiles@2
+    displayName: "Zip for deployment"
+    inputs:
+    rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
+    includeRootFolder: false
+    archiveType: "zip"
+    archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+
+  - task: AzureWebApp@1
+    displayName: "Deploy to Azure"
+    inputs:
+    azureSubscription: "$(AZURE_SERVICE_CONNECTION)"
+    appType: "webApp"
+    appName: "$(WEBAPP_NAME)"
+    package: "$(Build.ArtifactStagingDirectory)/app.zip"

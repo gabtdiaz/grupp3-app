@@ -1,16 +1,16 @@
-import {useState} from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {useAuth} from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-   async function handleLogin() {
+  async function handleLogin() {
     setError(null);
     setLoading(true);
 
@@ -80,7 +80,8 @@ export default function Login() {
             <button
               onClick={handleLogin}
               disabled={loading}
-             className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200">
+              className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200"
+            >
               LOGGA IN
             </button>
           </div>
