@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - main
+      - deployment
 
 pool:
   vmImage: ubuntu-latest
@@ -45,7 +46,7 @@ steps:
   - task: ArchiveFiles@2
     displayName: "Zip for deployment"
     inputs:
-      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish --no-build"
+      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
       includeRootFolder: false
       archiveType: "zip"
       archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
