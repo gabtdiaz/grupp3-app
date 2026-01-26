@@ -11,4 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+
+  build: {
+    outDir: "../backend/wwwroot",
+    emptyOutDir: true,
+  },
 });

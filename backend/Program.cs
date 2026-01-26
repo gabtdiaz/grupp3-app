@@ -40,10 +40,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+     if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(_ => true)  // Tillåt alla origins i dev
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins("https://friendzone-api.azurewebsites.net")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
@@ -69,6 +79,10 @@ app.UseRateLimiting();
 app.UseSecurityHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Servera statiska filer (React-appen från wwwroot)
+app.UseDefaultFiles();
+app.UseStaticFiles(); 
 
 // Map endpoints
 app.MapAuthEndpoints();
