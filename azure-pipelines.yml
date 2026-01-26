@@ -23,10 +23,10 @@ steps:
       version: "9.x"
     displayName: "Install .NET 9"
 
-  - script: dotnet restore
+  - script: dotnet restore backend.sln
     displayName: "Restore backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  - script: dotnet build --configuration Release --no-restore
+  - script: dotnet build backend.sln --configuration Release --no-restore
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
