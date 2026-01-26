@@ -43,13 +43,13 @@ steps:
     displayName: "Backend: Publish"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  - task: ArchiveFiles@2
-    displayName: "Zip for deployment"
-    inputs:
-      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
-      includeRootFolder: false
-      archiveType: "zip"
-      archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+  # - task: ArchiveFiles@2
+  #   displayName: "Zip for deployment"
+  #   inputs:
+  #     rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
+  #     includeRootFolder: false
+  #     archiveType: "zip"
+  #     archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
 
   - task: AzureWebApp@1
     displayName: "Deploy to Azure"
