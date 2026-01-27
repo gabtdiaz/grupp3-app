@@ -3,6 +3,8 @@ using grupp3_app.Api.Data;
 using grupp3_app.Api.DTOs.Events; //EventDto
 using grupp3_app.Api.DTOs.Event;// CreateEventDto och UpdateEventDto
 using grupp3_app.Api.Models;
+using grupp3_app.Api.Services;
+using grupp3_app.Api.Extensions;
 using MiniValidation;
 using System.Security.Claims;
 
@@ -16,9 +18,9 @@ public static class EventEndpoints
         // api/events som kräver login
         var group = app.MapGroup("/api/events").RequireAuthorization();
 
-        group.MapPost("/", CreateEvent); //POST skapa nytt event
         group.MapGet("/", GetAllEvents); //GET hämta alla event
         group.MapGet("/{id}", GetEventById);//GET hämta event med id
+        group.MapPost("/", CreateEvent); //POST skapa nytt event
         group.MapPut("/{id}", UpdateEvent);//PUT uppdaterar event
         group.MapDelete("/{id}", DeleteEvent);//DELETE tar bort ett event
     }
@@ -26,8 +28,8 @@ public static class EventEndpoints
     // POST /api/events skapa nytt event
     private static async Task<IResult> CreateEvent(
         CreateEventDto dto,
+        ClaimsPrincipal user,
         ApplicationDbContext context,
-        HttpContext httpContext,
         ILogger<Program> logger)
     {
         if (!MiniValidator.TryValidate(dto, out var errors))
@@ -37,20 +39,11 @@ public static class EventEndpoints
         }
 
         //hämta userId
-        var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                          ?? httpContext.User.FindFirst("sub")?.Value;
-
-        if (userIdClaim == null)
-        {
-            logger.LogWarning("Unauthorized event creation attempt: User ID not found"); 
-            return Results.Unauthorized();
-        }
-
-        var userId = int.Parse(userIdClaim);
+        var userId = user.GetUserIdOrThrow();
         logger.LogInformation("User {UserId} creating event: {Title}", userId, dto.Title);
 
-        var user = await context.Users.FindAsync(userId);
-        if (user == null)
+        var currentUser = await context.Users.FindAsync(userId);
+        if (currentUser == null)
             return Results.NotFound("User not found");
 
         // skapar nytt Event
@@ -66,32 +59,72 @@ public static class EventEndpoints
             MaxParticipants = dto.MaxParticipants,
             GenderRestriction = dto.GenderRestriction,
             MinimumAge = dto.MinimumAge ?? 18,
-            CreatedBy = user,
+            CreatedBy = currentUser,
+            CreatedByUserId = userId, // NY: Sätt även FK
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+
         //lägger till i databasen
         context.Events.Add(newEvent);
         await context.SaveChangesAsync();
 
         logger.LogInformation("Event {EventId} created successfully by user {UserId}", newEvent.Id, userId);
 
-        return Results.Created($"/api/events/{newEvent.Id}", MapToEventDto(newEvent, user));
+        return Results.Created($"/api/events/{newEvent.Id}", MapToEventDto(newEvent, currentUser));
     }
 
     // GET /api/events hämtar alla event
-    private static async Task<IResult> GetAllEvents(ApplicationDbContext context, ILogger<Program> logger)
+    // VIKTIGT: Filtrerar bort events baserat på ålder och kön
+    // Men VISAR events som är fulla (användare kan se men inte joina)
+    private static async Task<IResult> GetAllEvents(
+        ApplicationDbContext context, 
+        EventRestrictionService restrictionService, 
+        ClaimsPrincipal user, 
+        ILogger<Program> logger, 
+        string? category = null, 
+        string? city = null)
     {
-        logger.LogInformation("Fetching all events");
+        var userId = user.GetUserIdOrThrow();
+        logger.LogInformation("User {UserId} fetching all events", userId);
 
-        var events = await context.Events
+        var query = context.Events
             .Include(e => e.CreatedBy)
-            .ToListAsync();
+            .Include(e => e.Participants)
+            .Where(e => e.IsActive)
+            .AsQueryable();
+
+        // Filtrering baserat på category
+        if (!string.IsNullOrEmpty(category) && Enum.TryParse<EventCategory>(category, true, out var cat))
+        {
+            query = query.Where(e => e.Category == cat);
+        }
+
+        // Filtrering baserat på city
+        if (!string.IsNullOrEmpty(city))
+        {
+            query = query.Where(e => e.Location.Contains(city));
+        }
+
+        var events = await query.ToListAsync();
+
+        // Hämta inloggad användare för filtrering
+        var currentUser = await context.Users.FindAsync(userId);
+        if (currentUser == null)
+        {
+            return Results.Unauthorized();
+        }
+
+        // Filtrera baserat på ålder och kön (INTE MaxParticipants!)
+        events = events
+            .Where(e => restrictionService.IsEventVisibleToUser(currentUser, e))
+            .ToList();
+        
+        logger.LogInformation("User {UserId}: {EventCount} events visible after filtering", userId, events.Count);
 
         var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy)).ToList();
 
-        logger.LogInformation("Retrieved {EventCount} events", dtos.Count);
         return Results.Ok(dtos);
     }
 
@@ -102,6 +135,7 @@ public static class EventEndpoints
 
         var e = await context.Events
             .Include(ev => ev.CreatedBy)
+            .Include(ev => ev.Participants) // Tillagd: för att visa antal deltagare
             .FirstOrDefaultAsync(ev => ev.Id == id);
 
         if (e == null)
@@ -115,7 +149,9 @@ public static class EventEndpoints
 
     // PUT /api/events/{id} uppdaterar event
     private static async Task<IResult> UpdateEvent(
-        int id, UpdateEventDto dto, 
+        int id, 
+        UpdateEventDto dto, 
+        ClaimsPrincipal user,
         ApplicationDbContext context, 
         ILogger<Program> logger)
     {
@@ -125,11 +161,21 @@ public static class EventEndpoints
             return Results.ValidationProblem(errors);
         }
 
+        var userId = user.GetUserIdOrThrow(); // TILLAGT
+
         var e = await context.Events.FindAsync(id);
         if (e == null)
         {
             logger.LogWarning("Event {EventId} not found for update", id);
             return Results.NotFound();
+        }
+
+        // VIKTIGT: Kontrollera att användaren är creator
+        if (e.CreatedByUserId != userId)
+        {
+            logger.LogWarning("User {UserId} attempted to update event {EventId} created by user {CreatorId}",
+                userId, id, e.CreatedByUserId);
+            return Results.Forbid();
         }
 
         if (!Enum.TryParse<EventCategory>(dto.Category, true, out var category))
@@ -160,9 +206,11 @@ public static class EventEndpoints
     // DELETE /api/events/{id} tar bort event
     private static async Task<IResult> DeleteEvent(
         int id,
+        ClaimsPrincipal user,
         ApplicationDbContext context,
         ILogger<Program> logger)
     {
+        var userId = user.GetUserIdOrThrow(); // Tillagt
         logger.LogInformation("Trying to delete event {EventId}", id);
 
         var e = await context.Events.FindAsync(id);
@@ -172,10 +220,20 @@ public static class EventEndpoints
             return Results.NotFound();
         }
 
-        context.Events.Remove(e);
+         // VIKTIGT: Kontrollera att användaren är creator
+        if (e.CreatedByUserId != userId)
+        {
+            logger.LogWarning("User {UserId} attempted to delete event {EventId} created by user {CreatorId}",
+                userId, id, e.CreatedByUserId);
+            return Results.Forbid();
+        }
+
+         // Soft delete (sätt IsActive = false istället för att ta bort helt)
+        e.IsActive = false;
+        e.UpdatedAt = DateTime.UtcNow;
         await context.SaveChangesAsync();
 
-        logger.LogInformation("Event {EventId} deleted successfully", id);
+        logger.LogInformation("Event {EventId} deleted successfully by user {UserId}", id, userId);
         return Results.NoContent();
     }
 
@@ -195,6 +253,7 @@ public static class EventEndpoints
             Category = e.Category.ToString(),
             GenderRestriction = e.GenderRestriction.ToString(),
             MaxParticipants = e.MaxParticipants,
+            CurrentParticipants = e.Participants.Count, // Tillagt: Antal deltagare
             MinimumAge = e.MinimumAge,
             IsActive = e.IsActive,
             CreatedAt = e.CreatedAt,

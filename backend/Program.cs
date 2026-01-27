@@ -63,6 +63,10 @@ builder.Services.AddSwaggerWithAuth();
 // Rate Limiting
 builder.Services.AddRateLimiting(builder.Configuration);
 
+// Event Restriction Services
+builder.Services.AddScoped<AgeValidationService>();
+builder.Services.AddScoped<EventRestrictionService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -87,7 +91,9 @@ app.UseStaticFiles();
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapEventEndpoints();
+app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
+
 
 app.MapFallbackToFile("index.html");  // React Router fallback
 
