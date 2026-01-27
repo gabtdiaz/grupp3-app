@@ -40,7 +40,9 @@ export function useMultiStepForm(initialStep = 1) {
     setStep((s) => s - 1);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -58,24 +60,24 @@ export function useMultiStepForm(initialStep = 1) {
       return;
     }
     if (!formData.dateOfBirth) {
-    setError("Du måste ange födelsedatum.");
-    return;
-  }
+      setError("Du måste ange födelsedatum.");
+      return;
+    }
 
-  if (!formData.gender) {
-    setError("Du måste välja kön.");
-    return;
-  }
+    if (!formData.gender) {
+      setError("Du måste välja kön.");
+      return;
+    }
 
     const payload = {
       email: formData.email,
       password: formData.password,
       firstName: formData.firstName,
       lastName: formData.lastName,
-      city: formData.city || "Unknown", 
+      city: formData.city || "Unknown",
 
       dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
-      gender:Number(formData.gender),
+      gender: Number(formData.gender),
     };
 
     try {
@@ -85,29 +87,29 @@ export function useMultiStepForm(initialStep = 1) {
       await register(payload);
 
       // 4) Vid lyckad register
-      navigate("/");
+      navigate("/activity");
     } catch (err) {
-  if (axios.isAxiosError(err)) {
-    const data = err.response?.data as any;
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data as any;
 
-    if (data?.errors) {
-      const errors: Record<string, string> = {};
+        if (data?.errors) {
+          const errors: Record<string, string> = {};
 
-      Object.entries(data.errors).forEach(([key, value]) => {
-        const camelKey = toCamelCaseKey(key);
-        errors[camelKey] = (value as string[])[0];
-      });
+          Object.entries(data.errors).forEach(([key, value]) => {
+            const camelKey = toCamelCaseKey(key);
+            errors[camelKey] = (value as string[])[0];
+          });
 
-      setFieldErrors(errors);
-      setError(null);
-    } else if (typeof data === "string") {
-      setError(data);
-    } else {
-      setError("Registreringen misslyckades.");
-    }
-  } else {
-    setError("Registreringen misslyckades.");
-  }
+          setFieldErrors(errors);
+          setError(null);
+        } else if (typeof data === "string") {
+          setError(data);
+        } else {
+          setError("Registreringen misslyckades.");
+        }
+      } else {
+        setError("Registreringen misslyckades.");
+      }
     } finally {
       setIsSubmitting(false);
     }
