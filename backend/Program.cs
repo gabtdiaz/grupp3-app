@@ -93,6 +93,7 @@ app.MapAuthEndpoints();
 app.MapEventEndpoints();
 app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
+app.MapCommentEndpoints();
 
 
 app.MapFallbackToFile("index.html");  // React Router fallback
