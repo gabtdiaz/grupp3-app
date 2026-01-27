@@ -1,4 +1,4 @@
-export default function Footer() {
+export default function BottomNav() {
   return (
     <div
       className="flex h-full w-full bg-cover"
@@ -7,7 +7,11 @@ export default function Footer() {
       }}
     >
       <button className="flex-1 flex items-center justify-center">
-        <img src="/icons/calendar-icon.svg" alt="Calendar" className="w-5 h-5" />
+        <img
+          src="/icons/calendar-icon.svg"
+          alt="Calendar"
+          className="w-5 h-5"
+        />
       </button>
 
       <button className="flex-1 flex items-center justify-center">

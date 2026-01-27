@@ -2,7 +2,7 @@ import Header from "../components/activity/ActivityHeader";
 import NavigationTabs from "../components/sections/NavigationTabs";
 import FilterBar from "../components/sections/FilterBar";
 import ActivityFeed from "../components/sections/ActivityFeed";
-import Footer from "../components/layout/BottomNav";
+import BottomNav from "../components/layout/BottomNav";
 
 export default function Activity() {
   const isEmpty = false;
@@ -45,7 +45,7 @@ export default function Activity() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">
-        <Footer />
+        <BottomNav />
       </div>
     </div>
   );

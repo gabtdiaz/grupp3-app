@@ -18,7 +18,7 @@ export default function Info() {
         </p>
       </div>
       <button className="absolute top-4 right-4 w-7 h-7 rounded-full ">
-        <img src="/settings-icon.svg" alt="Settings" className="w-7 h-7" />
+        <img src="/icons/settings-icon.svg" alt="Settings" className="w-7 h-7" />
       </button>
     </div>
   );
