@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       await login({ email, password });
-      navigate("/"); // eller /events, /profile etc
+      navigate("/activity");
     } catch (err) {
       setError("Fel e-postadress eller lösenord.");
     } finally {
@@ -64,11 +64,9 @@ export default function Login() {
             />
           </div>
           {error && (
-            <div className="mb-4 text-red-600 text-sm text-center">
-              {error}
-            </div>
+            <div className="mb-4 text-red-600 text-sm text-center">{error}</div>
           )}
-          
+
           <div className="flex gap-4">
             <button
               onClick={() => navigate("/")}

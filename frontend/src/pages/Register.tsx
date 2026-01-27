@@ -3,8 +3,17 @@ import { useMultiStepForm } from "../hooks/useMultiStepForm";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { step, formData, error, isSubmitting,fieldErrors, handleNext, handleBack, handleChange, handleSubmit } =
-    useMultiStepForm();
+  const {
+    step,
+    formData,
+    error,
+    isSubmitting,
+    fieldErrors,
+    handleNext,
+    handleBack,
+    handleChange,
+    handleSubmit,
+  } = useMultiStepForm();
 
   return (
     <>
@@ -38,8 +47,10 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
                 {fieldErrors.firstName && (
-  <p className="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>
-)}
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldErrors.firstName}
+                  </p>
+                )}
               </div>
 
               <div className="mb-8">
@@ -52,12 +63,14 @@ export default function RegisterPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
-                  />
-                  {fieldErrors?.lastName && (
-                 <p className="text-red-500 text-sm mb-4 text-center">{fieldErrors.lastName}</p>
-                   )}
+                />
+                {fieldErrors?.lastName && (
+                  <p className="text-red-500 text-sm mb-4 text-center">
+                    {fieldErrors.lastName}
+                  </p>
+                )}
               </div>
-               {error && (
+              {error && (
                 <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
               )}
               <div className="flex gap-4">
@@ -97,9 +110,9 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
               </div>
-             {fieldErrors.email && (
-               <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
-                )}
+              {fieldErrors.email && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+              )}
 
               <div className="flex gap-4">
                 <button
@@ -134,8 +147,9 @@ export default function RegisterPage() {
 
               <div className="fixed top-55 left-7">
                 <h1 className="font-[Spicy_Rice] text-white">
-                  Använd gärna en mix av stora och små bokstäver, <br />
-                  siffror och specialtecken
+                  Använd en mix av stora och små bokstäver
+                  <br />
+                  och siffror
                 </h1>
               </div>
 
@@ -151,8 +165,10 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
                 {fieldErrors.password && (
-  <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
-)}
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
 
               <div className="mb-8">
@@ -167,8 +183,10 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
                 {fieldErrors.confirmPassword && (
-  <p className="text-red-500 text-sm mt-1">{fieldErrors.confirmPassword}</p>
-)}
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldErrors.confirmPassword}
+                  </p>
+                )}
               </div>
               <div className="flex gap-4">
                 <button
@@ -186,7 +204,7 @@ export default function RegisterPage() {
               </div>
             </>
           )}
-                    {step === 4 && (
+          {step === 4 && (
             <>
               <div className="fixed top-39 left-26 text-center">
                 <h1 className="text-4xl font-[Spicy_Rice] text-white">
@@ -204,8 +222,10 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
                 {fieldErrors.city && (
-             <p className="text-red-500 text-sm mt-1">{fieldErrors.city}</p>
-)}
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldErrors.city}
+                  </p>
+                )}
               </div>
 
               <div className="mb-6">
@@ -220,9 +240,9 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
                 {fieldErrors.dateofbirth && (
-                <p className="text-red-500 text-sm mt-1">
-                   {fieldErrors.dateofbirth}
-               </p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldErrors.dateofbirth}
+                  </p>
                 )}
               </div>
 
@@ -240,8 +260,10 @@ export default function RegisterPage() {
                   <option value="2">Annat</option>
                 </select>
                 {fieldErrors.gender && (
-  <p className="text-red-500 text-sm mt-1">{fieldErrors.gender}</p>
-)}
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldErrors.gender}
+                  </p>
+                )}
               </div>
 
               {error && (
