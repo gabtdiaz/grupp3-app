@@ -2,7 +2,9 @@ interface ActivityCardProps {
   title: string;
   description: string;
   participants: number;
+  maxParticipants: number;
   imageSrc?: string;
+  isFull?: boolean;
   onClick?: () => void;
 }
 
@@ -10,7 +12,9 @@ export default function ActivityCard({
   title,
   description,
   participants,
+  maxParticipants,
   imageSrc,
+  isFull = false,
   onClick,
 }: ActivityCardProps) {
   return (
@@ -32,7 +36,12 @@ export default function ActivityCard({
       </div>
 
       <div className="flex items-center gap-1">
-        <span className="text-gray-600 text-sm">{participants}</span>
+        {isFull && (
+          <span className="text-red-500 text-xs font-semibold mr-2">FULLT</span>
+        )}
+        <span className="text-gray-600 text-sm">
+          {participants}/{maxParticipants}
+        </span>
         <img
           src="/icons/group-icon.svg"
           alt="participants"

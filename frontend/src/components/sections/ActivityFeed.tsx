@@ -1,6 +1,6 @@
 import FeedDate from "./FeedDate";
 import ActivityCard from "./ActivityCard";
-import { Event } from "../../api/eventService";
+import type { Event } from "../../api/eventService";
 
 interface ActivityFeedProps {
   events: Event[];

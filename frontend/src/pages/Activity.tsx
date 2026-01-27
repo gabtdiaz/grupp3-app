@@ -4,7 +4,7 @@ import NavigationTabs from "../components/sections/NavigationTabs";
 import FilterBar from "../components/sections/FilterBar";
 import ActivityFeed from "../components/sections/ActivityFeed";
 import BottomNav from "../components/layout/BottomNav";
-import { useEvents } from "../hooks/useEvents";
+import { useEvents } from "../hooks/useEvent";
 
 export default function Activity() {
   const navigate = useNavigate();
