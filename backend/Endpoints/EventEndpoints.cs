@@ -3,6 +3,8 @@ using grupp3_app.Api.Data;
 using grupp3_app.Api.DTOs.Events; //EventDto
 using grupp3_app.Api.DTOs.Event;// CreateEventDto och UpdateEventDto
 using grupp3_app.Api.Models;
+using grupp3_app.Api.Services;
+using grupp3_app.Api.Extensions;
 using MiniValidation;
 using System.Security.Claims;
 
