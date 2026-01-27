@@ -2,8 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using grupp3_app.Api.Models;
 using grupp3_app.Api.Validation;
 
-//hej
-
 namespace grupp3_app.Api.DTOs.Auth;
 
 public class RegisterDto
@@ -14,7 +12,7 @@ public class RegisterDto
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Password is required")]
-    [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+    [StrongPassword]
     public string Password { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "First name is required")]
