@@ -1,11 +1,17 @@
 import ActivityCategory from "./ActivityCategory";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative h-full w-full flex flex-col">
       {/* Create button */}
       <div className="absolute top-10 right-7 z-10">
-        <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md">
+        <button
+          className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md"
+          onClick={() => navigate("/activity/create")}
+        >
           <img
             src="/icons/create-event-icon.svg"
             alt="Create event"
