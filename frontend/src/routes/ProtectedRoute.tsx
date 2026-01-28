@@ -6,7 +6,10 @@ type ProtectedRouteProps = {
 };
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) {
+    return <div>Loading...</div>; // Eller en spinner
+  }
 
   // If not logged in, navigate to login
   if (!isAuthenticated) {
