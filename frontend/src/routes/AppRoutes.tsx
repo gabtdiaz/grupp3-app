@@ -11,13 +11,6 @@ import PublicRoute from "./PublicRoute";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/activity" element={<Activity />} />
-      <Route path="/activitydetail" element={<ActivityDetail />} />
-
       {/* Public routes, redirect to /activity if logged in */}
       <Route
         path="/"
@@ -60,6 +53,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Activity />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/activitydetail"
+        element={
+          <ProtectedRoute>
+            <ActivityDetail />
           </ProtectedRoute>
         }
       />
