@@ -9,7 +9,8 @@ public class ProfileDto
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public DateTime DateOfBirth { get; set; }
-    public Gender Gender { get; set; }
+    public int Age { get; set; }
+    public string Gender { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public string? ProfileImageUrl { get; set; }
     public string Bio { get; set; } = string.Empty;
