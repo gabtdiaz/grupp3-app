@@ -245,6 +245,7 @@ public static class EventEndpoints
     private static EventDto MapToEventDto(Event e, User user, int? currentUserId = null)
 {
     var participants = e.Participants
+        .Where(ep => ep.User != null)
         .Select(ep => new ParticipantDto
         {
             UserId = ep.UserId,
