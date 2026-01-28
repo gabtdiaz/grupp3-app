@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ActivityDetailHeader } from "../components/activity-detail/ActivityDetailHeader";
 import { ActivityDetailHost } from "../components/activity-detail/ActivityDetailHost";
 import { ActivityDetailMeta } from "../components/activity-detail/ActivityDetailMeta";
@@ -17,6 +17,26 @@ type TabType = "information" | "kommentarer";
 export const ActivityDetail: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("information");
   const [isJoined, setIsJoined] = useState(false);
+
+  // Fetch eventId from URL
+  const { id } = useParams<{ id: string }>();
+  const eventId = id ? Number(id) : null;
+
+  // Fetch event from API
+  const { event, loading, error, refetch } = useEvent(eventId);
+
+  // Join and leave functionality
+  const {
+    joinEvent,
+    leaveEvent,
+    loading: participationLoading,
+  } = useEventParticipation();
+
+  useEffect(() => {
+    if (event) {
+      setIsJoined(event.isUserParticipating);
+    }
+  }, [event]);
 
   // Mockup comments
   const [comments, setComments] = useState<Comment[]>([
@@ -55,20 +75,6 @@ export const ActivityDetail: React.FC = () => {
       timestamp: new Date(Date.now() - 900000), // 15 mins ago
     },
   ]);
-
-  // Fetch eventId from URL
-  const { id } = useParams<{ id: string }>();
-  const eventId = id ? Number(id) : null;
-
-  // Fetch event from API
-  const { event, loading, error, refetch } = useEvent(eventId);
-
-  // Join and leave functionality
-  const {
-    joinEvent,
-    leaveEvent,
-    loading: participationLoading,
-  } = useEventParticipation();
 
   // Loading and error states
   if (loading) {
@@ -168,9 +174,12 @@ export const ActivityDetail: React.FC = () => {
     }
   };
 
-  // TODO: Backend ska returnera participants i event object
-  // För nu använder vi tom array
-  const attendees: any[] = [];
+  // Returnera participants i event object
+  const attendees = event.participants.map((p) => ({
+    id: p.userId.toString(),
+    name: p.userName,
+    imageUrl: p.profileImageUrl || "",
+  }));
 
   return (
     <div className="min-h-screen bg-white">

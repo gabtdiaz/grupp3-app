@@ -18,6 +18,14 @@ export interface Event {
   createdBy: string; // "Anna A."
   createdAt: string;
   isFull: boolean; // Helper från backend
+  participants: Participant[];
+  isUserParticipating: boolean;
+}
+
+export interface Participant {
+  userId: number;
+  userName: string;
+  profileImageUrl: string | null;
 }
 
 export interface CreateEventDto {
