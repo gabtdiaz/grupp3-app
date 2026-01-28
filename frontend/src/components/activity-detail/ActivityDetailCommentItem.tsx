@@ -16,7 +16,7 @@ interface ActivityDetailCommentItemProps {
   replyingTo: string | null;
   onCancelReply: () => void;
   onSubmitReply: (text: string, parentId: string) => void;
-  isReply?: boolean;
+  //isReply?: boolean;
   hostId?: string;
 }
 
@@ -28,7 +28,7 @@ export const ActivityDetailCommentItem: React.FC<
   replyingTo,
   onCancelReply,
   onSubmitReply,
-  isReply = false,
+  //isReply = false,
   hostId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -68,7 +68,7 @@ export const ActivityDetailCommentItem: React.FC<
     <div className="relative">
       <div className="flex gap-3">
         {/* Avatar */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden">
             {comment.authorImageUrl ? (
               <img

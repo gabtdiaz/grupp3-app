@@ -13,14 +13,14 @@ export interface Comment {
 }
 
 interface ActivityDetailCommentsProps {
-  activityId: string;
+  //activityId: string;
   comments: Comment[];
   onAddComment: (text: string, parentId?: string) => void;
   hostId?: string;
 }
 
 export const ActivityDetailComments: React.FC<ActivityDetailCommentsProps> = ({
-  activityId,
+  //activityId,
   comments,
   onAddComment,
   hostId,
