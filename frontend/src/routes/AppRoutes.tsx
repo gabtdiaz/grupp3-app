@@ -78,7 +78,14 @@ const AppRoutes = () => {
         }
       />
 
-      <Route path="/create-activity" element={<CreateActivity />} />
+      <Route
+        path="/create-activity"
+        element={
+          <ProtectedRoute>
+            <ActivityDetail />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

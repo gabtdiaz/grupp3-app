@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
 
-export default function Activity() {
+export default function CreateActivity() {
   const navigate = useNavigate();
 }
