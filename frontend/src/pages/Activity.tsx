@@ -1,11 +1,22 @@
+import { useNavigate } from "react-router-dom";
 import Header from "../components/activity/ActivityHeader";
 import NavigationTabs from "../components/sections/NavigationTabs";
 import FilterBar from "../components/sections/FilterBar";
 import ActivityFeed from "../components/sections/ActivityFeed";
 import BottomNav from "../components/layout/BottomNav";
+import { useEvents } from "../hooks/useEvent";
 
 export default function Activity() {
-  const isEmpty = false;
+  const navigate = useNavigate();
+
+  // Hämta events från backend (filtrerade baserat på user age/gender)
+  const { events, loading, error } = useEvents();
+
+  const isEmpty = !loading && events.length === 0;
+
+  const handleCardClick = (eventId: number) => {
+    navigate(`/activity/${eventId}`);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -41,7 +52,17 @@ export default function Activity() {
             : undefined
         }
       >
-        <ActivityFeed />
+        {loading ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-gray-500">Laddar events...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-1 items-center justify-center px-6">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : (
+          <ActivityFeed events={events} onCardClick={handleCardClick} />
+        )}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">

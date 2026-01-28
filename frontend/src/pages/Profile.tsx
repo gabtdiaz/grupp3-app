@@ -2,7 +2,7 @@ import Header from "../components/profile/ProfileHeader";
 import Info from "../components/profile/Info";
 import NavigationTabs from "../components/sections/NavigationTabs";
 import FilterBar from "../components/sections/FilterBar";
-import ActivityFeed from "../components/sections/ActivityFeed";
+// import ActivityFeed from "../components/sections/ActivityFeed";
 import BottomNav from "../components/layout/BottomNav";
 
 export default function Profile() {
@@ -28,7 +28,7 @@ export default function Profile() {
           backgroundSize: "90%",
         }}
       >
-        <ActivityFeed />
+        {/* <ActivityFeed/> */}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">
