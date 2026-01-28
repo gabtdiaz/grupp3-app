@@ -3,6 +3,7 @@ import Index from "../pages/Index";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
+import PublicUserProfile from "../pages/PublicProfile";
 import Activity from "../pages/Activity";
 import ActivityDetail from "../pages/ActivityDetail";
 import ProtectedRoute from "./ProtectedRoute";
@@ -48,6 +49,16 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/profile/:userId"
+        element={
+          <ProtectedRoute>
+            <PublicUserProfile />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/activity"
         element={
