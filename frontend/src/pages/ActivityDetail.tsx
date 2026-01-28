@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import { useEvent } from "../hooks/useEvent";
 import { useEventParticipation } from "../hooks/useEventParticipation";
 import { useComments } from "../hooks/useComments";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 type TabType = "information" | "kommentarer";
 
@@ -33,6 +34,9 @@ export const ActivityDetail: React.FC = () => {
     loading: participationLoading,
   } = useEventParticipation();
 
+  // Get current user
+  const { user: currentUser } = useCurrentUser();
+
   useEffect(() => {
     if (event) {
       setIsJoined(event.isUserParticipating);
@@ -45,7 +49,7 @@ export const ActivityDetail: React.FC = () => {
     loading: commentsLoading,
     error: commentsError,
     addComment,
-    // removeComment,
+    removeComment,
   } = useComments(eventId);
 
   // Map backend comments to UI format
@@ -141,6 +145,13 @@ export const ActivityDetail: React.FC = () => {
     imageUrl: p.profileImageUrl || "",
   }));
 
+  const handleDeleteComment = async (commentId: string) => {
+    const success = await removeComment(Number(commentId));
+    if (!success) {
+      console.error("Failed to delete comment");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header with title and tabs */}
@@ -194,6 +205,8 @@ export const ActivityDetail: React.FC = () => {
             <ActivityDetailComments
               comments={comments}
               onAddComment={handleAddComment}
+              onDeleteComment={handleDeleteComment} // ← Lägg till
+              currentUserId={currentUser?.id || 0}
               hostId={event.createdBy}
             />
           )}

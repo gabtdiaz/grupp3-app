@@ -16,6 +16,8 @@ interface ActivityDetailCommentItemProps {
   replyingTo: string | null;
   onCancelReply: () => void;
   onSubmitReply: (text: string, parentId: string) => void;
+  onDelete: (commentId: string) => void;
+  currentUserId: number;
   //isReply?: boolean;
   hostId?: string;
 }
@@ -28,6 +30,8 @@ export const ActivityDetailCommentItem: React.FC<
   replyingTo,
   onCancelReply,
   onSubmitReply,
+  onDelete,
+  currentUserId,
   //isReply = false,
   hostId,
 }) => {
@@ -63,6 +67,7 @@ export const ActivityDetailCommentItem: React.FC<
 
   const isCurrentlyReplying = replyingTo === comment.id;
   const isHost = hostId && comment.authorId === hostId;
+  const canDelete = Number(comment.authorId) === currentUserId;
 
   return (
     <div className="relative">
@@ -121,6 +126,27 @@ export const ActivityDetailCommentItem: React.FC<
           >
             {isCurrentlyReplying ? "avbryt" : "svara"}
           </button>
+
+          {/* Delete Button */}
+          {canDelete && (
+            <>
+              <span className="text-xs text-gray-500 mx-1">•</span>
+              <button
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Är du säker på att du vill ta bort kommentaren?",
+                    )
+                  ) {
+                    onDelete(comment.id);
+                  }
+                }}
+                className="text-xs text-gray-500 hover:text-red-700"
+              >
+                radera
+              </button>
+            </>
+          )}
 
           {/* Reply Input */}
           {isCurrentlyReplying && (

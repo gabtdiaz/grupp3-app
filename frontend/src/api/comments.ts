@@ -10,7 +10,7 @@ export interface Comment {
 }
 
 export interface CreateCommentDto {
-  text: string;
+  content: string;
 }
 
 // Fetch all comments for event
