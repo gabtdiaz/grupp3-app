@@ -28,7 +28,7 @@ export default function Profile() {
           backgroundSize: "90%",
         }}
       >
-        {/* <ActivityFeed events={events} onCardClick={handleCardClick} /> */}
+        {/* <ActivityFeed/> */}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">
