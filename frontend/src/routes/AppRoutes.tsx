@@ -6,6 +6,7 @@ import Profile from "../pages/Profile";
 import PublicUserProfile from "../pages/PublicProfile";
 import Activity from "../pages/Activity";
 import ActivityDetail from "../pages/ActivityDetail";
+import CreateActivity from "../pages/CreateActivity";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 
@@ -76,6 +77,8 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/create-activity" element={<CreateActivity />} />
     </Routes>
   );
 };
