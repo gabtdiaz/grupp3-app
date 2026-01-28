@@ -58,7 +58,7 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/activitydetail"
+        path="/activitydetail/:id"
         element={
           <ProtectedRoute>
             <ActivityDetail />
