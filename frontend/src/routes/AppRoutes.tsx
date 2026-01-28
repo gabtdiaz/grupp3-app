@@ -6,6 +6,7 @@ import Profile from "../pages/Profile";
 import PublicUserProfile from "../pages/PublicProfile";
 import Activity from "../pages/Activity";
 import ActivityDetail from "../pages/ActivityDetail";
+import CreateActivity from "../pages/CreateActivity";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 
@@ -69,7 +70,16 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/activitydetail"
+        path="/activity/create"
+        element={
+          <ProtectedRoute>
+            <CreateActivity />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/activitydetail/:id"
         element={
           <ProtectedRoute>
             <ActivityDetail />
