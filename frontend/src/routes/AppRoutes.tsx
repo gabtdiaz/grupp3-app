@@ -70,16 +70,16 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/activitydetail/:id"
+        path="/activity/create"
         element={
           <ProtectedRoute>
-            <ActivityDetail />
+            <CreateActivity />
           </ProtectedRoute>
         }
       />
 
       <Route
-        path="/create-activity"
+        path="/activitydetail/:id"
         element={
           <ProtectedRoute>
             <ActivityDetail />
