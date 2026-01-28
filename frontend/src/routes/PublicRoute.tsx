@@ -6,7 +6,11 @@ type PublicRouteProps = {
 };
 
 export default function PublicRoute({ children }: PublicRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (isAuthenticated) {
     // If user is already logged in, redirect to activity feed
