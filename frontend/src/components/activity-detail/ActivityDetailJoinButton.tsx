@@ -13,10 +13,10 @@ export const ActivityDetailJoinButton: React.FC<
       onClick={onJoin}
       className="w-full py-4 rounded-lg text-white font-futura"
       style={{
-        backgroundColor: isJoined ? "#FF7070" : "#BDBDBD",
+        backgroundColor: isJoined ? "#BDBDBD" : "#FF7070",
       }}
     >
-      {isJoined ? "✓ GÅ MED" : "GÅ UR"}
+      {isJoined ? "GÅ UR" : "GÅ MED"}
     </button>
   );
 };

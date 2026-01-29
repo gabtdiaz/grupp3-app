@@ -123,19 +123,23 @@ public static class EventEndpoints
         
         logger.LogInformation("User {UserId}: {EventCount} events visible after filtering", userId, events.Count);
 
-        var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy)).ToList();
+        var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy, userId)).ToList();
 
         return Results.Ok(dtos);
     }
 
     // GET /api/events/{id} hämtaqr event med Id
-    private static async Task<IResult> GetEventById(int id, ApplicationDbContext context, ILogger<Program> logger)
+    private static async Task<IResult> GetEventById(int id, ClaimsPrincipal user, ApplicationDbContext context, ILogger<Program> logger)
     {
         logger.LogInformation("Fetching event {EventId}", id);
 
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var currentUserId = userIdClaim != null ? int.Parse(userIdClaim) : (int?)null;
+
         var e = await context.Events
             .Include(ev => ev.CreatedBy)
-            .Include(ev => ev.Participants) // Tillagd: för att visa antal deltagare
+            .Include(ev => ev.Participants)
+                .ThenInclude(ep => ep.User) 
             .FirstOrDefaultAsync(ev => ev.Id == id);
 
         if (e == null)
@@ -144,7 +148,7 @@ public static class EventEndpoints
             return Results.NotFound();
         }
 
-        return Results.Ok(MapToEventDto(e, e.CreatedBy));
+        return Results.Ok(MapToEventDto(e, e.CreatedBy, currentUserId));
     }
 
     // PUT /api/events/{id} uppdaterar event
@@ -237,10 +241,21 @@ public static class EventEndpoints
         return Results.NoContent();
     }
 
-    //tar eventet från databasen, plockar ut de fält vi vill visa i frontend 
-    //och gör om vissa värden, enums
-    private static EventDto MapToEventDto(Event e, User user)
-    {
+    // Mappar Event-entitet till EventDto med participants och IsUserParticipating
+    private static EventDto MapToEventDto(Event e, User user, int? currentUserId = null)
+{
+    var participants = e.Participants
+        .Where(ep => ep.User != null)
+        .Select(ep => new ParticipantDto
+        {
+            UserId = ep.UserId,
+            UserName = $"{ep.User.FirstName} {ep.User.LastName[0]}.",
+            ProfileImageUrl = ep.User.ProfileImageUrl
+        })
+        .ToList();
+
+    var isUserParticipating = currentUserId.HasValue && 
+        e.Participants.Any(ep => ep.UserId == currentUserId.Value);
         return new EventDto
         {
             Id = e.Id,
@@ -257,7 +272,9 @@ public static class EventEndpoints
             MinimumAge = e.MinimumAge,
             IsActive = e.IsActive,
             CreatedAt = e.CreatedAt,
-            CreatedBy = $"{user.FirstName} {user.LastName[0]}."
+            CreatedBy = $"{user.FirstName} {user.LastName[0]}.",
+            Participants = participants,
+            IsUserParticipating = isUserParticipating 
         };
     }
 }

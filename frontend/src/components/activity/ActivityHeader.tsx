@@ -26,7 +26,7 @@ export default function Header() {
       </div>
 
       {/* Activity Categories */}
-      <div className="mt-auto px-4 pb-4 flex gap-6 flex justify-center align-center">
+      <div className="mt-auto px-4 pb-4 flex gap-6 justify-center align-center">
         <ActivityCategory name="RÖRELSE" icon="/icons/sport-icon.svg" />
         <ActivityCategory name="SOCIALT" icon="/icons/social-icon.svg" />
         <ActivityCategory name="SPEL" icon="/icons/games-icon.svg" />

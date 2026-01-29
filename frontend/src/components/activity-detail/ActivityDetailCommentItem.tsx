@@ -16,7 +16,9 @@ interface ActivityDetailCommentItemProps {
   replyingTo: string | null;
   onCancelReply: () => void;
   onSubmitReply: (text: string, parentId: string) => void;
-  isReply?: boolean;
+  onDelete: (commentId: string) => void;
+  currentUserId: number;
+  //isReply?: boolean;
   hostId?: string;
 }
 
@@ -28,7 +30,9 @@ export const ActivityDetailCommentItem: React.FC<
   replyingTo,
   onCancelReply,
   onSubmitReply,
-  isReply = false,
+  onDelete,
+  currentUserId,
+  //isReply = false,
   hostId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -63,12 +67,13 @@ export const ActivityDetailCommentItem: React.FC<
 
   const isCurrentlyReplying = replyingTo === comment.id;
   const isHost = hostId && comment.authorId === hostId;
+  const canDelete = Number(comment.authorId) === currentUserId;
 
   return (
     <div className="relative">
       <div className="flex gap-3">
         {/* Avatar */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden">
             {comment.authorImageUrl ? (
               <img
@@ -121,6 +126,27 @@ export const ActivityDetailCommentItem: React.FC<
           >
             {isCurrentlyReplying ? "avbryt" : "svara"}
           </button>
+
+          {/* Delete Button */}
+          {canDelete && (
+            <>
+              <span className="text-xs text-gray-500 mx-1">•</span>
+              <button
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Är du säker på att du vill ta bort kommentaren?",
+                    )
+                  ) {
+                    onDelete(comment.id);
+                  }
+                }}
+                className="text-xs text-gray-500 hover:text-red-700"
+              >
+                radera
+              </button>
+            </>
+          )}
 
           {/* Reply Input */}
           {isCurrentlyReplying && (

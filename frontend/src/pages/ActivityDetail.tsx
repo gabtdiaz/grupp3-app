@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ActivityDetailHeader } from "../components/activity-detail/ActivityDetailHeader";
 import { ActivityDetailHost } from "../components/activity-detail/ActivityDetailHost";
 import { ActivityDetailMeta } from "../components/activity-detail/ActivityDetailMeta";
@@ -6,8 +6,13 @@ import { ActivityDetailDescription } from "../components/activity-detail/Activit
 import { ActivityDetailAttendees } from "../components/activity-detail/ActivityDetailAttendees";
 import { ActivityDetailJoinButton } from "../components/activity-detail/ActivityDetailJoinButton";
 import { ActivityDetailComments } from "../components/activity-detail/ActivityDetailComments";
-import type { Comment } from "../components/activity-detail/ActivityDetailComments";
+// import type { Comment } from "../components/activity-detail/ActivityDetailComments";
 import BottomNav from "../components/layout/BottomNav";
+import { useParams } from "react-router-dom";
+import { useEvent } from "../hooks/useEvent";
+import { useEventParticipation } from "../hooks/useEventParticipation";
+import { useComments } from "../hooks/useComments";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 
 type TabType = "information" | "kommentarer";
 
@@ -15,83 +20,135 @@ export const ActivityDetail: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("information");
   const [isJoined, setIsJoined] = useState(false);
 
-  // Mockup comments
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: "1",
-      authorId: "user_001",
-      authorName: "Anna A.",
-      authorImageUrl: "",
-      text: "Låter superkul! Vilka spel ska vi spela?",
-      timestamp: new Date(Date.now() - 3600000 * 2), // 2 hours ago
-      replies: [
-        {
-          id: "1-1",
-          authorId: "host_benjamin",
-          authorName: "Benjamin B.",
-          authorImageUrl: "",
-          text: "Vi kör Dungeons & Dragons! Har förberett en campagne.",
-          timestamp: new Date(Date.now() - 3600000),
-        },
-      ],
-    },
-    {
-      id: "2",
-      authorId: "user_002",
-      authorName: "Björn B.",
-      authorImageUrl: "",
-      text: "Perfekt timing! Jag har precis köpt nya tärningar. Finns det plats för en till spelare?",
-      timestamp: new Date(Date.now() - 1800000), // 30 mins ago
-    },
-    {
-      id: "3",
-      authorId: "user_003",
-      authorName: "Cecilia C.",
-      authorImageUrl: "",
-      text: "Detta är en längre kommentar för att visa hur 'visa mer/visa mindre' funktionen fungerar. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
-      timestamp: new Date(Date.now() - 900000), // 15 mins ago
-    },
-  ]);
+  // Fetch eventId from URL
+  const { id } = useParams<{ id: string }>();
+  const eventId = id ? Number(id) : null;
 
-  const handleJoin = () => {
-    setIsJoined(!isJoined);
-    console.log(isJoined ? "Left event" : "Joined event");
+  // Fetch event from API
+  const { event, loading, error, refetch } = useEvent(eventId);
+
+  // Join and leave functionality
+  const {
+    joinEvent,
+    leaveEvent,
+    loading: participationLoading,
+  } = useEventParticipation();
+
+  // Get current user
+  const { user: currentUser } = useCurrentUser();
+
+  useEffect(() => {
+    if (event) {
+      setIsJoined(event.isUserParticipating);
+    }
+  }, [event]);
+
+  // Fetch comments from backend
+  const {
+    comments: backendComments,
+    loading: commentsLoading,
+    error: commentsError,
+    addComment,
+    removeComment,
+  } = useComments(eventId);
+
+  // Map backend comments to UI format
+  const comments = backendComments.map((c) => ({
+    id: c.id.toString(),
+    authorId: c.authorId.toString(),
+    authorName: c.authorName,
+    authorImageUrl: c.authorImageUrl || "",
+    text: c.content,
+    timestamp: new Date(c.createdAt),
+    replies: [],
+  }));
+
+  // Loading and error states
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Laddar aktivitet...</p>
+      </div>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-500">Kunde inte ladda aktiviteten</p>
+      </div>
+    );
+  }
+
+  // Format date and time from backend
+  const start = new Date(event.startDateTime);
+  const end = event.endDateTime ? new Date(event.endDateTime) : null;
+
+  const date = start.toLocaleDateString("sv-SE", {
+    weekday: "short",
+    day: "numeric",
+    month: "long",
+  });
+
+  const time = end
+    ? `${start.toLocaleTimeString("sv-SE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })} - ${end.toLocaleTimeString("sv-SE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`
+    : start.toLocaleTimeString("sv-SE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+  const handleJoin = async () => {
+    if (!eventId || participationLoading) return;
+
+    try {
+      if (isJoined) {
+        const success = await leaveEvent(eventId);
+        if (success) {
+          setIsJoined(false);
+          refetch();
+        }
+      } else {
+        const success = await joinEvent(eventId);
+        if (success) {
+          setIsJoined(true);
+          refetch();
+        }
+      }
+    } catch (err) {
+      console.error("Join/leave failed", err);
+    }
   };
 
-  const handleAddComment = (text: string, parentId?: string) => {
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      authorId: "current_user_id",
-      authorName: "Du",
-      authorImageUrl: "",
-      text: text,
-      timestamp: new Date(),
-    };
-
+  const handleAddComment = async (text: string, parentId?: string) => {
     if (parentId) {
-      // Add as reply - recursively find and update the parent comment
-      const addReplyToComment = (comments: Comment[]): Comment[] => {
-        return comments.map((comment) => {
-          if (comment.id === parentId) {
-            return {
-              ...comment,
-              replies: [...(comment.replies || []), newComment],
-            };
-          }
-          if (comment.replies && comment.replies.length > 0) {
-            return {
-              ...comment,
-              replies: addReplyToComment(comment.replies),
-            };
-          }
-          return comment;
-        });
-      };
+      // TODO: Fix replies in backend
+      console.log("Replies not supported yet");
+      return;
+    }
 
-      setComments((prevComments) => addReplyToComment(prevComments));
-    } else {
-      // Add as top-level comment
-      setComments((prevComments) => [...prevComments, newComment]);
+    const success = await addComment(text);
+    if (!success) {
+      console.error("Failed to add comment");
+    }
+  };
+
+  // Returnera participants i event object
+  const attendees = event.participants.map((p) => ({
+    id: p.userId.toString(),
+    name: p.userName,
+    imageUrl: p.profileImageUrl || "",
+  }));
+
+  const handleDeleteComment = async (commentId: string) => {
+    const success = await removeComment(Number(commentId));
+    if (!success) {
+      console.error("Failed to delete comment");
     }
   };
 
@@ -99,7 +156,7 @@ export const ActivityDetail: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Header with title and tabs */}
       <ActivityDetailHeader
-        title="Brädspelskväll!! D&D"
+        title={event.title}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
@@ -109,45 +166,25 @@ export const ActivityDetail: React.FC = () => {
         <div>
           {/* Host Section */}
           <ActivityDetailHost
-            hostName="Benjamin B."
+            hostName={event.createdBy}
             hostRole="Arrangör"
             hostImageUrl=""
           />
 
           {/* Meta Information */}
           <ActivityDetailMeta
-            location="Brogatan 11, 211 44 Malmö"
-            date="Mån, 14 januari"
-            time="16:00 - 20:00"
+            location={event.location}
+            date={date}
+            time={time}
           />
 
           {/* Description */}
           <ActivityDetailDescription
-            description="Vivamus nulla risus, aliquet sed lacus in, tempus convallis erat.
-Curabitur non felis ut magna placerat viverra. Donec sit amet leo id sapien varius commodo.
-Aliquam erat volutpat. Sed ut risus in libero facilisis luctus.
-
-apien varius commodo.
-Aliquam erat volutpat. Sed ut risus in libero facilisis luctus."
+            description={event.description ?? "Ingen beskrivning angiven"}
           />
 
           {/* Attendees */}
-          <ActivityDetailAttendees
-            attendees={[
-              { id: "1", name: "Anna A.", imageUrl: "" },
-              { id: "2", name: "Björn B.", imageUrl: "" },
-              { id: "3", name: "Cecilia C.", imageUrl: "" },
-              { id: "4", name: "David D.", imageUrl: "" },
-              { id: "5", name: "Emma E.", imageUrl: "" },
-              { id: "6", name: "Fredrik F.", imageUrl: "" },
-              { id: "7", name: "Gustav G.", imageUrl: "" },
-              { id: "8", name: "Helena H.", imageUrl: "" },
-              { id: "9", name: "Ivan I.", imageUrl: "" },
-              { id: "10", name: "Julia J.", imageUrl: "" },
-              { id: "11", name: "Karl K.", imageUrl: "" },
-              { id: "12", name: "Lisa L.", imageUrl: "" },
-            ]}
-          />
+          <ActivityDetailAttendees attendees={attendees} />
 
           {/* Join Button */}
           <div className="fixed bottom-14 left-0 right-0 px-4 z-40">
@@ -155,12 +192,25 @@ Aliquam erat volutpat. Sed ut risus in libero facilisis luctus."
           </div>
         </div>
       ) : (
-        <ActivityDetailComments
-          activityId="123"
-          comments={comments}
-          onAddComment={handleAddComment}
-          hostId="host_benjamin"
-        />
+        <div>
+          {commentsLoading ? (
+            <div className="flex items-center justify-center p-6">
+              <p className="text-gray-500">Laddar kommentarer...</p>
+            </div>
+          ) : commentsError ? (
+            <div className="flex items-center justify-center p-6">
+              <p className="text-red-500">{commentsError}</p>
+            </div>
+          ) : (
+            <ActivityDetailComments
+              comments={comments}
+              onAddComment={handleAddComment}
+              onDeleteComment={handleDeleteComment} // ← Lägg till
+              currentUserId={currentUser?.id || 0}
+              hostId={event.createdBy}
+            />
+          )}
+        </div>
       )}
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">

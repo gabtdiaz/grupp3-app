@@ -17,7 +17,8 @@ public class EventDto
     public bool IsActive { get; set; } //om eventet är aktivt
     public string CreatedBy { get; set; } = string.Empty; //namn på skaparen
     public DateTime CreatedAt { get; set; } //datun när den är skapad
-
-    // TILLAGT: Helper property för frontend
     public bool IsFull => MaxParticipants > 0 && CurrentParticipants >= MaxParticipants; 
+
+    public List<ParticipantDto> Participants { get; set; } = new List<ParticipantDto>();
+    public bool IsUserParticipating { get; set; }
 }
