@@ -119,7 +119,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany(u => u.EventParticipants)
                 .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Radera deltagande om User radeaas 
+                .OnDelete(DeleteBehavior.Restrict); 
             
             // Relation till Event
             entity.HasOne(e => e.Event)
@@ -145,7 +145,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany(u => u.EventComments)
                 .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Radera kommentar om User raderas
+                .OnDelete(DeleteBehavior.Restrict); 
             
             // Relation till Event
             entity.HasOne(e => e.Event)
