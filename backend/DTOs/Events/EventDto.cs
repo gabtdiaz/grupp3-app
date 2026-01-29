@@ -9,7 +9,8 @@ public class EventDto
     public DateTime StartDateTime { get; set; } //starttid
     public DateTime? EndDateTime { get; set; } //sluttid
     public string? ImageUrl { get; set; } //bild
-    public string Category { get; set; } = string.Empty; //kategori, enum/string
+    public int CategoryId { get; set; }  // För filtrering/sökning
+    public string Category { get; set; } = string.Empty;  // DisplayName: "RÖRELSE"
     public string GenderRestriction { get; set; } = string.Empty; //könsrestriktion, enum/string
     public int MaxParticipants { get; set; } //max antal deltagare
     public int? MinimumAge { get; set; } //minimiålder

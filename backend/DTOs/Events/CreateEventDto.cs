@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using grupp3_app.Api.Models;
 using grupp3_app.Api.Validation;
 
-namespace grupp3_app.Api.DTOs.Event;
+namespace grupp3_app.Api.DTOs.Events;
 
 public class CreateEventDto
 {
@@ -26,7 +26,7 @@ public class CreateEventDto
     public string? ImageUrl { get; set; }
     
     [Required(ErrorMessage = "Category is required")]
-    public EventCategory Category { get; set; }
+    public int CategoryId { get; set; } 
     
     [Range(2, 1000, ErrorMessage = "Maximum participants must be between 2 and 1000")]
     public int MaxParticipants { get; set; }
