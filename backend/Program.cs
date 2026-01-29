@@ -91,6 +91,7 @@ app.UseStaticFiles();
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapEventEndpoints();
+app.MapCategoryEndpoints();
 app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
 app.MapCommentEndpoints();

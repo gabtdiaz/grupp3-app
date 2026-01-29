@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using grupp3_app.Api.Validation;
+using grupp3_app.Api.Models; 
 
-namespace grupp3_app.Api.DTOs.Events;
+
+namespace grupp3_app.Api.DTOs.Event;
 
 public class UpdateEventDto
 {
@@ -26,8 +28,7 @@ public class UpdateEventDto
     public string? ImageUrl { get; set; } // bild, valfri
 
     [Required(ErrorMessage = "Category is required")]
-    public string Category { get; set; } = string.Empty; // kategori (enum som string)
-
+    public int CategoryId { get; set; }
     [Range(2, 1000, ErrorMessage = "Maximum participants must be between 2 and 1000")]
     public int MaxParticipants { get; set; } // max antal deltagare
 

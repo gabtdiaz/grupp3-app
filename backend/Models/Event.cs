@@ -9,7 +9,7 @@ public class Event
     public DateTime StartDateTime { get; set; } 
     public DateTime? EndDateTime { get; set; }
     public string? ImageUrl { get; set; } 
-    public EventCategory Category { get; set; }
+
     public bool IsActive { get; set; } = true;
 
     // Restiktioner
@@ -23,25 +23,15 @@ public class Event
     
     // FK
     public int CreatedByUserId { get; set; }
+    public int CategoryId { get; set; }  
     
     // Navigation Properties
     public User CreatedBy { get; set; } = null!;
+    public Category Category { get; set; } = null!;  // Navigation property
+
     public ICollection<EventParticipant> Participants { get; set; } = new List<EventParticipant>();
     public ICollection<EventComment> Comments { get; set; } = new List<EventComment>();
 }
-
-public enum EventCategory
-{
-    Sport = 1,
-    Social = 2,
-    Kultur = 3,
-    MatOchDryck = 4,
-    Utomhus = 5,
-    Gaming = 6,
-    Musik = 7,
-    Studier = 8,
-    Ovrigt = 9
-    }
 
     public enum GenderRestriction
     {
