@@ -57,32 +57,6 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.UpdatedAt).IsRequired(false);  // Nullable DateTime
         });
 
-        // EVENT CONFIG
-        
-        modelBuilder.Entity<Event>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(2000);
-            entity.Property(e => e.Location).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.StartDateTime).IsRequired();
-            entity.Property(e => e.EndDateTime).IsRequired(false);
-            entity.Property(e => e.ImageUrl).HasMaxLength(500);
-            entity.Property(e => e.Category).IsRequired();
-            entity.Property(e => e.IsActive).IsRequired();
-            entity.Property(e => e.MaxParticipants).IsRequired();
-            entity.Property(e => e.GenderRestriction).IsRequired();
-            entity.Property(e => e.MinimumAge).IsRequired(false);
-            entity.Property(e => e.CreatedAt).IsRequired();
-            entity.Property(e => e.UpdatedAt).IsRequired(false);
-            
-            // Relation
-            entity.HasOne(e => e.CreatedBy)
-                .WithMany(u => u.CreatedEvents) 
-                .HasForeignKey(e => e.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict); // Kan inte radera användare med skapade event
-        });
-
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(c => c.Id);
@@ -106,7 +80,7 @@ public class ApplicationDbContext : DbContext
             );
         });
 
-        // ========== EVENT CONFIG ==========
+        // = EVENT CONFIG
         modelBuilder.Entity<Event>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -120,7 +94,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.GenderRestriction).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
 
-            // ✅ ÄNDRAT: Category relationship
+            // ÄNDRAT: Category relationship
             entity.HasOne(e => e.Category)
                 .WithMany(c => c.Events)
                 .HasForeignKey(e => e.CategoryId)

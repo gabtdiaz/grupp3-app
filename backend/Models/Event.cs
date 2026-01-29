@@ -27,7 +27,7 @@ public class Event
     
     // Navigation Properties
     public User CreatedBy { get; set; } = null!;
-    public Category Category { get; set; } = null!;  // Navigation property
+    public Category Category { get; set; } = null!; 
 
     public ICollection<EventParticipant> Participants { get; set; } = new List<EventParticipant>();
     public ICollection<EventComment> Comments { get; set; } = new List<EventComment>();
