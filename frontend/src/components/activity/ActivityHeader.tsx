@@ -18,7 +18,6 @@ export default function Header() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ✅ BÄTTRE: Använd categoryService
     categoryService
       .getAllCategories()
       .then((data) => {
@@ -54,20 +53,22 @@ export default function Header() {
       </div>
 
       {/* Activity Categories */}
-      <div className="mt-auto px-4 pb-4 flex gap-6 justify-center">
-        {loading ? (
-          <p className="text-white">Laddar kategorier...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          categories.map((category) => (
-            <ActivityCategory
-              key={category.id}
-              name={category.displayName}
-              icon={category.iconUrl}
-            />
-          ))
-        )}
+      <div className="mt-auto px-4 pb-4 overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-6 min-w-max">
+          {loading ? (
+            <p className="text-white">Laddar kategorier...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            categories.map((category) => (
+              <ActivityCategory
+                key={category.id}
+                name={category.displayName}
+                icon={category.iconUrl}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
