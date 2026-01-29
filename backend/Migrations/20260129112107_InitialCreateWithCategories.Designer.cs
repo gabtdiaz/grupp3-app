@@ -12,7 +12,7 @@ using grupp3_app.Api.Data;
 namespace grupp3_app.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260129111509_InitialCreateWithCategories")]
+    [Migration("20260129112107_InitialCreateWithCategories")]
     partial class InitialCreateWithCategories
     {
         /// <inheritdoc />
@@ -366,7 +366,7 @@ namespace grupp3_app.Api.Migrations
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventComments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -385,7 +385,7 @@ namespace grupp3_app.Api.Migrations
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventParticipants")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");

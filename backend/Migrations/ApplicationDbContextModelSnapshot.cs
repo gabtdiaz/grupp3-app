@@ -363,7 +363,7 @@ namespace grupp3_app.Api.Migrations
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventComments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -382,7 +382,7 @@ namespace grupp3_app.Api.Migrations
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventParticipants")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
