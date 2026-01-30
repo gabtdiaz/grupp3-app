@@ -47,7 +47,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Title */}
+      {/* Title  */}
       <div className="absolute top-24 pl-3">
         <h1 className="text-2xl font-futura text-white">AKTIVITETER</h1>
       </div>
