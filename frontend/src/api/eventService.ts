@@ -9,7 +9,8 @@ export interface Event {
   startDateTime: string; // ISO string
   endDateTime: string | null;
   imageUrl: string | null;
-  category: string; // "Sport", "Social", etc.
+  categoryId: number; // ID för filtrering
+  category: string; // Displayname
   genderRestriction: string; // "All", "OnlyMen", "OnlyWomen"
   maxParticipants: number;
   currentParticipants: number;
@@ -18,6 +19,14 @@ export interface Event {
   createdBy: string; // "Anna A."
   createdAt: string;
   isFull: boolean; // Helper från backend
+  participants: Participant[];
+  isUserParticipating: boolean;
+}
+
+export interface Participant {
+  userId: number;
+  userName: string;
+  profileImageUrl: string | null;
 }
 
 export interface CreateEventDto {
@@ -27,7 +36,7 @@ export interface CreateEventDto {
   startDateTime: string;
   endDateTime?: string;
   imageUrl?: string;
-  category: number; // 1-9 (Sport, Social, Kultur, etc.)
+  categoryId: number; // 1-9 (Sport, Social, Kultur, etc.)
   maxParticipants: number;
   genderRestriction: number; // 1=All, 2=OnlyMen, 3=OnlyWomen
   minimumAge?: number;
@@ -44,9 +53,9 @@ class EventService {
    * Backend filtrerar automatiskt baserat på user age/gender
    * "Fulla" events visas fortfarande
    */
-  async getAllEvents(category?: string, city?: string): Promise<Event[]> {
+  async getAllEvents(categoryId?: number, city?: string): Promise<Event[]> {
     const params = new URLSearchParams();
-    if (category) params.append("category", category);
+    if (categoryId) params.append("categoryId", categoryId.toString());
     if (city) params.append("city", city);
 
     const url = `/api/events${params.toString() ? `?${params}` : ""}`;

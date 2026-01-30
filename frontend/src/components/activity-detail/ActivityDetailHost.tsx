@@ -17,7 +17,7 @@ export const ActivityDetailHost: React.FC<ActivityDetailHostProps> = ({
       {/* Host Card */}
       <div className="flex items-center gap-4">
         {/* Profile Image */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           {hostImageUrl ? (
             <img
               src={hostImageUrl}

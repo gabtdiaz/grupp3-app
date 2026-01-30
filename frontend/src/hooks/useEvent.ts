@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import eventService from "../api/eventService";
 import type { Event } from "../api/eventService";
 
-export const useEvents = (category?: string, city?: string) => {
+export const useEvents = (categoryId?: number, city?: string) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,7 @@ export const useEvents = (category?: string, city?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await eventService.getAllEvents(category, city);
+      const data = await eventService.getAllEvents(categoryId, city);
       setEvents(data);
     } catch (err: any) {
       setError(err.response?.data?.message || "Kunde inte hämta events");
@@ -23,7 +23,7 @@ export const useEvents = (category?: string, city?: string) => {
 
   useEffect(() => {
     fetchEvents();
-  }, [category, city]);
+  }, [categoryId, city]);
 
   return { events, loading, error, refetch: fetchEvents };
 };

@@ -1,19 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import eventService from "../api/eventService";
-import BottomNav from "../components/layout/BottomNav";
+import categoryService from "../api/categoryService";
+import { type Category } from "../api/categoryService";
 
-const categories = [
-  { value: 1, label: "Sport" },
-  { value: 2, label: "Social" },
-  { value: 3, label: "Kultur" },
-  { value: 4, label: "Mat & Dryck" },
-  { value: 5, label: "Utomhus" },
-  { value: 6, label: "Gaming" },
-  { value: 7, label: "Musik" },
-  { value: 8, label: "Studier" },
-  { value: 9, label: "Övrigt" },
-];
+import BottomNav from "../components/layout/BottomNav";
 
 const genderRestrictions = [
   { value: 1, label: "Alla" },
@@ -25,6 +16,7 @@ export default function CreateActivity() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -40,6 +32,14 @@ export default function CreateActivity() {
     genderRestriction: 1, // Alla som default
     minimumAge: 18,
   });
+
+  // ✅ HÄMTA KATEGORIER VID MOUNT
+  useEffect(() => {
+    categoryService
+      .getAllCategories()
+      .then((cats) => setCategories(cats))
+      .catch((err) => console.error("Failed to load categories:", err));
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -95,7 +95,7 @@ export default function CreateActivity() {
         startDateTime,
         endDateTime,
         imageUrl: formData.imageUrl || undefined,
-        category: formData.category,
+        categoryId: formData.category,
         maxParticipants: formData.maxParticipants,
         genderRestriction: formData.genderRestriction,
         minimumAge: formData.minimumAge,
@@ -200,8 +200,8 @@ export default function CreateActivity() {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             {categories.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
+              <option key={cat.id} value={cat.id}>
+                {cat.displayName}
               </option>
             ))}
           </select>

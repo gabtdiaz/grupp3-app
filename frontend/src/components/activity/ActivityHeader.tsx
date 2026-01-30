@@ -1,8 +1,36 @@
+import { useState, useEffect } from "react";
 import ActivityCategory from "./ActivityCategory";
 import { useNavigate } from "react-router-dom";
+import categoryService from "../../api/categoryService";
+import type Category from "../../api/categoryService";
+
+interface Category {
+  id: number;
+  name: string;
+  displayName: string;
+  iconUrl: string;
+}
 
 export default function Header() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // ✅ BÄTTRE: Använd categoryService
+    categoryService
+      .getAllCategories()
+      .then((data) => {
+        setCategories(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load categories:", err);
+        setError("Kunde inte ladda kategorier");
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="relative h-full w-full flex flex-col">
@@ -26,11 +54,20 @@ export default function Header() {
       </div>
 
       {/* Activity Categories */}
-      <div className="mt-auto px-4 pb-4 flex gap-6 flex justify-center align-center">
-        <ActivityCategory name="RÖRELSE" icon="/icons/sport-icon.svg" />
-        <ActivityCategory name="SOCIALT" icon="/icons/social-icon.svg" />
-        <ActivityCategory name="SPEL" icon="/icons/games-icon.svg" />
-        <ActivityCategory name="KULTUR" icon="/icons/culture-icon.svg" />
+      <div className="mt-auto px-4 pb-4 flex gap-6 justify-center">
+        {loading ? (
+          <p className="text-white">Laddar kategorier...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          categories.map((category) => (
+            <ActivityCategory
+              key={category.id}
+              name={category.displayName}
+              icon={category.iconUrl}
+            />
+          ))
+        )}
       </div>
     </div>
   );

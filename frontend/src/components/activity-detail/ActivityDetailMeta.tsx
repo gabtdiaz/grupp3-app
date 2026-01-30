@@ -18,7 +18,7 @@ export const ActivityDetailMeta: React.FC<ActivityDetailMetaProps> = ({
         <img
           src="/icons/location-icon.svg"
           alt="Plats"
-          className="h-5 w-5 flex-shrink-0"
+          className="h-5 w-5 shrink-0"
         />
         <p className="text-sm text-gray-700">{location}</p>
       </div>
@@ -28,7 +28,7 @@ export const ActivityDetailMeta: React.FC<ActivityDetailMetaProps> = ({
         <img
           src="/icons/calendar-icon.svg"
           alt="Datum och tid"
-          className="h-4 w-5 flex-shrink-0"
+          className="h-4 w-5 shrink-0"
         />
         <p className="text-sm text-gray-700">
           {date} <span className="mx-1">•</span> {time}

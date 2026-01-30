@@ -46,6 +46,14 @@ public static class EventEndpoints
         if (currentUser == null)
             return Results.NotFound("User not found");
 
+    // Validera att category finns
+        var categoryExists = await context.Categories.AnyAsync(c => c.Id == dto.CategoryId && c.IsActive);
+        if (!categoryExists)
+        {
+            logger.LogWarning("Invalid category {CategoryId}", dto.CategoryId);
+            return Results.BadRequest(new { message = "Invalid category" });
+        }
+
         // skapar nytt Event
         var newEvent = new Event
         {
@@ -55,7 +63,7 @@ public static class EventEndpoints
             StartDateTime = dto.StartDateTime,
             EndDateTime = dto.EndDateTime ?? dto.StartDateTime.AddHours(1),
             ImageUrl = dto.ImageUrl,
-            Category = dto.Category,
+            CategoryId = dto.CategoryId,
             MaxParticipants = dto.MaxParticipants,
             GenderRestriction = dto.GenderRestriction,
             MinimumAge = dto.MinimumAge ?? 18,
@@ -70,6 +78,8 @@ public static class EventEndpoints
         context.Events.Add(newEvent);
         await context.SaveChangesAsync();
 
+        // Ladda Category för response
+        await context.Entry(newEvent).Reference(e => e.Category).LoadAsync();
         logger.LogInformation("Event {EventId} created successfully by user {UserId}", newEvent.Id, userId);
 
         return Results.Created($"/api/events/{newEvent.Id}", MapToEventDto(newEvent, currentUser));
@@ -83,22 +93,23 @@ public static class EventEndpoints
         EventRestrictionService restrictionService, 
         ClaimsPrincipal user, 
         ILogger<Program> logger, 
-        string? category = null, 
+        int? categoryId = null, 
         string? city = null)
     {
         var userId = user.GetUserIdOrThrow();
         logger.LogInformation("User {UserId} fetching all events", userId);
 
         var query = context.Events
+            .Include(e => e.Category)
             .Include(e => e.CreatedBy)
             .Include(e => e.Participants)
             .Where(e => e.IsActive)
             .AsQueryable();
 
         // Filtrering baserat på category
-        if (!string.IsNullOrEmpty(category) && Enum.TryParse<EventCategory>(category, true, out var cat))
+         if (categoryId.HasValue)
         {
-            query = query.Where(e => e.Category == cat);
+            query = query.Where(e => e.CategoryId == categoryId.Value);
         }
 
         // Filtrering baserat på city
@@ -123,19 +134,24 @@ public static class EventEndpoints
         
         logger.LogInformation("User {UserId}: {EventCount} events visible after filtering", userId, events.Count);
 
-        var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy)).ToList();
+        var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy, userId)).ToList();
 
         return Results.Ok(dtos);
     }
 
     // GET /api/events/{id} hämtaqr event med Id
-    private static async Task<IResult> GetEventById(int id, ApplicationDbContext context, ILogger<Program> logger)
+    private static async Task<IResult> GetEventById(int id, ClaimsPrincipal user, ApplicationDbContext context, ILogger<Program> logger)
     {
         logger.LogInformation("Fetching event {EventId}", id);
 
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var currentUserId = userIdClaim != null ? int.Parse(userIdClaim) : (int?)null;
+
         var e = await context.Events
+            .Include(ev => ev.Category) 
             .Include(ev => ev.CreatedBy)
-            .Include(ev => ev.Participants) // Tillagd: för att visa antal deltagare
+            .Include(ev => ev.Participants)
+            .ThenInclude(ep => ep.User) 
             .FirstOrDefaultAsync(ev => ev.Id == id);
 
         if (e == null)
@@ -144,7 +160,7 @@ public static class EventEndpoints
             return Results.NotFound();
         }
 
-        return Results.Ok(MapToEventDto(e, e.CreatedBy));
+        return Results.Ok(MapToEventDto(e, e.CreatedBy, currentUserId));
     }
 
     // PUT /api/events/{id} uppdaterar event
@@ -178,8 +194,12 @@ public static class EventEndpoints
             return Results.Forbid();
         }
 
-        if (!Enum.TryParse<EventCategory>(dto.Category, true, out var category))
-            return Results.BadRequest($"Invalid category: {dto.Category}");
+        var categoryExists = await context.Categories.AnyAsync(c => c.Id == dto.CategoryId && c.IsActive);
+        if (!categoryExists)
+        {
+            logger.LogWarning("Invalid category {CategoryId}", dto.CategoryId);
+            return Results.BadRequest(new { message = "Invalid category" });
+        }
 
         if (!Enum.TryParse<GenderRestriction>(dto.GenderRestriction, true, out var genderRestriction))
             return Results.BadRequest($"Invalid gender restriction: {dto.GenderRestriction}");
@@ -190,7 +210,7 @@ public static class EventEndpoints
         e.StartDateTime = dto.StartDateTime;
         e.EndDateTime = dto.EndDateTime;
         e.ImageUrl = dto.ImageUrl;
-        e.Category = category;
+        e.CategoryId = dto.CategoryId;
         e.GenderRestriction = genderRestriction;
         e.MaxParticipants = dto.MaxParticipants;
         e.MinimumAge = dto.MinimumAge;
@@ -237,10 +257,21 @@ public static class EventEndpoints
         return Results.NoContent();
     }
 
-    //tar eventet från databasen, plockar ut de fält vi vill visa i frontend 
-    //och gör om vissa värden, enums
-    private static EventDto MapToEventDto(Event e, User user)
-    {
+    // Mappar Event-entitet till EventDto med participants och IsUserParticipating
+    private static EventDto MapToEventDto(Event e, User user, int? currentUserId = null)
+{
+    var participants = e.Participants
+        .Where(ep => ep.User != null)
+        .Select(ep => new ParticipantDto
+        {
+            UserId = ep.UserId,
+            UserName = $"{ep.User.FirstName} {ep.User.LastName[0]}.",
+            ProfileImageUrl = ep.User.ProfileImageUrl
+        })
+        .ToList();
+
+    var isUserParticipating = currentUserId.HasValue && 
+        e.Participants.Any(ep => ep.UserId == currentUserId.Value);
         return new EventDto
         {
             Id = e.Id,
@@ -250,14 +281,17 @@ public static class EventEndpoints
             StartDateTime = e.StartDateTime,
             EndDateTime = e.EndDateTime,
             ImageUrl = e.ImageUrl,
-            Category = e.Category.ToString(),
+            CategoryId = e.CategoryId,
+            Category = e.Category?.DisplayName ?? "Unknown",              
             GenderRestriction = e.GenderRestriction.ToString(),
             MaxParticipants = e.MaxParticipants,
             CurrentParticipants = e.Participants.Count, // Tillagt: Antal deltagare
             MinimumAge = e.MinimumAge,
             IsActive = e.IsActive,
             CreatedAt = e.CreatedAt,
-            CreatedBy = $"{user.FirstName} {user.LastName[0]}."
+            CreatedBy = $"{user.FirstName} {user.LastName[0]}.",
+            Participants = participants,
+            IsUserParticipating = isUserParticipating 
         };
     }
 }

@@ -12,8 +12,8 @@ using grupp3_app.Api.Data;
 namespace grupp3_app.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260120222909_AddEventsTables")]
-    partial class AddEventsTables
+    [Migration("20260129112107_InitialCreateWithCategories")]
+    partial class InitialCreateWithCategories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,122 @@ namespace grupp3_app.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("grupp3_app.Api.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("IconUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DisplayName = "RÖRELSE",
+                            IconUrl = "/icons/sport-icon.svg",
+                            IsActive = true,
+                            Name = "Rorelse",
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DisplayName = "SOCIALT",
+                            IconUrl = "/icons/social-icon.svg",
+                            IsActive = true,
+                            Name = "Socialt",
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DisplayName = "SPEL",
+                            IconUrl = "/icons/games-icon.svg",
+                            IsActive = true,
+                            Name = "Spel",
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayName = "KULTUR",
+                            IconUrl = "/icons/culture-icon.svg",
+                            IsActive = true,
+                            Name = "Kultur",
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayName = "MAT & DRYCK",
+                            IconUrl = "/icons/food-icon.svg",
+                            IsActive = true,
+                            Name = "MatOchDryck",
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DisplayName = "UTOMHUS",
+                            IconUrl = "/icons/outdoor-icon.svg",
+                            IsActive = true,
+                            Name = "Utomhus",
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DisplayName = "MUSIK",
+                            IconUrl = "/icons/music-icon.svg",
+                            IsActive = true,
+                            Name = "Musik",
+                            SortOrder = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            DisplayName = "STUDIER",
+                            IconUrl = "/icons/study-icon.svg",
+                            IsActive = true,
+                            Name = "Studier",
+                            SortOrder = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            DisplayName = "ÖVRIGT",
+                            IconUrl = "/icons/other-icon.svg",
+                            IsActive = true,
+                            Name = "Ovrigt",
+                            SortOrder = 9
+                        });
+                });
+
             modelBuilder.Entity("grupp3_app.Api.Models.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -33,7 +149,7 @@ namespace grupp3_app.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Category")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -82,6 +198,8 @@ namespace grupp3_app.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("CreatedByUserId");
 
@@ -220,11 +338,19 @@ namespace grupp3_app.Api.Migrations
 
             modelBuilder.Entity("grupp3_app.Api.Models.Event", b =>
                 {
+                    b.HasOne("grupp3_app.Api.Models.Category", "Category")
+                        .WithMany("Events")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("grupp3_app.Api.Models.User", "CreatedBy")
                         .WithMany("CreatedEvents")
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("CreatedBy");
                 });
@@ -240,7 +366,7 @@ namespace grupp3_app.Api.Migrations
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventComments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -259,12 +385,17 @@ namespace grupp3_app.Api.Migrations
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventParticipants")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("grupp3_app.Api.Models.Category", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("grupp3_app.Api.Models.Event", b =>

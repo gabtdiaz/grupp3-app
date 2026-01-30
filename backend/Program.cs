@@ -49,7 +49,7 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            policy.WithOrigins("https://friendzone-api.azurewebsites.net")
+            policy.WithOrigins("https://friendzone-app.azurewebsites.net")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -91,10 +91,10 @@ app.UseStaticFiles();
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapEventEndpoints();
+app.MapCategoryEndpoints();  
 app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
 app.MapCommentEndpoints();
-
 
 app.MapFallbackToFile("index.html");  // React Router fallback
 

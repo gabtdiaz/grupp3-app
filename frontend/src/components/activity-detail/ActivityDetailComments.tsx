@@ -13,16 +13,18 @@ export interface Comment {
 }
 
 interface ActivityDetailCommentsProps {
-  activityId: string;
   comments: Comment[];
   onAddComment: (text: string, parentId?: string) => void;
+  onDeleteComment: (commentId: string) => void;
+  currentUserId: number;
   hostId?: string;
 }
 
 export const ActivityDetailComments: React.FC<ActivityDetailCommentsProps> = ({
-  activityId,
   comments,
   onAddComment,
+  onDeleteComment,
+  currentUserId,
   hostId,
 }) => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -60,6 +62,8 @@ export const ActivityDetailComments: React.FC<ActivityDetailCommentsProps> = ({
               replyingTo={replyingTo}
               onCancelReply={handleCancelReply}
               onSubmitReply={handleSubmitReply}
+              onDelete={onDeleteComment}
+              currentUserId={currentUserId}
               hostId={hostId}
               depth={0}
             />
@@ -85,6 +89,8 @@ interface CommentThreadProps {
   replyingTo: string | null;
   onCancelReply: () => void;
   onSubmitReply: (text: string, parentId: string) => void;
+  onDelete: (commentId: string) => void;
+  currentUserId: number;
   hostId?: string;
   depth: number;
 }
@@ -95,6 +101,8 @@ const CommentThread: React.FC<CommentThreadProps> = ({
   replyingTo,
   onCancelReply,
   onSubmitReply,
+  onDelete,
+  currentUserId,
   hostId,
   depth,
 }) => {
@@ -106,6 +114,8 @@ const CommentThread: React.FC<CommentThreadProps> = ({
         replyingTo={replyingTo}
         onCancelReply={onCancelReply}
         onSubmitReply={onSubmitReply}
+        onDelete={onDelete}
+        currentUserId={currentUserId}
         hostId={hostId}
       />
       {/* Nested Replies */}
@@ -119,6 +129,8 @@ const CommentThread: React.FC<CommentThreadProps> = ({
               replyingTo={replyingTo}
               onCancelReply={onCancelReply}
               onSubmitReply={onSubmitReply}
+              onDelete={onDelete}
+              currentUserId={currentUserId}
               hostId={hostId}
               depth={depth + 1}
             />
