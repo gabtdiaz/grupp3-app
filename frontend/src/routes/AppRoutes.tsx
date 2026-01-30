@@ -7,6 +7,7 @@ import PublicUserProfile from "../pages/PublicProfile";
 import Activity from "../pages/Activity";
 import ActivityDetail from "../pages/ActivityDetail";
 import CreateActivity from "../pages/CreateActivity";
+import Settings from "../pages/Settings";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 
@@ -57,6 +58,15 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PublicUserProfile />
           </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <PublicRoute>
+            <Settings />
+          </PublicRoute>
         }
       />
 
