@@ -1,7 +1,5 @@
 import { api } from "./api";
 
-const API_URL = "https://friendzone-app.azurewebsites.net/api";
-
 interface City {
   id: number;
   name: string;
