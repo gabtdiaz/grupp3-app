@@ -36,12 +36,26 @@ export function useComments(eventId: number | null) {
   }, [eventId]);
 
   // Add new comment
-  const addComment = async (text: string): Promise<boolean> => {
+  const addComment = async (
+    text: string,
+    parentCommentId?: number | null,
+  ): Promise<boolean> => {
     if (!eventId) return false;
 
     try {
-      const newComment = await createComment(eventId, text);
-      setComments((prev) => [...prev, newComment]);
+      const newComment = await createComment(eventId, text, parentCommentId);
+      if (!parentCommentId) {
+        setComments((prev) => [...prev, newComment]);
+      } else {
+        // If reply, update parent comment's replies
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment.id === parentCommentId
+              ? { ...comment, replies: [...comment.replies, newComment] }
+              : comment,
+          ),
+        );
+      }
       return true;
     } catch (err: any) {
       console.error("Failed to create comment:", err);
@@ -56,7 +70,8 @@ export function useComments(eventId: number | null) {
 
     try {
       await deleteComment(eventId, commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      const updatedComments = await getEventComments(eventId);
+      setComments(updatedComments);
       return true;
     } catch (err: any) {
       console.error("Failed to delete comment:", err);

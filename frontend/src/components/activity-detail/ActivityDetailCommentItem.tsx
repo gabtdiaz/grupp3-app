@@ -8,6 +8,7 @@ interface Comment {
   authorImageUrl?: string;
   text: string;
   timestamp: Date;
+  isReply?: boolean;
 }
 
 interface ActivityDetailCommentItemProps {
@@ -18,7 +19,7 @@ interface ActivityDetailCommentItemProps {
   onSubmitReply: (text: string, parentId: string) => void;
   onDelete: (commentId: string) => void;
   currentUserId: number;
-  //isReply?: boolean;
+  isReply?: boolean;
   hostId?: string;
 }
 
@@ -32,7 +33,7 @@ export const ActivityDetailCommentItem: React.FC<
   onSubmitReply,
   onDelete,
   currentUserId,
-  //isReply = false,
+  isReply = false,
   hostId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -118,19 +119,23 @@ export const ActivityDetailCommentItem: React.FC<
           )}
 
           {/* Reply Button */}
-          <button
-            onClick={() =>
-              isCurrentlyReplying ? onCancelReply() : onReply(comment.id)
-            }
-            className="text-xs text-gray-500"
-          >
-            {isCurrentlyReplying ? "avbryt" : "svara"}
-          </button>
+          {!isReply && (
+            <button
+              onClick={() =>
+                isCurrentlyReplying ? onCancelReply() : onReply(comment.id)
+              }
+              className="text-xs text-gray-500"
+            >
+              {isCurrentlyReplying ? "avbryt" : "svara"}
+            </button>
+          )}
 
           {/* Delete Button */}
           {canDelete && (
             <>
-              <span className="text-xs text-gray-500 mx-1">•</span>
+              {!isReply && (
+                <span className="text-xs text-gray-500 mx-1">•</span>
+              )}
               <button
                 onClick={() => {
                   if (
