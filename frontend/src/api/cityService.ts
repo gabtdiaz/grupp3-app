@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 
 const API_URL = "https://friendzone-app.azurewebsites.net/api";
 
@@ -8,8 +8,11 @@ interface City {
 }
 
 export const cityService = {
+  /**
+   * GET /api/cities - Hämta alla städer
+   */
   getAllCities: async (): Promise<City[]> => {
-    const response = await axios.get<City[]>(`${API_URL}/cities`);
+    const response = await api.get<City[]>("/api/cities");
     return response.data;
   },
 };
