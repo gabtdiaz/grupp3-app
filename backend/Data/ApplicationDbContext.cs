@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<EventParticipant> EventParticipants { get; set; }
     public DbSet<EventComment> EventComments { get; set; }
     public DbSet<Category> Categories { get; set; }  
+    public DbSet<City> Cities { get; set; }
 
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,7 +42,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.DateOfBirth).IsRequired();
             entity.Property(e => e.Gender).IsRequired();
-            entity.Property(e => e.City).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.City).IsRequired();
 
             // Profile (Optional)
             entity.Property(e => e.ProfileImageUrl).HasMaxLength(500);  // URL length  
@@ -153,5 +154,24 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(e => e.EventId)
                 .OnDelete(DeleteBehavior.Cascade); // Radera kommentar om event raderas
         });
+        
+        modelBuilder.Entity<City>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+        
+            entity.HasData(
+                new City { Id = 1, Name = "Stockholm" },
+                new City { Id = 2, Name = "Göteborg" },
+                new City { Id = 3, Name = "Malmö" },
+                new City { Id = 4, Name = "Uppsala" },
+                new City { Id = 5, Name = "Västerås" },
+                new City { Id = 6, Name = "Örebro" },
+                new City { Id = 7, Name = "Linköping" },
+                new City { Id = 8, Name = "Helsingborg" },
+                new City { Id = 9, Name = "Jönköping" },
+                new City { Id = 10, Name = "Lund" }
+            );
+        });
+
     }
 }
