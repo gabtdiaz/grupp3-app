@@ -42,14 +42,7 @@ builder.Services.AddCors(options =>
     {
      if (builder.Environment.IsDevelopment())
         {
-            policy.SetIsOriginAllowed(_ => true)  // Tillåt alla origins i dev
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        }
-        else
-        {
-            policy.WithOrigins("https://friendzone-app.azurewebsites.net")
+            policy.SetIsOriginAllowed(_ => true)
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -78,7 +71,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
+// HSTS (production only)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
+// CORS (bara i development)
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowFrontend");
+}
+
 app.UseRateLimiting();
 app.UseSecurityHeaders();
 app.UseAuthentication();
