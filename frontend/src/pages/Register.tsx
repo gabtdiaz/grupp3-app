@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useMultiStepForm } from "../hooks/useMultiStepForm";
+import { useCities } from "../hooks/useCities";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { cities } = useCities();
   const {
     step,
     formData,
@@ -214,13 +216,19 @@ export default function RegisterPage() {
 
               <div className="mb-6">
                 <label className="block text-gray-600 text-sm mb-2">Stad</label>
-                <input
-                  type="text"
+                <select
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
-                />
+                >
+                  <option value="">Välj stad</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.name}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
                 {fieldErrors.city && (
                   <p className="text-red-500 text-sm mt-1">
                     {fieldErrors.city}
