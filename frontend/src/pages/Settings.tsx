@@ -40,7 +40,7 @@ export const Settings: React.FC = () => {
     },
   });
 
-  const [isEditing, setIsEditing] = useState({
+  const [_isEditing, _setIsEditing] = useState({
     email: false,
     password: false,
     pronouns: false,
