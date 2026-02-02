@@ -32,7 +32,7 @@ export interface Participant {
 export interface CreateEventDto {
   title: string;
   description?: string;
-  location: string;
+  city: string;
   startDateTime: string;
   endDateTime?: string;
   imageUrl?: string;

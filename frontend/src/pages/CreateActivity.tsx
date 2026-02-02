@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import eventService from "../api/eventService";
 import categoryService from "../api/categoryService";
 import { type Category } from "../api/categoryService";
-
+import { useCities } from "../hooks/useCities";
 import BottomNav from "../components/layout/BottomNav";
 
 const genderRestrictions = [
@@ -14,6 +14,7 @@ const genderRestrictions = [
 
 export default function CreateActivity() {
   const navigate = useNavigate();
+  const { cities } = useCities();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -21,7 +22,7 @@ export default function CreateActivity() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    location: "",
+    city: "",
     startDate: "",
     startTime: "",
     endDate: "",
@@ -33,7 +34,7 @@ export default function CreateActivity() {
     minimumAge: 18,
   });
 
-  // ✅ HÄMTA KATEGORIER VID MOUNT
+  // HÄMTA KATEGORIER VID MOUNT
   useEffect(() => {
     categoryService
       .getAllCategories()
@@ -68,7 +69,7 @@ export default function CreateActivity() {
       setError("Titel är obligatorisk");
       return;
     }
-    if (!formData.location.trim()) {
+    if (!formData.city.trim()) {
       setError("Plats är obligatorisk");
       return;
     }
@@ -91,7 +92,7 @@ export default function CreateActivity() {
       const eventData = {
         title: formData.title,
         description: formData.description || undefined,
-        location: formData.location,
+        city: formData.city,
         startDateTime,
         endDateTime,
         imageUrl: formData.imageUrl || undefined,
@@ -177,15 +178,21 @@ export default function CreateActivity() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Plats *
           </label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
+          <select
+            name="city"
+            value={formData.city}
             onChange={handleChange}
-            placeholder="T.ex. Brogatan 11, Malmö"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
-          />
+          >
+            <option value="">Välj stad</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.name}>
+                {city.name}
+              </option>
+            ))}
+          </select>
+          <select />
         </div>
 
         {/* Kategori */}
