@@ -116,6 +116,7 @@ const CommentThread: React.FC<CommentThreadProps> = ({
         onSubmitReply={onSubmitReply}
         onDelete={onDelete}
         currentUserId={currentUserId}
+        isReply={depth > 0}
         hostId={hostId}
       />
       {/* Nested Replies */}
