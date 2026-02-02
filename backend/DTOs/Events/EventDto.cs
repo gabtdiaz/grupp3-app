@@ -5,7 +5,7 @@ public class EventDto
     public int Id { get; set; } //eventets ID
     public string Title { get; set; } = string.Empty; //titel på eventet
     public string? Description { get; set; } //beskrivning
-    public string City { get; set; } = string.Empty; //plats
+    public string Location { get; set; } = string.Empty; //plats
     public DateTime StartDateTime { get; set; } //starttid
     public DateTime? EndDateTime { get; set; } //sluttid
     public string? ImageUrl { get; set; } //bild
