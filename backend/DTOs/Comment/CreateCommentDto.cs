@@ -8,4 +8,5 @@ public class CreateCommentDto
     [MinLength(1, ErrorMessage = "Comment cannot be empty")]
     [MaxLength(500, ErrorMessage = "Comment cannot exceed 500 characters")]
     public required string Content { get; set; }
+    public int? ParentCommentId { get; set; } 
 }

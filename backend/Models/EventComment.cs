@@ -11,9 +11,13 @@ public class EventComment
 
     public int UserId { get; set; }
     public int EventId { get; set; }
+    public int? ParentCommentId { get; set; } 
 
     // Navigation properties
     public User User { get; set; } = null!;
     public Event Event { get; set; } = null!; 
+    public EventComment? ParentComment { get; set; } 
+    public ICollection<EventComment> Replies { get; set; } = new List<EventComment>();
+    
 }
 

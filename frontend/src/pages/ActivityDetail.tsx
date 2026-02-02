@@ -60,7 +60,15 @@ export const ActivityDetail: React.FC = () => {
     authorImageUrl: c.authorImageUrl || "",
     text: c.content,
     timestamp: new Date(c.createdAt),
-    replies: [],
+    replies: c.replies.map((r) => ({
+      id: r.id.toString(),
+      authorId: r.authorId.toString(),
+      authorName: r.authorName,
+      authorImageUrl: r.authorImageUrl || "",
+      text: r.content,
+      timestamp: new Date(r.createdAt),
+      replies: [],
+    })),
   }));
 
   // Loading and error states
@@ -126,13 +134,9 @@ export const ActivityDetail: React.FC = () => {
   };
 
   const handleAddComment = async (text: string, parentId?: string) => {
-    if (parentId) {
-      // TODO: Fix replies in backend
-      console.log("Replies not supported yet");
-      return;
-    }
+    const parentCommentId = parentId ? Number(parentId) : null;
 
-    const success = await addComment(text);
+    const success = await addComment(text, parentCommentId);
     if (!success) {
       console.error("Failed to add comment");
     }
