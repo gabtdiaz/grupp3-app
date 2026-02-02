@@ -70,7 +70,8 @@ export function useComments(eventId: number | null) {
 
     try {
       await deleteComment(eventId, commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      const updatedComments = await getEventComments(eventId);
+      setComments(updatedComments);
       return true;
     } catch (err: any) {
       console.error("Failed to delete comment:", err);

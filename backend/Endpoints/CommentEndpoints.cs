@@ -141,7 +141,7 @@ public static class CommentEndpoints
         return Results.Ok(topLevelComments);
     }
 
-    private static async Task<IResult> DeleteComment(
+   private static async Task<IResult> DeleteComment(
         int eventId,
         int commentId,
         ApplicationDbContext context,
@@ -161,6 +161,7 @@ public static class CommentEndpoints
             userId, commentId);
 
         var comment = await context.EventComments
+            .Include(c => c.Replies)
             .FirstOrDefaultAsync(c => c.Id == commentId && c.EventId == eventId);
 
         if (comment == null)
@@ -170,7 +171,6 @@ public static class CommentEndpoints
             return Results.NotFound("Comment not found");
         }
 
-        // Check if user owns comment
         if (comment.UserId != userId)
         {
             logger.LogWarning("User {UserId} attempted to delete comment {CommentId} owned by user {OwnerId}", 
@@ -178,10 +178,25 @@ public static class CommentEndpoints
             return Results.Forbid();
         }
 
-        context.EventComments.Remove(comment);
-        await context.SaveChangesAsync();
-
-        logger.LogInformation("Comment {CommentId} deleted by user {UserId}", commentId, userId);
+        // Check if parent comment
+        if (comment.ParentCommentId == null && comment.Replies.Any())
+        {
+            // Soft delete: Replace content and keep replies
+            comment.Content = "[Kommentaren är borttagen]";
+            comment.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+            
+            logger.LogInformation("Parent comment {CommentId} soft deleted (has {ReplyCount} replies)", 
+                commentId, comment.Replies.Count);
+        }
+        else
+        {
+            // Hard delete: Remove reply or parent without replies
+            context.EventComments.Remove(comment);
+            await context.SaveChangesAsync();
+            
+            logger.LogInformation("Comment {CommentId} hard deleted", commentId);
+        }
 
         return Results.NoContent();
     }
