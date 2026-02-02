@@ -22,6 +22,7 @@ export default function CreateActivity() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    location: "",
     city: "",
     startDate: "",
     startTime: "",
@@ -92,7 +93,7 @@ export default function CreateActivity() {
       const eventData = {
         title: formData.title,
         description: formData.description || undefined,
-        city: formData.city,
+        location: formData.city,
         startDateTime,
         endDateTime,
         imageUrl: formData.imageUrl || undefined,
