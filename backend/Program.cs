@@ -99,6 +99,7 @@ app.MapCategoryEndpoints();
 app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
 app.MapCommentEndpoints();
+app.MapCitiesEndpoints();
 
 app.MapFallbackToFile("index.html");  // React Router fallback
 
