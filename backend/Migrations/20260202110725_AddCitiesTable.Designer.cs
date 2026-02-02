@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using grupp3_app.Api.Data;
 
@@ -11,9 +12,11 @@ using grupp3_app.Api.Data;
 namespace grupp3_app.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202110725_AddCitiesTable")]
+    partial class AddCitiesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -291,9 +294,6 @@ namespace grupp3_app.Api.Migrations
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParentCommentId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -303,8 +303,6 @@ namespace grupp3_app.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
-
-                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("UserId");
 
@@ -433,10 +431,6 @@ namespace grupp3_app.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("grupp3_app.Api.Models.EventComment", "ParentComment")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentCommentId");
-
                     b.HasOne("grupp3_app.Api.Models.User", "User")
                         .WithMany("EventComments")
                         .HasForeignKey("UserId")
@@ -444,8 +438,6 @@ namespace grupp3_app.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
-
-                    b.Navigation("ParentComment");
 
                     b.Navigation("User");
                 });
@@ -479,11 +471,6 @@ namespace grupp3_app.Api.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Participants");
-                });
-
-            modelBuilder.Entity("grupp3_app.Api.Models.EventComment", b =>
-                {
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("grupp3_app.Api.Models.User", b =>
