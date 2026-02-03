@@ -1,7 +1,16 @@
 import { useCities } from "../../hooks/useCities";
 
-export default function FilterBar() {
+interface FilterBarProps {
+  selectedCity: string;
+  onCityChange: (city: string) => void;
+}
+
+export default function FilterBar({
+  selectedCity,
+  onCityChange,
+}: FilterBarProps) {
   const { cities } = useCities();
+
   return (
     <div className="relative flex items-center justify-content-between h-full">
       {/* Centered location selector */}
@@ -11,12 +20,14 @@ export default function FilterBar() {
           alt="Location"
           className="w-5 h-5"
         />
-        <select className="text-gray-500 border-none bg-transparent focus:outline-none">
+        <select
+          className="text-gray-500 border-none bg-transparent focus:outline-none"
+          value={selectedCity}
+          onChange={(e) => onCityChange(e.target.value)}
+        >
           <option value="">Alla städer</option>
           {cities.map((city) => (
-            <option key={city.id} value={city.name}>
-              {city.name}
-            </option>
+            <option key={city.id}>{city.name}</option>
           ))}
         </select>
       </div>
