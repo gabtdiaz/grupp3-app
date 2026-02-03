@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddOpenApi();
 
+// Application Insights
+builder.Services.AddApplicationInsightsTelemetry(); 
+
 // Register services
 builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -60,6 +63,9 @@ builder.Services.AddRateLimiting(builder.Configuration);
 builder.Services.AddScoped<AgeValidationService>();
 builder.Services.AddScoped<EventRestrictionService>();
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -100,6 +106,8 @@ app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
 app.MapCommentEndpoints();
 app.MapCitiesEndpoints();
+
+app.MapHealthChecks("/health");
 
 app.MapFallbackToFile("index.html");  // React Router fallback
 
