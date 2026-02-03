@@ -25,10 +25,20 @@ export default function Activity() {
     return matchesCategory && matchesCity;
   });
 
-  const isEmpty = !loading && events.length === 0;
+  const isEmpty = !loading && filteredEvents.length === 0;
 
   const handleCardClick = (eventId: number) => {
     navigate(`/activity/${eventId}`);
+  };
+
+  const handleCategoryClick = (categoryId: number) => {
+    // Toggla kategori - om man klickar på samma kategori igen, avmarkeras den
+    setSelectedCategoryId(
+      selectedCategoryId === categoryId ? null : categoryId,
+    );
+  };
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
   };
 
   return (

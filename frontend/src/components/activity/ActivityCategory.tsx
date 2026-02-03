@@ -22,7 +22,7 @@ export default function ActivityCategory({
         transition-all duration-200
         ${
           isSelected
-            ? "bg-indigo-600 scale-105 shadow-lg"
+            ? "bg-[#FF7070] scale-105 shadow-lg"
             : "bg-white hover:bg-gray-50 hover:scale-102"
         }
       `}
