@@ -40,7 +40,7 @@ export default function ActivityCategory({
         }`}
       >
         {name}
-      </span>{" "}
+      </span>
     </button>
   );
 }
