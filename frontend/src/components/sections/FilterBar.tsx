@@ -1,5 +1,10 @@
 import { useCities } from "../../hooks/useCities";
 
+interface FilterBarProps {
+  selectedCity: string;
+  onCityChange: (city: string) => void;
+}
+
 export default function FilterBar() {
   const { cities } = useCities();
   return (
