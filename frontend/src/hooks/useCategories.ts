@@ -1,6 +1,7 @@
 // src/hooks/useCategories.ts
 import { useState, useEffect } from "react";
-import CategoryService, { Category } from "../api/categoryService";
+import CategoryService from "../api/categoryService";
+import type { Category } from "../api/categoryService";
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);

@@ -1,35 +1,18 @@
-import { useState, useEffect } from "react";
 import ActivityCategory from "./ActivityCategory";
 import { useNavigate } from "react-router-dom";
-import categoryService from "../../api/categoryService";
-import type Category from "../../api/categoryService";
+import { useCategories } from "../../hooks/useCategories";
 
-interface Category {
-  id: number;
-  name: string;
-  displayName: string;
-  iconUrl: string;
+interface ActivityHeaderProps {
+  selectedCategoryId: number | null;
+  onCategoryClick: (categoryId: number) => void;
 }
 
-export default function Header() {
+export default function Header({
+  selectedCategoryId,
+  onCategoryClick,
+}: ActivityHeaderProps) {
+  const { categories, loading, error } = useCategories();
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    categoryService
-      .getAllCategories()
-      .then((data) => {
-        setCategories(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load categories:", err);
-        setError("Kunde inte ladda kategorier");
-        setLoading(false);
-      });
-  }, []);
 
   return (
     <div className="relative h-full w-full flex flex-col">
@@ -65,6 +48,8 @@ export default function Header() {
                 key={category.id}
                 name={category.displayName}
                 icon={category.iconUrl}
+                isSelected={selectedCategoryId === category.id}
+                onClick={() => onCategoryClick(category.id)}
               />
             ))
           )}
