@@ -209,7 +209,7 @@ export default function CreateActivity() {
           >
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.displayName}
+                {cat.name}
               </option>
             ))}
           </select>
