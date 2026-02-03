@@ -12,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddOpenApi();
 
+// Application Insights
+builder.Services.AddApplicationInsightsTelemetry(); 
+
 // Register services
 builder.Services.AddScoped<ITokenService, TokenService>();
 
