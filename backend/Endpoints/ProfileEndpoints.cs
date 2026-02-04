@@ -17,6 +17,14 @@ public static class ProfileEndpoints
         group.MapGet("", GetCurrentUserProfile);
         group.MapPut("", UpdateCurrentUserProfile);
         group.MapGet("/{userId}", GetUserProfileById);
+        group.MapPost("/upload-image", UploadProfileImage)
+            .DisableAntiforgery()
+            .Accepts<IFormFile>("multipart/form-data")
+            .Produces<string>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithDescription("Ladda upp eller ändra profilbild för inloggad användare");
+        group.MapGet("/image", GetProfileImage);
+
     }
 
     private static async Task<IResult> GetCurrentUserProfile(
@@ -79,7 +87,7 @@ public static class ProfileEndpoints
 
         // Get userId from JWT token
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         if (userIdClaim == null)
         {
             logger.LogWarning("Unauthorized profile update attempt: User ID not found in token");
@@ -146,9 +154,11 @@ public static class ProfileEndpoints
             return Results.NotFound("User not found");
         }
 
+
+
         // Calculate age
         var age = CalculateAge(userProfile.DateOfBirth);
-    
+
         // Map to ProfileDto (public view)
         var publicProfileDto = new PublicProfileDto
         {
@@ -162,6 +172,54 @@ public static class ProfileEndpoints
         };
 
         return Results.Ok(publicProfileDto);
+    }
+
+    private static async Task<IResult> UploadProfileImage(
+        ClaimsPrincipal user,
+        IFormFile file,
+        ApplicationDbContext context,
+        ILogger<Program> logger)
+    {
+        if (file == null || file.Length == 0) return Results.BadRequest("Ingen fil uppladdad.");
+
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return Results.Unauthorized();
+
+        var userId = int.Parse(userIdClaim);
+        var currentUser = await context.Users.FindAsync(userId);
+        if (currentUser == null) return Results.NotFound("Användaren hittades inte.");
+
+        var allowedTypes = new[] { "image/jpeg", "image/png" };
+        if (!allowedTypes.Contains(file.ContentType))
+            return Results.BadRequest("Endast JPG eller PNG-filer tillåtna.");
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms);
+
+        // Radera gammal bild
+        currentUser.ProfileImageData = ms.ToArray();
+        currentUser.ProfileImageFileType = file.ContentType;
+        currentUser.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        logger.LogInformation("User {UserId} uploaded/updated profile image", userId);
+
+        return Results.Ok("Profilbilden har uppdaterats.");
+    }
+
+    private static async Task<IResult> GetProfileImage(
+       ClaimsPrincipal user,
+       ApplicationDbContext context)
+    {
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return Results.Unauthorized();
+
+        var userId = int.Parse(userIdClaim);
+        var currentUser = await context.Users.FindAsync(userId);
+        if (currentUser == null || currentUser.ProfileImageData == null)
+            return Results.NotFound("Ingen profilbild.");
+
+        return Results.File(currentUser.ProfileImageData, currentUser.ProfileImageFileType ?? "image/jpeg");
     }
 
     // Helper method

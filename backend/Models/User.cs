@@ -8,15 +8,17 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
 
     // Personal info
-    public string FirstName { get; set ; } = string.Empty;
-    public string LastName { get; set ; } = string.Empty; 
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public DateTime DateOfBirth { get; set; }
     public Gender Gender { get; set; }
     public string City { get; set; } = string.Empty;
 
     // Profile
     public string? ProfileImageUrl { get; set; }  // Optional, default bild om null
-    public string Bio {get; set;} = string.Empty;
+    public byte[]? ProfileImageData { get; set; }
+    public string? ProfileImageFileType { get; set; }
+    public string Bio { get; set; } = string.Empty;
     public string Interests { get; set; } = string.Empty;  // Lista med valda intressen
 
     // Timestamps
