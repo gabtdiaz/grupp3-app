@@ -43,13 +43,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-     if (builder.Environment.IsDevelopment())
-        {
-            policy.SetIsOriginAllowed(_ => true)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        }
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5011")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -84,10 +81,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 // CORS (bara i development)
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors("AllowFrontend");
-}
+app.UseCors("AllowFrontend");
+
 
 app.UseRateLimiting();
 app.UseSecurityHeaders();
@@ -96,12 +91,12 @@ app.UseAuthorization();
 
 // Servera statiska filer (React-appen från wwwroot)
 app.UseDefaultFiles();
-app.UseStaticFiles(); 
+app.UseStaticFiles();
 
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapEventEndpoints();
-app.MapCategoryEndpoints();  
+app.MapCategoryEndpoints();
 app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
 app.MapCommentEndpoints();
