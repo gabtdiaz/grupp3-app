@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ActivityDetailHeader } from "../components/activity-detail/ActivityDetailHeader";
 import { ActivityDetailHost } from "../components/activity-detail/ActivityDetailHost";
 import { ActivityDetailMeta } from "../components/activity-detail/ActivityDetailMeta";
@@ -17,6 +18,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 type TabType = "information" | "kommentarer";
 
 export const ActivityDetail: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("information");
   const [isJoined, setIsJoined] = useState(false);
 
@@ -158,6 +160,17 @@ export const ActivityDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="bg-white px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/*Tillbakaknapp*/}
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            ← Tillbaka
+          </button>
+        </div>
+      </div>
       {/* Header with title and tabs */}
       <ActivityDetailHeader
         title={event.title}
