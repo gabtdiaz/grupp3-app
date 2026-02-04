@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useProfile } from "../../hooks/useProfile";
 import { type UserProfile, type PublicProfile } from "../../api/profile";
 
@@ -10,16 +11,15 @@ export default function Info({
   profile: externalProfile,
   showSettings = true,
 }: InfoProps) {
+  const navigate = useNavigate();
   const { profile: ownProfile, loading, error } = useProfile();
 
-  // Använd extern profil om den finns, annars egen profil
   const profile = externalProfile || ownProfile;
 
-  // Loading/error states bara om vi använder useProfile
   if (!externalProfile && loading) {
     return (
       <div className="relative pt-16 px-6">
-        <p className="text-gray-500">Loading profile...</p>
+        <p className="text-gray-500">Laddar profil...</p>
       </div>
     );
   }
@@ -35,12 +35,11 @@ export default function Info({
   if (!profile) {
     return (
       <div className="relative pt-16 px-6">
-        <p className="text-gray-500">No profile found</p>
+        <p className="text-gray-500">Ingen profil hittad</p>
       </div>
     );
   }
 
-  // Check if own page or public profile page
   const isOwnProfile = "firstName" in profile;
 
   const displayName = isOwnProfile
@@ -50,6 +49,7 @@ export default function Info({
   return (
     <div className="relative pt-16 px-6">
       <h1 className="text-2xl font-serif">{displayName}</h1>
+
       <div className="flex items-center gap-2 mt-1 text-sm text-gray-700">
         <span>{profile.city}</span>
         <span>•</span>
@@ -61,18 +61,21 @@ export default function Info({
           </>
         )}
       </div>
+
       <div>
         <p className="mt-2 text-gray-400 italic text-sm">
           {profile.bio || "No bio yet"}
         </p>
       </div>
-      {showSettings && (
-        <button className="absolute top-4 right-4 w-7 h-7 rounded-full">
-          <img
-            src="/icons/settings-icon.svg"
-            alt="Settings"
-            className="w-7 h-7"
-          />
+
+      {showSettings && isOwnProfile && (
+        <button
+          type="button"
+          onClick={() => navigate("/settings")}
+          aria-label="Öppna inställningar"
+          className="absolute top-4 right-4 w-7 h-7 rounded-full"
+        >
+          <img src="/icons/settings-icon.svg" alt="" className="w-7 h-7" />
         </button>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/activity/ActivityHeader";
 import NavigationTabs from "../components/sections/NavigationTabs";
@@ -8,14 +9,36 @@ import { useEvents } from "../hooks/useEvent";
 
 export default function Activity() {
   const navigate = useNavigate();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
+  const [selectedCity, setSelectedCity] = useState<string>("");
 
   // Hämta events från backend (filtrerade baserat på user age/gender)
   const { events, loading, error } = useEvents();
 
-  const isEmpty = !loading && events.length === 0;
+  // Filtrera events baserat på CategoryId och stad
+  const filteredEvents = events.filter((event) => {
+    const matchesCategory =
+      !selectedCategoryId || event.categoryId === selectedCategoryId;
+    const matchesCity = !selectedCity || event.location === selectedCity;
+    return matchesCategory && matchesCity;
+  });
+
+  const isEmpty = !loading && filteredEvents.length === 0;
 
   const handleCardClick = (eventId: number) => {
     navigate(`/activity/${eventId}`);
+  };
+
+  const handleCategoryClick = (categoryId: number) => {
+    // Toggla kategori - om man klickar på samma kategori igen, avmarkeras den
+    setSelectedCategoryId(
+      selectedCategoryId === categoryId ? null : categoryId,
+    );
+  };
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
   };
 
   return (
@@ -28,7 +51,10 @@ export default function Activity() {
           backgroundSize: "26rem",
         }}
       >
-        <Header />
+        <Header
+          selectedCategoryId={selectedCategoryId}
+          onCategoryClick={handleCategoryClick}
+        />
       </div>
 
       <div className="px-6 pt-3 border-b border-gray-200 relative">
@@ -36,7 +62,10 @@ export default function Activity() {
       </div>
 
       <div className="relative px-6 h-10">
-        <FilterBar />
+        <FilterBar
+          selectedCity={selectedCity}
+          onCityChange={handleCityChange}
+        />
       </div>
 
       <div
@@ -61,7 +90,7 @@ export default function Activity() {
             <p className="text-red-500">{error}</p>
           </div>
         ) : (
-          <ActivityFeed events={events} onCardClick={handleCardClick} />
+          <ActivityFeed events={filteredEvents} onCardClick={handleCardClick} />
         )}
       </div>
 

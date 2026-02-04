@@ -1,7 +1,7 @@
 import Header from "../components/profile/ProfileHeader";
 import Info from "../components/profile/Info";
 import NavigationTabs from "../components/sections/NavigationTabs";
-import FilterBar from "../components/sections/FilterBar";
+// import FilterBar from "../components/sections/FilterBar";
 // import ActivityFeed from "../components/sections/ActivityFeed";
 import BottomNav from "../components/layout/BottomNav";
 
@@ -15,9 +15,10 @@ export default function Profile() {
         <NavigationTabs />
       </div>
 
-      <div className="relative px-6 h-10">
-        <FilterBar />
-      </div>
+      {/* <div className="relative px-6 h-10">
+        <FilterBar selectedCity="" onCityChange={() => {}} />
+        {/*Ska vi ha filtrering i profil?
+      </div> */}
 
       <div
         className="flex-1 flex pb-10"

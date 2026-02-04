@@ -1,29 +1,33 @@
-const cities = [
-  "Stockholm",
-  "Göteborg",
-  "Malmö",
-  "Uppsala",
-  "Västerås",
-  "Örebro",
-  "Linköping",
-  "Helsingborg",
-  "Jönköping",
-  "Lund",
-];
+import { useCities } from "../../hooks/useCities";
 
-export default function FilterBar() {
+interface FilterBarProps {
+  selectedCity: string;
+  onCityChange: (city: string) => void;
+}
+
+export default function FilterBar({
+  selectedCity,
+  onCityChange,
+}: FilterBarProps) {
+  const { cities } = useCities();
+
   return (
     <div className="relative flex items-center justify-content-between h-full">
-      
       {/* Centered location selector */}
       <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-        <img src="/icons/location-icon.svg" alt="Location" className="w-5 h-5" />
-
-        <select className="text-gray-500 border-none bg-transparent focus:outline-none">
+        <img
+          src="/icons/location-icon.svg"
+          alt="Location"
+          className="w-5 h-5"
+        />
+        <select
+          className="text-gray-500 border-none bg-transparent focus:outline-none"
+          value={selectedCity}
+          onChange={(e) => onCityChange(e.target.value)}
+        >
+          <option value="">Alla städer</option>
           {cities.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
+            <option key={city.id}>{city.name}</option>
           ))}
         </select>
       </div>

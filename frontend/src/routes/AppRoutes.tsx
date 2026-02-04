@@ -64,9 +64,9 @@ const AppRoutes = () => {
       <Route
         path="/settings"
         element={
-          <PublicRoute>
+          <ProtectedRoute>
             <Settings />
-          </PublicRoute>
+          </ProtectedRoute>
         }
       />
 
