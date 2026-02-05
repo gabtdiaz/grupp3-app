@@ -11,7 +11,13 @@ export default function ActivityFeed({
   events,
   onCardClick,
 }: ActivityFeedProps) {
-  if (events.length === 0) {
+  // Filtrera bort gamla events (endast kommande events ska synas)
+  const upcomingEvents = events.filter((event) => {
+    const eventDate = new Date(event.startDateTime);
+    const now = new Date();
+    return eventDate >= now;
+  });
+  if (upcomingEvents.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center text-center px-6">
         <p
@@ -25,7 +31,7 @@ export default function ActivityFeed({
   }
 
   // Gruppera events per datum
-  const eventsByDate = groupEventsByDate(events);
+  const eventsByDate = groupEventsByDate(upcomingEvents);
 
   return (
     <div className="flex flex-col w-full">
