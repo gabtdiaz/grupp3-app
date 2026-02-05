@@ -43,10 +43,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5011")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.WithOrigins("http://localhost:5173", "http://localhost:5011")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
@@ -81,8 +84,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 // CORS (bara i development)
-app.UseCors("AllowFrontend");
-
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowFrontend");
+}
 
 app.UseRateLimiting();
 app.UseSecurityHeaders();
