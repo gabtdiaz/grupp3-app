@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const tabs = ["SKAPADE", "KOMMER", "INJUDEN", "TIDIGARE"];
+const tabs = ["SKAPADE", "KOMMER", "TIDIGARE"];
 
 export default function NavigationTabs() {
   const [activeTab, setActiveTab] = useState("SKAPADE");
@@ -12,11 +12,7 @@ export default function NavigationTabs() {
           key={tab}
           onClick={() => setActiveTab(tab)}
           className={`pb-3 text-xs tracking-wide transition-colors
-            ${
-              activeTab === tab
-                ? "border-b  "
-                : "text-gray-500"
-            }`}
+            ${activeTab === tab ? "border-b  " : "text-gray-500"}`}
         >
           {tab}
         </button>
