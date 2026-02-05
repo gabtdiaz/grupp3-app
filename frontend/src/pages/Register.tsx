@@ -1,8 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { useMultiStepForm } from "../hooks/useMultiStepForm";
 import { useCities } from "../hooks/useCities";
+import { TermsModal } from "../components/modals/TermsModal";
+import { PrivacyModal } from "../components/modals/PrivacyModal";
+import { useState } from "react";
 
 export default function RegisterPage() {
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
   const navigate = useNavigate();
   const { cities } = useCities();
   const {
@@ -274,6 +282,62 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Checkboxes för villkor */}
+              <div className="mb-6 space-y-3">
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    id="termsAccepted"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="mt-1 accent-[#ffffff]"
+                  />
+                  <label
+                    htmlFor="termsAccepted"
+                    className="text-sm text-gray-700"
+                  >
+                    Jag accepterar{" "}
+                    <button
+                      type="button"
+                      onClick={() => setIsTermsModalOpen(true)}
+                      className="text-[#000000] font-bold hover:underline"
+                    >
+                      användarvillkoren
+                    </button>
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    id="privacyAccepted"
+                    checked={privacyAccepted}
+                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                    className="mt-1 accent-[#ffffff]"
+                  />
+                  <label
+                    htmlFor="privacyAccepted"
+                    className="text-sm text-gray-700"
+                  >
+                    Jag accepterar{" "}
+                    <button
+                      type="button"
+                      onClick={() => setIsPrivacyModalOpen(true)}
+                      className="text-[#000000] font-bold hover:underline"
+                    >
+                      integritetspolicyn
+                    </button>
+                  </label>
+                </div>
+
+                {(!termsAccepted || !privacyAccepted) && error && (
+                  <p className="text-red-500 text-sm">
+                    Du måste acceptera både användarvillkoren och
+                    integritetspolicyn
+                  </p>
+                )}
+              </div>
+
               {error && (
                 <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
               )}
@@ -287,8 +351,8 @@ export default function RegisterPage() {
                 </button>
 
                 <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  onClick={() => handleSubmit(termsAccepted, privacyAccepted)}
+                  disabled={isSubmitting || !termsAccepted || !privacyAccepted}
                   className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   {isSubmitting ? "REGISTRERAR..." : "REGISTRERA"}
@@ -298,6 +362,16 @@ export default function RegisterPage() {
           )}
         </div>
       </div>
+
+      {/* Modaler */}
+      <TermsModal
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+      />
+      <PrivacyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
     </>
   );
 }

@@ -52,7 +52,10 @@ export function useMultiStepForm(initialStep = 1) {
     setFieldErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (
+    termsAccepted: boolean,
+    privacyAccepted: boolean,
+  ) => {
     setError(null);
 
     if (formData.password !== formData.confirmPassword) {
@@ -69,15 +72,23 @@ export function useMultiStepForm(initialStep = 1) {
       return;
     }
 
+    if (!termsAccepted || !privacyAccepted) {
+      setError(
+        "Du måste acceptera både användarvillkoren och integritetspolicyn.",
+      );
+      return;
+    }
+
     const payload = {
       email: formData.email,
       password: formData.password,
       firstName: formData.firstName,
       lastName: formData.lastName,
       city: formData.city || "Unknown",
-
       dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
       gender: Number(formData.gender),
+      acceptedTerms: termsAccepted,
+      acceptedPrivacy: privacyAccepted,
     };
 
     try {

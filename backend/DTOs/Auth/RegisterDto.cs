@@ -33,4 +33,13 @@ public class RegisterDto
     [Required(ErrorMessage = "City is required")]
     public string City { get; set; } = string.Empty;
 
+    // GDPR Consent
+    [Required(ErrorMessage = "Du måste acceptera användarvillkoren")]
+    [Range(typeof(bool), "true", "true", ErrorMessage = "Du måste acceptera användarvillkoren")]
+    public bool AcceptedTerms { get; set; }
+
+    [Required(ErrorMessage = "Du måste acceptera integritetspolicyn")]
+    [Range(typeof(bool), "true", "true", ErrorMessage = "Du måste acceptera integritetspolicyn")]
+    public bool AcceptedPrivacy { get; set; }
+
 }
