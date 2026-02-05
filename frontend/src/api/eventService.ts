@@ -17,6 +17,7 @@ export interface Event {
   minimumAge: number | null;
   isActive: boolean;
   createdBy: string; // "Anna A."
+  createdByUserId: number;
   createdAt: string;
   isFull: boolean; // Helper från backend
   participants: Participant[];

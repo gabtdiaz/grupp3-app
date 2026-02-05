@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ActivityDetailCommentInput } from "./ActivityDetailCommentInput";
+import { useNavigate } from "react-router-dom";
 
 interface Comment {
   id: string;
@@ -36,6 +37,7 @@ export const ActivityDetailCommentItem: React.FC<
   isReply = false,
   hostId,
 }) => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const MAX_LENGTH = 150;
   const shouldTruncate = comment.text.length > MAX_LENGTH;
@@ -66,16 +68,25 @@ export const ActivityDetailCommentItem: React.FC<
     return `${day} ${month} kl. ${time}`;
   };
 
+  const handleProfileClick = () => {
+    if (comment.authorId) {
+      navigate(`/profile/${comment.authorId}`);
+    }
+  };
+
   const isCurrentlyReplying = replyingTo === comment.id;
   const isHost = hostId && comment.authorId === hostId;
   const canDelete = Number(comment.authorId) === currentUserId;
 
   return (
     <div className="relative">
-      <div className="flex gap-3">
-        {/* Avatar */}
-        <div className="shrink-0">
-          <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden">
+      <div className="flex gap-3 items-start">
+        {/* Avatar - Klickbar */}
+        <button
+          onClick={handleProfileClick}
+          className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+        >
+          <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden hover:border-blue-500 transition-colors cursor-pointer">
             {comment.authorImageUrl ? (
               <img
                 src={comment.authorImageUrl}
@@ -88,13 +99,18 @@ export const ActivityDetailCommentItem: React.FC<
               </div>
             )}
           </div>
-        </div>
+        </button>
 
         {/* Comment Content */}
         <div className="flex-1 min-w-0">
           {/* Author and Timestamp */}
           <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-            <span className=" text-gray-900">{comment.authorName}</span>
+            <button
+              onClick={handleProfileClick}
+              className="text-gray-900 hover:underline cursor-pointer focus:outline-none"
+            >
+              {comment.authorName}
+            </button>
             {isHost && (
               <span className="text-xs bg-light-green text-white px-2 py-0.5 rounded">
                 Arrangör

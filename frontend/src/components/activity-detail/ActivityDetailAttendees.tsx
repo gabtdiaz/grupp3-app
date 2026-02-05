@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Attendee {
   id: string;
@@ -13,6 +14,12 @@ interface ActivityDetailAttendeesProps {
 export const ActivityDetailAttendees: React.FC<
   ActivityDetailAttendeesProps
 > = ({ attendees }) => {
+  const navigate = useNavigate();
+
+  const handleAttendeeClick = (userId: string) => {
+    navigate(`/profile/${userId}`);
+  };
+
   return (
     <div className="px-4 py-5 border-b border-gray-100">
       <h2 className="text-lg text-gray-900 mb-2">Kommer</h2>
@@ -21,7 +28,11 @@ export const ActivityDetailAttendees: React.FC<
       <div className="overflow-x-auto no-scrollbar scroll-smooth -mx-4 px-4">
         <div className="flex items-center gap-2 pb-3">
           {attendees.map((attendee) => (
-            <div key={attendee.id} title={attendee.name}>
+            <button
+              key={attendee.id}
+              onClick={() => handleAttendeeClick(attendee.id)}
+              title={attendee.name}
+            >
               {attendee.imageUrl ? (
                 <img
                   src={attendee.imageUrl}
@@ -31,7 +42,7 @@ export const ActivityDetailAttendees: React.FC<
               ) : (
                 <div className="h-10 w-10 rounded-full border-2 border-gray-300" />
               )}
-            </div>
+            </button>
           ))}
         </div>
       </div>

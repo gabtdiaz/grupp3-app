@@ -183,6 +183,7 @@ export const ActivityDetail: React.FC = () => {
         <div>
           {/* Host Section */}
           <ActivityDetailHost
+            hostId={event.createdByUserId?.toString() || event.createdBy}
             hostName={event.createdBy}
             hostRole="Arrangör"
             hostImageUrl=""
