@@ -289,6 +289,7 @@ public static class EventEndpoints
             MinimumAge = e.MinimumAge,
             IsActive = e.IsActive,
             CreatedAt = e.CreatedAt,
+            CreatedByUserId = e.CreatedByUserId, 
             CreatedBy = $"{user.FirstName} {user.LastName[0]}.",
             Participants = participants,
             IsUserParticipating = isUserParticipating 

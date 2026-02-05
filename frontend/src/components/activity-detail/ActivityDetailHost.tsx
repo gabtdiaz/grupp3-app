@@ -1,21 +1,30 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ActivityDetailHostProps {
+  hostId: string;
   hostName: string;
   hostRole?: string;
   hostImageUrl?: string;
 }
 
 export const ActivityDetailHost: React.FC<ActivityDetailHostProps> = ({
+  hostId,
   hostName,
   hostImageUrl,
 }) => {
+  const navigate = useNavigate();
+
+  const handleHostClick = () => {
+    navigate(`/profile/${hostId}`);
+  };
+
   return (
     <div className="px-4 py-5 border-b border-gray-100">
       <p className="text-sm text-gray-700 mb-3">Arrangeras av</p>
 
       {/* Host Card */}
-      <div className="flex items-center gap-4">
+      <button onClick={handleHostClick} className="flex items-center gap-4">
         {/* Profile Image */}
         <div className="shrink-0">
           {hostImageUrl ? (
@@ -34,7 +43,7 @@ export const ActivityDetailHost: React.FC<ActivityDetailHostProps> = ({
           <h3 className="text-lg font-normal text-gray-900">{hostName}</h3>
           <p className="text-sm text-gray-500">Arrangör</p>
         </div>
-      </div>
+      </button>
     </div>
   );
 };
