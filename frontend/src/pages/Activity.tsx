@@ -57,10 +57,6 @@ export default function Activity() {
         />
       </div>
 
-      <div className="px-6 pt-3 border-b border-gray-200 relative">
-        <NavigationTabs />
-      </div>
-
       <div className="relative px-6 h-10">
         <FilterBar
           selectedCity={selectedCity}
