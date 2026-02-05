@@ -16,6 +16,10 @@ public static class ProfileEndpoints
 
         group.MapGet("", GetCurrentUserProfile);
         group.MapPut("", UpdateCurrentUserProfile);
+
+        // ✅ NEW: Update email
+        group.MapPut("/email", UpdateCurrentUserEmail);
+
         group.MapGet("/{userId}", GetUserProfileById);
         group.MapPost("/upload-image", UploadProfileImage)
             .DisableAntiforgery()
@@ -112,6 +116,17 @@ public static class ProfileEndpoints
         currentUser.Bio = updateDto.Bio;
         currentUser.Interests = updateDto.Interests;
         currentUser.ProfileImageUrl = updateDto.ProfileImageUrl;
+        if (Enum.TryParse<Gender>(updateDto.Gender, out var gender))
+        {
+            currentUser.Gender = gender;
+        }
+        else
+        {
+            return Results.BadRequest("Invalid gender value");
+        }
+        currentUser.ShowGender = updateDto.ShowGender;
+        currentUser.ShowAge = updateDto.ShowAge;
+        currentUser.ShowCity = updateDto.ShowCity;
         currentUser.UpdatedAt = DateTime.UtcNow;
 
         // Save changes
@@ -132,10 +147,70 @@ public static class ProfileEndpoints
             ProfileImageUrl = currentUser.ProfileImageUrl,
             Bio = currentUser.Bio,
             Interests = currentUser.Interests,
-            CreatedAt = currentUser.CreatedAt
+            CreatedAt = currentUser.CreatedAt,
+            ShowGender = currentUser.ShowGender,
+            ShowAge = currentUser.ShowAge,
+            ShowCity = currentUser.ShowCity,
         };
 
         return Results.Ok(profileDto);
+    }
+
+    // Update current user's email
+    private static async Task<IResult> UpdateCurrentUserEmail(
+        UpdateEmailDto dto,
+        ClaimsPrincipal user,
+        ApplicationDbContext context,
+        ILogger<Program> logger)
+    {
+        // Validate input
+        if (!MiniValidator.TryValidate(dto, out var errors))
+        {
+            logger.LogWarning("Email update validation failed");
+            return Results.ValidationProblem(errors);
+        }
+
+        // Get userId from JWT token
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim == null)
+        {
+            logger.LogWarning("Unauthorized email update attempt: User ID not found in token");
+            return Results.Problem("User ID not found in token", statusCode: 401);
+        }
+
+        if (!int.TryParse(userIdClaim, out var userId))
+        {
+            logger.LogWarning("Unauthorized email update attempt: Invalid user id claim");
+            return Results.Problem("Invalid user id claim", statusCode: 401);
+        }
+
+        logger.LogInformation("User {UserId} updating email", userId);
+
+        // Fetch user from database
+        var currentUser = await context.Users.FindAsync(userId);
+
+        if (currentUser == null)
+        {
+            return Results.NotFound("User not found");
+        }
+
+        var email = dto.Email.Trim();
+
+        // Ensure unique email
+        var exists = await context.Users.AnyAsync(u => u.Email == email && u.Id != userId);
+        if (exists)
+        {
+            return Results.BadRequest("Email already in use");
+        }
+
+        currentUser.Email = email;
+        currentUser.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        logger.LogInformation("User {UserId} updated email successfully", userId);
+
+        return Results.Ok(new { email = currentUser.Email });
     }
 
     private static async Task<IResult> GetUserProfileById(
@@ -164,8 +239,9 @@ public static class ProfileEndpoints
         {
             Id = userProfile.Id,
             DisplayName = $"{userProfile.FirstName} {userProfile.LastName[0]}",
-            Age = age,
-            City = userProfile.City,
+            Age = userProfile.ShowAge ? age : null,
+            Gender = userProfile.ShowGender ? userProfile.Gender.ToString() : null,
+            City = userProfile.ShowCity ? userProfile.City : null,
             ProfileImageUrl = userProfile.ProfileImageUrl,
             Bio = userProfile.Bio,
             Interests = userProfile.Interests,

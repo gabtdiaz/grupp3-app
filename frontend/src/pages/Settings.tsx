@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SettingsHeader } from "../components/settings/SettingsHeader";
 import { SettingsAvatar } from "../components/settings/SettingsAvatar";
 import { SettingsBio } from "../components/settings/SettingsBio";
@@ -9,80 +9,227 @@ import { SettingsPrivacy } from "../components/settings/SettingsPrivacy";
 import { SettingsLogout } from "../components/settings/SettingsLogout";
 import BottomNav from "../components/layout/BottomNav";
 
-export interface UserProfile {
-  email: string;
-  password: string;
-  gender: "Man" | "Kvinna" | "Icke-binär" | "Annan";
-  city: string;
-  birthday: Date;
-  avatarUrl: string;
-  bio: string;
-  privacy: {
-    showGender: boolean;
-    showAge: boolean;
-    showCity: boolean;
-  };
-}
+import { useProfile } from "../hooks/useProfile";
+import { updateUserProfile, updateEmail, changePassword } from "../api/profile";
+
+type PrivacyDraft = {
+  showGender: boolean;
+  showAge: boolean;
+  showCity: boolean;
+};
 
 export const Settings: React.FC = () => {
-  const [profile, setProfile] = useState<UserProfile>({
-    email: "exempel@email.se",
-    password: "********",
-    gender: "Kvinna",
-    city: "Malmö",
-    birthday: new Date(1995, 5, 15),
-    avatarUrl: "",
-    bio: "Älskar brädspel och träffa nya människor! Letar alltid efter nya spelupplevelser.",
-    privacy: {
-      showGender: true,
-      showAge: true,
-      showCity: true,
-    },
-  });
+  const { profile, loading, error, refetch } = useProfile();
 
-  const [_isEditing, _setIsEditing] = useState({
-    email: false,
-    password: false,
-    pronouns: false,
-    city: false,
-    bio: false,
-  });
+  // Bio UI state
+  const [bioDraft, setBioDraft] = useState("");
+  const [savingBio, setSavingBio] = useState(false);
+  const [saveBioError, setSaveBioError] = useState<string | null>(null);
 
-  const handleUpdateProfile = (field: keyof UserProfile, value: any) => {
-    setProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  // Email UI state
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Password UI state
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Privacy UI state (optimistisk så toggles känns direkt)
+  const [privacyDraft, setPrivacyDraft] = useState<PrivacyDraft | null>(null);
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setBioDraft(profile.bio ?? "");
+      setPrivacyDraft({
+        showGender: profile.showGender,
+        showAge: profile.showAge,
+        showCity: profile.showCity,
+      });
+    }
+  }, [profile]);
+
+  const handleSaveBio = async (nextBio: string) => {
+    if (!profile) return;
+
+    try {
+      setSavingBio(true);
+      setSaveBioError(null);
+
+      await updateUserProfile({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        city: profile.city,
+        bio: nextBio,
+        interests: profile.interests ?? "",
+        profileImageUrl: profile.profileImageUrl ?? null,
+        gender: profile.gender,
+        showGender: profile.showGender,
+        showAge: profile.showAge,
+        showCity: profile.showCity,
+      });
+
+      setBioDraft(nextBio);
+      await refetch();
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data ||
+        err?.message ||
+        "Kunde inte spara bio";
+
+      setSaveBioError(typeof msg === "string" ? msg : "Kunde inte spara bio");
+      throw err;
+    } finally {
+      setSavingBio(false);
+    }
   };
 
-  const handleUpdatePrivacy = (field: keyof UserProfile["privacy"]) => {
-    setProfile((prev) => ({
-      ...prev,
-      privacy: {
-        ...prev.privacy,
-        [field]: !prev.privacy[field],
-      },
-    }));
+  const handleSaveEmail = async (nextEmail: string) => {
+    try {
+      setSavingEmail(true);
+      setEmailError(null);
+
+      await updateEmail(nextEmail);
+      await refetch();
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data ||
+        err?.message ||
+        "Kunde inte spara e-post";
+
+      setEmailError(typeof msg === "string" ? msg : "Kunde inte spara e-post");
+      throw err;
+    } finally {
+      setSavingEmail(false);
+    }
+  };
+
+  const handleSavePassword = async (p: {
+    oldPassword: string;
+    newPassword: string;
+  }) => {
+    try {
+      setSavingPassword(true);
+      setPasswordError(null);
+
+      await changePassword(p.oldPassword, p.newPassword);
+
+      // (valfritt) inget refetch behövs här
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data ||
+        err?.message ||
+        "Kunde inte byta lösenord";
+
+      setPasswordError(
+        typeof msg === "string" ? msg : "Kunde inte byta lösenord",
+      );
+      throw err; // så SettingsInput stannar i edit-läget
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
   const handleLogout = () => {
     console.log("Logging out...");
-    // Implement logout logic here
   };
 
-  const formatBirthday = (date: Date): string => {
-    return date.toLocaleDateString("sv-SE", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const handleSaveGender = async (nextGender: string) => {
+    if (!profile) return;
+
+    try {
+      await updateUserProfile({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        city: profile.city,
+        bio: profile.bio ?? "",
+        interests: profile.interests ?? "",
+        profileImageUrl: profile.profileImageUrl ?? null,
+        gender: nextGender,
+        showGender: profile.showGender,
+        showAge: profile.showAge,
+        showCity: profile.showCity,
+      });
+
+      await refetch();
+    } catch (err: any) {
+      console.error("Failed to update gender:", err);
+    }
   };
+
+  const handleSaveCity = async (nextCity: string) => {
+    if (!profile) return;
+
+    try {
+      await updateUserProfile({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        city: nextCity,
+        bio: profile.bio ?? "",
+        interests: profile.interests ?? "",
+        profileImageUrl: profile.profileImageUrl ?? null,
+        gender: profile.gender,
+        showGender: profile.showGender,
+        showAge: profile.showAge,
+        showCity: profile.showCity,
+      });
+
+      await refetch();
+    } catch (err: any) {
+      console.error("Failed to update city:", err);
+    }
+  };
+
+  const handleSavePrivacy = async (
+    field: keyof PrivacyDraft,
+    value: boolean,
+  ) => {
+    if (!profile || !privacyDraft) return;
+
+    const prev = privacyDraft;
+    const nextDraft: PrivacyDraft = { ...privacyDraft, [field]: value };
+    setPrivacyDraft(nextDraft);
+
+    try {
+      setSavingPrivacy(true);
+
+      const updated = await updateUserProfile({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        city: profile.city,
+        bio: profile.bio ?? "",
+        interests: profile.interests ?? "",
+        profileImageUrl: profile.profileImageUrl ?? null,
+        gender: profile.gender,
+        showGender: nextDraft.showGender,
+        showAge: nextDraft.showAge,
+        showCity: nextDraft.showCity,
+      });
+
+      setPrivacyDraft({
+        showGender: updated.showGender,
+        showAge: updated.showAge,
+        showCity: updated.showCity,
+      });
+
+      // await refetch();
+    } catch (err) {
+      console.error("Failed to update privacy:", err);
+      setPrivacyDraft(prev); // rollback
+    } finally {
+      setSavingPrivacy(false);
+    }
+  };
+
 
   const pronounOptions = [
-    { value: "Kvinna", label: "Kvinna" },
     { value: "Man", label: "Man" },
-    { value: "Icke-binär", label: "Icke-binär" },
-    { value: "Annan", label: "Annan" },
+    { value: "Kvinna", label: "Kvinna" },
+    { value: "Annat", label: "Annat" },
+    { value: "VillInteUppge", label: "Vill inte uppge" },
   ];
 
   const cityOptions = [
@@ -103,96 +250,112 @@ export const Settings: React.FC = () => {
     { value: "Eskilstuna", label: "Eskilstuna" },
   ];
 
+  if (loading) return <div className="p-6">Laddar inställningar...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (!profile) return <div className="p-6">Ingen profil hittad</div>;
+
+  const effectivePrivacy: PrivacyDraft = privacyDraft ?? {
+    showGender: profile.showGender,
+    showAge: profile.showAge,
+    showCity: profile.showCity,
+  };
+
   return (
     <div className="min-h-screen bg-white pb-20">
-      {/* Header */}
       <SettingsHeader />
 
-      {/* Content */}
       <div className="px-4 py-6 space-y-6">
-        {/* Avatar */}
         <SettingsAvatar
-          avatarUrl={profile.avatarUrl}
-          name="Ditt Namn"
-          onAvatarChange={(url) => handleUpdateProfile("avatarUrl", url)}
+          avatarUrl={profile.profileImageUrl ?? ""}
+          name={`${profile.firstName} ${profile.lastName}`}
+          onAvatarChange={() => {}}
         />
 
-        {/* Bio Section */}
         <SettingsBio
-          bio={profile.bio}
-          onBioChange={(bio) => handleUpdateProfile("bio", bio)}
+          bio={bioDraft}
+          saving={savingBio}
+          error={saveBioError}
+          onSave={handleSaveBio}
         />
 
-        {/* Account Section */}
         <SettingsSection title="Konto">
           <SettingsInput
             label="E-post"
             value={profile.email}
             type="email"
-            onChange={(value) => handleUpdateProfile("email", value)}
+            onSave={handleSaveEmail}
+            saving={savingEmail}
+            error={emailError}
           />
+
           <SettingsInput
             label="Lösenord"
-            value={profile.password}
+            value={"********"}
             type="password"
-            onChange={(value) => handleUpdateProfile("password", value)}
+            onSavePassword={handleSavePassword}
+            saving={savingPassword}
+            error={passwordError}
           />
         </SettingsSection>
 
-        {/* Personal Information Section */}
         <SettingsSection title="Personlig information">
           <SettingsSelect
             label="Kön"
-            value={profile.gender}
+            value={String(profile.gender)}
             options={pronounOptions}
-            onChange={(value) =>
-              handleUpdateProfile("gender", value as UserProfile["gender"])
-            }
+            onChange={handleSaveGender}
           />
           <SettingsSelect
             label="Stad"
             value={profile.city}
             options={cityOptions}
-            onChange={(value) => handleUpdateProfile("city", value)}
+            onChange={handleSaveCity}
           />
           <div className="px-4 py-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Födelsedatum
             </label>
-            <p className="text-gray-900">{formatBirthday(profile.birthday)}</p>
+            <p className="text-gray-900">
+              {new Date(profile.dateOfBirth).toLocaleDateString("sv-SE", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
             <p className="text-xs text-gray-500 mt-1">
               Kan inte ändras av säkerhetsskäl
             </p>
           </div>
         </SettingsSection>
 
-        {/* Privacy Section */}
         <SettingsSection title="Integritet">
           <p className="px-4 pt-3 text-sm text-gray-600 mb-1">
             Välj vad andra användare kan se på din profil
           </p>
+
           <SettingsPrivacy
             label="Visa kön"
-            checked={profile.privacy.showGender}
-            onChange={() => handleUpdatePrivacy("showGender")}
+            checked={effectivePrivacy.showGender}
+            disabled={savingPrivacy}
+            onChange={(checked) => handleSavePrivacy("showGender", checked)}
           />
           <SettingsPrivacy
             label="Visa ålder"
-            checked={profile.privacy.showAge}
-            onChange={() => handleUpdatePrivacy("showAge")}
+            checked={effectivePrivacy.showAge}
+            disabled={savingPrivacy}
+            onChange={(checked) => handleSavePrivacy("showAge", checked)}
           />
           <SettingsPrivacy
             label="Visa stad"
-            checked={profile.privacy.showCity}
-            onChange={() => handleUpdatePrivacy("showCity")}
+            checked={effectivePrivacy.showCity}
+            disabled={savingPrivacy}
+            onChange={(checked) => handleSavePrivacy("showCity", checked)}
           />
         </SettingsSection>
 
-        {/* Logout Button */}
         <SettingsLogout onLogout={handleLogout} />
       </div>
 
-      {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">
         <BottomNav />
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // ✅ Add useEffect import
 
 interface SelectOption {
   value: string;
@@ -20,6 +20,11 @@ export const SettingsSelect: React.FC<SettingsSelectProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
+
+  // Sync localValue when value prop changes
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
 
   const handleSave = () => {
     onChange(localValue);
