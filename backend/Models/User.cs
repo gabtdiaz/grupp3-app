@@ -19,6 +19,10 @@ public class User
     public string Bio {get; set;} = string.Empty;
     public string Interests { get; set; } = string.Empty;  // Lista med valda intressen
 
+    public bool ShowGender { get; set; } = true;
+    public bool ShowAge { get; set; } = true;
+    public bool ShowCity { get; set; } = true;
+
     // Timestamps
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
@@ -33,7 +37,7 @@ public class User
 public enum Gender
 {
     Man = 1,
-    Kvinna = 2,
+    Kvinna = 2, 
     Annat = 3,
     VillInteUppge = 4,
 }

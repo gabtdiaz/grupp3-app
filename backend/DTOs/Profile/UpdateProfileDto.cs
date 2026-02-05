@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using grupp3_app.Api.Models;
 
 namespace grupp3_app.Api.DTOs.Profile;
 
@@ -22,4 +23,11 @@ public class UpdateProfileDto
     public string Interests { get; set; } = string.Empty;
 
     public string? ProfileImageUrl { get; set; }
+
+    [Required(ErrorMessage = "Gender is required")]
+    public string Gender { get; set; } = string.Empty;
+
+    public bool ShowGender { get; set; }
+    public bool ShowAge { get; set; }
+    public bool ShowCity { get; set; }
 }
