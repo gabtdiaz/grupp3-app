@@ -25,6 +25,11 @@ public class User
     public bool ShowAge { get; set; } = true;
     public bool ShowCity { get; set; } = true;
 
+    // GDPR Consent
+    public bool AcceptedTerms { get; set; }
+    public bool AcceptedPrivacy { get; set; }
+    public DateTime ConsentDate { get; set; }
+
     // Timestamps
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
