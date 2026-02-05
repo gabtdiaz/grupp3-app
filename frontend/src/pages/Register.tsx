@@ -6,6 +6,11 @@ import { PrivacyModal } from "../components/modals/PrivacyModal";
 import { useState } from "react";
 
 export default function RegisterPage() {
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
   const navigate = useNavigate();
   const { cities } = useCities();
   const {
@@ -19,11 +24,6 @@ export default function RegisterPage() {
     handleChange,
     handleSubmit,
   } = useMultiStepForm();
-
-  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
-  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   return (
     <>
@@ -351,7 +351,7 @@ export default function RegisterPage() {
                 </button>
 
                 <button
-                  onClick={handleSubmit}
+                  onClick={() => handleSubmit(termsAccepted, privacyAccepted)}
                   disabled={isSubmitting || !termsAccepted || !privacyAccepted}
                   className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >

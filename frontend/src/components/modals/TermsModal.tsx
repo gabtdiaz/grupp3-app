@@ -89,7 +89,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
             </p>
           </section>
 
-          <p className="text-sm text-gray-500 mt-6">
+          <p className="text-xs text-gray-500 mt-6">
             Senast uppdaterad: {new Date().toLocaleDateString("sv-SE")}
           </p>
         </div>

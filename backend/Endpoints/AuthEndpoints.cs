@@ -50,7 +50,10 @@ public static class AuthEndpoints
             LastName = registerDto.LastName,
             DateOfBirth = registerDto.DateOfBirth,
             Gender = registerDto.Gender,
-            City = registerDto.City
+            City = registerDto.City,
+            AcceptedTerms = registerDto.AcceptedTerms,
+            AcceptedPrivacy = registerDto.AcceptedPrivacy,
+            ConsentDate = DateTime.UtcNow
         };
 
         // Save to database
@@ -159,13 +162,13 @@ public static class AuthEndpoints
         if (!BCrypt.Net.BCrypt.Verify(dto.OldPassword, dbUser.PasswordHash))
         {
             logger.LogWarning("Change password failed: wrong old password for user {UserId}", userId);
-            return Results.BadRequest("Nuvarande lösenord är fel");
+            return Results.BadRequest("Nuvarande lï¿½senord ï¿½r fel");
         }
 
         // Optional: prevent reusing same password
         if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, dbUser.PasswordHash))
         {
-            return Results.BadRequest("Nya lösenordet måste vara annorlunda än det gamla");
+            return Results.BadRequest("Nya lï¿½senordet mï¿½ste vara annorlunda ï¿½n det gamla");
         }
 
         // Update password hash
