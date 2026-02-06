@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/activity/ActivityHeader";
-import NavigationTabs from "../components/sections/NavigationTabs";
 import FilterBar from "../components/sections/FilterBar";
 import ActivityFeed from "../components/sections/ActivityFeed";
 import BottomNav from "../components/layout/BottomNav";
@@ -55,10 +54,6 @@ export default function Activity() {
           selectedCategoryId={selectedCategoryId}
           onCategoryClick={handleCategoryClick}
         />
-      </div>
-
-      <div className="px-6 pt-3 border-b border-gray-200 relative">
-        <NavigationTabs />
       </div>
 
       <div className="relative px-6 h-10">
