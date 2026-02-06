@@ -15,9 +15,8 @@ public class ProfileDto
     public string? ProfileImageUrl { get; set; }
     public string Bio { get; set; } = string.Empty;
     public string Interests { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
-
     public bool ShowGender { get; set; }
     public bool ShowAge { get; set; }
     public bool ShowCity { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

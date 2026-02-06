@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { SettingsHeader } from "../components/settings/SettingsHeader";
 import { SettingsAvatar } from "../components/settings/SettingsAvatar";
 import { SettingsBio } from "../components/settings/SettingsBio";
@@ -20,6 +22,8 @@ type PrivacyDraft = {
 
 export const Settings: React.FC = () => {
   const { profile, loading, error, refetch } = useProfile();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Bio UI state
   const [bioDraft, setBioDraft] = useState("");
@@ -34,7 +38,7 @@ export const Settings: React.FC = () => {
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  // Privacy UI state (optimistisk så toggles känns direkt)
+  // Privacy UI state
   const [privacyDraft, setPrivacyDraft] = useState<PrivacyDraft | null>(null);
   const [savingPrivacy, setSavingPrivacy] = useState(false);
 
@@ -42,9 +46,9 @@ export const Settings: React.FC = () => {
     if (profile) {
       setBioDraft(profile.bio ?? "");
       setPrivacyDraft({
-        showGender: profile.showGender,
-        showAge: profile.showAge,
-        showCity: profile.showCity,
+        showGender: !!profile.showGender,
+        showAge: !!profile.showAge,
+        showCity: !!profile.showCity,
       });
     }
   }, [profile]);
@@ -115,8 +119,6 @@ export const Settings: React.FC = () => {
       setPasswordError(null);
 
       await changePassword(p.oldPassword, p.newPassword);
-
-      // (valfritt) inget refetch behövs här
     } catch (err: any) {
       const msg =
         err?.response?.data?.detail ||
@@ -127,14 +129,15 @@ export const Settings: React.FC = () => {
       setPasswordError(
         typeof msg === "string" ? msg : "Kunde inte byta lösenord",
       );
-      throw err; // så SettingsInput stannar i edit-läget
+      throw err;
     } finally {
       setSavingPassword(false);
     }
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
+    logout();
+    navigate("/", { replace: true });
   };
 
   const handleSaveGender = async (nextGender: string) => {
@@ -210,20 +213,17 @@ export const Settings: React.FC = () => {
       });
 
       setPrivacyDraft({
-        showGender: updated.showGender,
-        showAge: updated.showAge,
-        showCity: updated.showCity,
+        showGender: !!updated.showGender,
+        showAge: !!updated.showAge,
+        showCity: !!updated.showCity,
       });
-
-      // await refetch();
     } catch (err) {
       console.error("Failed to update privacy:", err);
-      setPrivacyDraft(prev); // rollback
+      setPrivacyDraft(prev);
     } finally {
       setSavingPrivacy(false);
     }
   };
-
 
   const pronounOptions = [
     { value: "Man", label: "Man" },
@@ -255,9 +255,9 @@ export const Settings: React.FC = () => {
   if (!profile) return <div className="p-6">Ingen profil hittad</div>;
 
   const effectivePrivacy: PrivacyDraft = privacyDraft ?? {
-    showGender: profile.showGender,
-    showAge: profile.showAge,
-    showCity: profile.showCity,
+    showGender: !!profile.showGender,
+    showAge: !!profile.showAge,
+    showCity: !!profile.showCity,
   };
 
   return (
