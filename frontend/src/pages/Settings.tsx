@@ -53,26 +53,6 @@ export const Settings: React.FC = () => {
     }
   }, [profile]);
 
-  // ✅ Debug: logga när profile/privacyDraft ändras (Hook ligger här uppe = safe)
-  useEffect(() => {
-    if (!profile) return;
-
-    const effectivePrivacy: PrivacyDraft = privacyDraft ?? {
-      showGender: !!profile.showGender,
-      showAge: !!profile.showAge,
-      showCity: !!profile.showCity,
-    };
-
-    console.log("[Settings] profile privacy:", {
-      showGender: profile.showGender,
-      showAge: profile.showAge,
-      showCity: profile.showCity,
-    });
-
-    console.log("[Settings] privacyDraft:", privacyDraft);
-    console.log("[Settings] effectivePrivacy:", effectivePrivacy);
-  }, [profile, privacyDraft]);
-
   const handleSaveBio = async (nextBio: string) => {
     if (!profile) return;
 
