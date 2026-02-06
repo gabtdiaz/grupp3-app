@@ -35,7 +35,7 @@ export default function CreateActivity() {
     minimumAge: 18,
   });
 
-  // HÄMTA KATEGORIER VID MOUNT
+  // Hämta kategorier vid mount
   useEffect(() => {
     categoryService
       .getAllCategories()
@@ -105,8 +105,13 @@ export default function CreateActivity() {
 
       await eventService.createEvent(eventData);
 
-      // Success! Gå till activity feed
-      navigate("/activity");
+      // Aktivitet skapad, visa meddelande och gå till activity feed
+      navigate("/activity", {
+        state: {
+          message: "Aktivitet skapad!",
+          type: "success",
+        },
+      });
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
