@@ -14,16 +14,9 @@ import PublicRoute from "./PublicRoute";
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public routes, redirect to /activity if logged in */}
-      <Route
-        path="/"
-        element={
-          <PublicRoute>
-            <Index />
-          </PublicRoute>
-        }
-      />
+      <Route path="/" element={<Index />} />
 
+      {/* Public-only routes (redirect if logged in) */}
       <Route
         path="/login"
         element={

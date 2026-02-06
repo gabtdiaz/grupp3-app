@@ -62,7 +62,10 @@ public static class ProfileEndpoints
             ProfileImageUrl = currentUser.ProfileImageUrl,
             Bio = currentUser.Bio,
             Interests = currentUser.Interests,
-            CreatedAt = currentUser.CreatedAt
+            CreatedAt = currentUser.CreatedAt,
+            ShowGender = currentUser.ShowGender,
+            ShowAge = currentUser.ShowAge,
+            ShowCity = currentUser.ShowCity,
         };
 
         return Results.Ok(profileDto);

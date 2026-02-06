@@ -13,7 +13,6 @@ export default function Info({
 }: InfoProps) {
   const navigate = useNavigate();
   const { profile: ownProfile, loading, error } = useProfile();
-
   const profile = externalProfile || ownProfile;
 
   if (!externalProfile && loading) {
@@ -41,7 +40,6 @@ export default function Info({
   }
 
   const isOwnProfile = "firstName" in profile;
-
   const displayName = isOwnProfile
     ? `${profile.firstName} ${profile.lastName}`
     : profile.displayName;
@@ -49,17 +47,25 @@ export default function Info({
   return (
     <div className="relative pt-16 px-6">
       <h1 className="text-2xl font-serif">{displayName}</h1>
-
       <div className="flex items-center gap-2 mt-1 text-sm text-gray-700">
-        <span>{profile.city}</span>
-        <span>•</span>
-        <span>{profile.age} år</span>
-        {isOwnProfile && (
+        {/* City - show if available (respects privacy for public profiles) */}
+        {profile.city && (
           <>
-            <span>•</span>
-            <span>{profile.gender}</span>
+            <span>{profile.city}</span>
+            {(profile.age || profile.gender) && <span>•</span>}
           </>
         )}
+
+        {/* Age - show if available (respects privacy for public profiles) */}
+        {profile.age && (
+          <>
+            <span>{profile.age} år</span>
+            {profile.gender && <span>•</span>}
+          </>
+        )}
+
+        {/* Gender - show if available (respects privacy for public profiles) */}
+        {profile.gender && <span>{profile.gender}</span>}
       </div>
 
       <div>

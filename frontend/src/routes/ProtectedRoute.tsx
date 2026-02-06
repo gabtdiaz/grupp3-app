@@ -7,13 +7,14 @@ type ProtectedRouteProps = {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
+
   if (isLoading) {
-    return <div>Loading...</div>; // Eller en spinner
+    return <div>Loading...</div>;
   }
 
   // If not logged in, navigate to login
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // If logged in, show page
