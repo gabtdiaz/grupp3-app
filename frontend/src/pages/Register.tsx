@@ -120,8 +120,8 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
               </div>
-              {fieldErrors.email && (
-                <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+               {error && (
+                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
               )}
 
               <div className="flex gap-4">
@@ -255,9 +255,9 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
-                {fieldErrors.dateofbirth && (
+                {fieldErrors.dateOfBirth && (
                   <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.dateofbirth}
+                    {fieldErrors.dateOfBirth}
                   </p>
                 )}
               </div>
