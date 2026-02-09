@@ -146,7 +146,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany(u => u.EventComments)
                 .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.NoAction); 
             
             // Relation till Event
             entity.HasOne(e => e.Event)

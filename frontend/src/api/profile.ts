@@ -78,3 +78,10 @@ export async function getUserProfileById(
   const response = await api.get<PublicProfile>(`/api/profile/${userId}`);
   return response.data;
 }
+
+// Delete account
+export async function deleteAccount(password: string): Promise<void> {
+  await api.delete("/api/profile", {
+    data: { password },
+  });
+}

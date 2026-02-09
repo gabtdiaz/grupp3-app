@@ -4,6 +4,8 @@ using grupp3_app.Api.Data;
 using grupp3_app.Api.DTOs.Profile;
 using grupp3_app.Api.Models;
 using MiniValidation;
+using grupp3_app.Api.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace grupp3_app.Api.Endpoints;
 
@@ -16,10 +18,7 @@ public static class ProfileEndpoints
 
         group.MapGet("", GetCurrentUserProfile);
         group.MapPut("", UpdateCurrentUserProfile);
-
-        // ✅ NEW: Update email
         group.MapPut("/email", UpdateCurrentUserEmail);
-
         group.MapGet("/{userId}", GetUserProfileById);
         group.MapPost("/upload-image", UploadProfileImage)
             .DisableAntiforgery()
@@ -28,6 +27,7 @@ public static class ProfileEndpoints
             .Produces(StatusCodes.Status400BadRequest)
             .WithDescription("Ladda upp eller ändra profilbild för inloggad användare");
         group.MapGet("/image", GetProfileImage);
+        group.MapDelete("", DeleteCurrentUserAccount);
 
     }
 
@@ -300,6 +300,63 @@ public static class ProfileEndpoints
 
         return Results.File(currentUser.ProfileImageData, currentUser.ProfileImageFileType ?? "image/jpeg");
     }
+
+    // Delete account
+    private static async Task<IResult> DeleteCurrentUserAccount(
+        [FromBody] DeleteAccountDto dto,
+        ClaimsPrincipal user,
+        ApplicationDbContext context,
+        ILogger<Program> logger)
+    {
+        if (!MiniValidator.TryValidate(dto, out var errors))
+        {
+            logger.LogWarning("Delete account validation failed");
+            return Results.ValidationProblem(errors);
+        }
+
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+        {
+            logger.LogWarning("Unauthorized delete account attempt");
+            return Results.Unauthorized();
+        }
+
+        logger.LogInformation("User {UserId} attempting to delete account", userId);
+
+        var dbUser = await context.Users
+            .Include(u => u.CreatedEvents)
+            .Include(u => u.EventParticipants)
+            .Include(u => u.EventComments)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (dbUser == null)
+        {
+            return Results.NotFound(new { message = "Användare hittades inte" });
+        }
+
+        // Verify password
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, dbUser.PasswordHash))
+        {
+            logger.LogWarning("User {UserId} failed password verification for account deletion", userId);
+            return Results.BadRequest(new { message = "Fel lösenord" });
+        }
+
+        // Delete all related data
+        foreach (var comment in dbUser.EventComments)
+        {
+            comment.UserId = null; // Bryt kopplingen till användaren
+        }
+        context.EventParticipants.RemoveRange(dbUser.EventParticipants);
+        context.Events.RemoveRange(dbUser.CreatedEvents);
+        context.Users.Remove(dbUser);
+
+        await context.SaveChangesAsync();
+        logger.LogInformation("User {UserId} successfully deleted account", userId);
+
+        return Results.Ok(new { message = "Konto raderat" });
+    }
+
 
     // Helper method
     private static int CalculateAge(DateTime dateOfBirth)
