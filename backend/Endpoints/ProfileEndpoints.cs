@@ -343,8 +343,11 @@ public static class ProfileEndpoints
         }
 
         // Delete all related data
+        foreach (var comment in dbUser.EventComments)
+        {
+            comment.UserId = null; // Bryt kopplingen till användaren
+        }
         context.EventParticipants.RemoveRange(dbUser.EventParticipants);
-        context.EventComments.RemoveRange(dbUser.EventComments);
         context.Events.RemoveRange(dbUser.CreatedEvents);
         context.Users.Remove(dbUser);
 

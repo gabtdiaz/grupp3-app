@@ -69,7 +69,7 @@ export const ActivityDetailCommentItem: React.FC<
   };
 
   const handleProfileClick = () => {
-    if (comment.authorId) {
+    if (comment.authorId && comment.authorId !== "0") {
       navigate(`/profile/${comment.authorId}`);
     }
   };
@@ -81,36 +81,44 @@ export const ActivityDetailCommentItem: React.FC<
   return (
     <div className="relative">
       <div className="flex gap-3 items-start">
-        {/* Avatar - Klickbar */}
-        <button
-          onClick={handleProfileClick}
-          className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
-        >
-          <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden hover:border-blue-500 transition-colors cursor-pointer">
-            {comment.authorImageUrl ? (
-              <img
-                src={comment.authorImageUrl}
-                alt={comment.authorName}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm font-medium">
-                {comment.authorName.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-        </button>
+        {/* Avatar - Klickbar eller statisk om raderad */}
+        {comment.authorId && comment.authorId !== "0" ? (
+          <button
+            onClick={handleProfileClick}
+            className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden hover:border-blue-500 transition-colors cursor-pointer">
+              {comment.authorImageUrl ? (
+                <img
+                  src={comment.authorImageUrl}
+                  alt={comment.authorName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm font-medium">
+                  {comment.authorName.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+          </button>
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-300 shrink-0" />
+        )}
 
         {/* Comment Content */}
         <div className="flex-1 min-w-0">
           {/* Author and Timestamp */}
           <div className="flex items-baseline gap-2 mb-1 flex-wrap">
-            <button
-              onClick={handleProfileClick}
-              className="text-gray-900 hover:underline cursor-pointer focus:outline-none"
-            >
-              {comment.authorName}
-            </button>
+            {comment.authorId ? (
+              <button
+                onClick={handleProfileClick}
+                className="text-gray-900 hover:underline cursor-pointer focus:outline-none"
+              >
+                {comment.authorName}
+              </button>
+            ) : (
+              <span className="text-sm text-gray-500">[Konto raderat]</span>
+            )}
             {isHost && (
               <span className="text-xs bg-light-green text-white px-2 py-0.5 rounded">
                 Arrangör
