@@ -7,6 +7,8 @@ import { ActivityDetailDescription } from "../components/activity-detail/Activit
 import { ActivityDetailAttendees } from "../components/activity-detail/ActivityDetailAttendees";
 import { ActivityDetailJoinButton } from "../components/activity-detail/ActivityDetailJoinButton";
 import { ActivityDetailComments } from "../components/activity-detail/ActivityDetailComments";
+import DeleteActivityModal from "../components/modals/DeleteActivityModal";
+
 // import type { Comment } from "../components/activity-detail/ActivityDetailComments";
 import BottomNav from "../components/layout/BottomNav";
 import { useParams } from "react-router-dom";
@@ -184,6 +186,9 @@ export const ActivityDetail: React.FC = () => {
     }
   };
 
+  // Kontrollera om användaren är skaparen
+  const isCreator = currentUser && event.createdByUserId === currentUser.id;
+
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-white px-6 py-4">
@@ -230,9 +235,26 @@ export const ActivityDetail: React.FC = () => {
           {/* Attendees */}
           <ActivityDetailAttendees attendees={attendees} />
 
-          {/* Join Button */}
+          {/* Join Button eller Delete Button */}
           <div className="fixed bottom-14 left-0 right-0 px-4 z-40">
-            <ActivityDetailJoinButton onJoin={handleJoin} isJoined={isJoined} />
+            {isCreator ? (
+              // TA BORT-KNAPP (endast för skaparen)
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="w-full py-4 rounded-lg text-white font-futura"
+                style={{
+                  backgroundColor: "#DC2626", // Röd färg
+                }}
+              >
+                Ta bort aktivitet
+              </button>
+            ) : (
+              // Join knapp för andra användare
+              <ActivityDetailJoinButton
+                onJoin={handleJoin}
+                isJoined={isJoined}
+              />
+            )}
           </div>
         </div>
       ) : (
@@ -256,6 +278,14 @@ export const ActivityDetail: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Delete Event Confirmation Modal */}
+      <DeleteActivityModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteEvent}
+        eventTitle={event.title}
+      />
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">
         <BottomNav />
