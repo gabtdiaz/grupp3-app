@@ -14,6 +14,7 @@ import { useEvent } from "../hooks/useEvent";
 import { useEventParticipation } from "../hooks/useEventParticipation";
 import { useComments } from "../hooks/useComments";
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import eventService from "../api/eventService";
 
 type TabType = "information" | "kommentarer";
 
@@ -21,6 +22,8 @@ export const ActivityDetail: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("information");
   const [isJoined, setIsJoined] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch eventId from URL
   const { id } = useParams<{ id: string }>();
@@ -155,6 +158,29 @@ export const ActivityDetail: React.FC = () => {
     const success = await removeComment(Number(commentId));
     if (!success) {
       console.error("Failed to delete comment");
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!eventId || isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      await eventService.deleteEvent(eventId);
+
+      // Navigera tillbaka till Activity efter delete
+      navigate("/activity", {
+        state: {
+          message: "Aktivitet raderad",
+          type: "success",
+        },
+      });
+    } catch (err) {
+      console.error("Failed to delete event", err);
+      alert("Kunde inte radera aktiviteten");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
