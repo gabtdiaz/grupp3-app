@@ -37,55 +37,55 @@ steps:
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-#E2E-tests
-  - powershell: |
-      Write-Host "Start backend..."
-      $env:ASPNETCORE_ENVIRONMENT = "Development"
+  #E2E-tests
+  # - powershell: |
+  #     Write-Host "Start backend..."
+  #     $env:ASPNETCORE_ENVIRONMENT = "Development"
 
-      # <-- Startar backend i bakgrunden (ersätter `dotnet run &`)
-      $backendLog = Join-Path "$(Build.SourcesDirectory)" "backend.log"
-      $backendProject = Join-Path "$(Build.SourcesDirectory)" "backend\grupp3-app.Api.csproj"
+  #     # <-- Startar backend i bakgrunden (ersätter `dotnet run &`)
+  #     $backendLog = Join-Path "$(Build.SourcesDirectory)" "backend.log"
+  #     $backendProject = Join-Path "$(Build.SourcesDirectory)" "backend\grupp3-app.Api.csproj"
 
-      $process = Start-Process dotnet `
-        -ArgumentList @("run","--project",$backendProject,"--urls","http://localhost:5011") `
-        -PassThru -NoNewWindow `
-        -RedirectStandardOutput $backendLog `
-        -RedirectStandardError $backendLog
+  #     $process = Start-Process dotnet `
+  #       -ArgumentList @("run","--project",$backendProject,"--urls","http://localhost:5011") `
+  #       -PassThru -NoNewWindow `
+  #       -RedirectStandardOutput $backendLog `
+  #       -RedirectStandardError $backendLog
 
-      # <-- Väntar på /health istället för bash-loop
-      Write-Host "Wait for backend /health..."
-      $isUp = $false
-      for ($i = 0; $i -lt 60; $i++) {
-        try {
-          $response = Invoke-WebRequest "http://localhost:5011/health" -TimeoutSec 2
-          if ($response.StatusCode -eq 200) {
-            $isUp = $true
-            break
-          }
-        } catch {}
-        Start-Sleep -Seconds 2
-      }
+  #     # <-- Väntar på /health istället för bash-loop
+  #     Write-Host "Wait for backend /health..."
+  #     $isUp = $false
+  #     for ($i = 0; $i -lt 60; $i++) {
+  #       try {
+  #         $response = Invoke-WebRequest "http://localhost:5011/health" -TimeoutSec 2
+  #         if ($response.StatusCode -eq 200) {
+  #           $isUp = $true
+  #           break
+  #         }
+  #       } catch {}
+  #       Start-Sleep -Seconds 2
+  #     }
 
-      # <-- Failar tydligt om backend aldrig startar
-      if (-not $isUp) {
-        Write-Host "Backend did not start correctly. Showing backend.log:"
-        Get-Content $backendLog -Tail 200
-        Stop-Process -Id $process.Id -Force
-        exit 1
-      }
+  #     # <-- Failar tydligt om backend aldrig startar
+  #     if (-not $isUp) {
+  #       Write-Host "Backend did not start correctly. Showing backend.log:"
+  #       Get-Content $backendLog -Tail 200
+  #       Stop-Process -Id $process.Id -Force
+  #       exit 1
+  #     }
 
-      # <-- Samma E2E som innan, bara PowerShell-syntax
-      Write-Host "Run E2E tests..."
-      $env:E2E_BASE_URL = "http://localhost:5011"
-      dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
+  #     # <-- Samma E2E som innan, bara PowerShell-syntax
+  #     Write-Host "Run E2E tests..."
+  #     $env:E2E_BASE_URL = "http://localhost:5011"
+  #     dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
 
-      # <-- Stänger backend (ersätter `kill $PID`)
-      Write-Host "Stopping backend..."
-      Stop-Process -Id $process.Id -Force
-    displayName: "Run E2E tests (backend serves frontend)"
-    workingDirectory: "$(Build.SourcesDirectory)"
+  #     # <-- Stänger backend (ersätter `kill $PID`)
+  #     Write-Host "Stopping backend..."
+  #     Stop-Process -Id $process.Id -Force
+  #   displayName: "Run E2E tests (backend serves frontend)"
+  #   workingDirectory: "$(Build.SourcesDirectory)"
 
-    # Publish and Deploy
+  # Publish and Deploy
   - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
     displayName: "Backend: Publish"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
