@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface NavigationTabsProps {
   activeTab: "SKAPADE" | "KOMMER" | "TIDIGARE";
   onTabChange: (tab: "SKAPADE" | "KOMMER" | "TIDIGARE") => void;
