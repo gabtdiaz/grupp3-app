@@ -85,6 +85,7 @@ pool:
 variables:
   AZURE_SERVICE_CONNECTION: "FriendZoneConnection1"
   WEBAPP_NAME: "friendzone"
+  E2E_BASE_URL: "https://friendzone.azurewebsites.net"
 
 steps:
   # ======================
@@ -131,6 +132,11 @@ steps:
       pwsh FriendZone.E2E.Tests/bin/Release/net9.0/playwright.ps1 install chromium
     displayName: "Install Playwright Chromium"
     workingDirectory: "$(Build.SourcesDirectory)"
+
+  - powershell: |
+     Write-Host "E2E_BASE_URL = '$(E2E_BASE_URL)'"
+    displayName: "Debug: Print E2E_BASE_URL"
+
 
   # 3) Run E2E tests
   - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release --no-build
