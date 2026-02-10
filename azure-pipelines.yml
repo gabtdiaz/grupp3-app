@@ -109,3 +109,15 @@ steps:
       appType: "webApp"
       appName: "$(WEBAPP_NAME)"
       package: "$(Build.ArtifactStagingDirectory)/app.zip"
+
+  # ========================================
+  # E2E TESTS (kommenterad)
+  # ========================================
+  # - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
+  #   displayName: "Run E2E tests"
+  #   workingDirectory: "$(Build.SourcesDirectory)"
+  #   env:
+  #     CI: "true"
+  #     E2E_BASE_URL: "$(E2E_BASE_URL)"
+  #     E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
+  #     E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"
