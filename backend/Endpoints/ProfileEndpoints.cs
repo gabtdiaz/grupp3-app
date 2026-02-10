@@ -28,6 +28,7 @@ public static class ProfileEndpoints
             .Produces(StatusCodes.Status400BadRequest)
             .WithDescription("Ladda upp eller ändra profilbild för inloggad användare");
         group.MapGet("/image", GetProfileImage);
+        app.MapGet("/image/{userId}", GetPublicProfileImage);
 
     }
 
@@ -268,7 +269,7 @@ public static class ProfileEndpoints
         var currentUser = await context.Users.FindAsync(userId);
         if (currentUser == null) return Results.NotFound("Användaren hittades inte.");
 
-        var allowedTypes = new[] { "image/jpeg", "image/png" };
+        var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png" };
         if (!allowedTypes.Contains(file.ContentType))
             return Results.BadRequest("Endast JPG eller PNG-filer tillåtna.");
 
@@ -300,6 +301,17 @@ public static class ProfileEndpoints
 
         return Results.File(currentUser.ProfileImageData, currentUser.ProfileImageFileType ?? "image/jpeg");
     }
+
+    private static async Task<IResult> GetPublicProfileImage(int userId, ApplicationDbContext context)
+    {
+        var user = await context.Users.FindAsync(userId);
+        if (user == null || user.ProfileImageData == null)
+            return Results.NotFound("Ingen profilbild.");
+
+        return Results.File(user.ProfileImageData, user.ProfileImageFileType ?? "image/jpeg");
+    }
+
+
 
     // Helper method
     private static int CalculateAge(DateTime dateOfBirth)
