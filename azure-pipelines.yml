@@ -9,6 +9,7 @@ pool:
 variables:
   AZURE_SERVICE_CONNECTION: "FriendZoneConnection1"
   WEBAPP_NAME: "friendzone"
+  buildConfiguration: "Release"
 
 steps:
   # Frontend
@@ -37,10 +38,31 @@ steps:
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
+  # Copy frontend to WWWROOT
+  - task: CopyFiles@2
+    displayName: "Copy Frontend to wwwroot"
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/frontend/dist"
+      Contents: "**"
+      TargetFolder: "$(Build.SourcesDirectory)/backend/wwwroot"
+      OverWrite: true
+
+  # Debug: Visa att frontend kopierades
+  - powershell: |
+      Write-Host "Checking wwwroot contents:"
+      Get-ChildItem "$(Build.SourcesDirectory)/backend/wwwroot" -Recurse
+    displayName: "Verify wwwroot has frontend files"
+
   # Publish and Deploy
-  - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
-    displayName: "Backend: Publish"
+  - script: dotnet publish backend.sln -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/publish
+    displayName: "Backend: Publish (includes wwwroot)"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+  # Debug: Visa publish-innehåll
+  - powershell: |
+      Write-Host "Checking publish folder:"
+      Get-ChildItem "$(Build.ArtifactStagingDirectory)/publish" -Recurse
+    displayName: "Verify publish folder contents"
 
   # Zip backend-publish-mappen
   - task: ArchiveFiles@2
