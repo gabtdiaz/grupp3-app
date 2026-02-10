@@ -11,25 +11,25 @@ public static class ProfileEndpoints
 {
     public static void MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/profile")
-            .RequireAuthorization(); // All endpoints require auth
+        //delar upp endpoints i två grupper
+        var publicGroup = app.MapGroup("/api/profile");
+        var authGroup = publicGroup.RequireAuthorization();
 
-        group.MapGet("", GetCurrentUserProfile);
-        group.MapPut("", UpdateCurrentUserProfile);
-
-        // ✅ NEW: Update email
-        group.MapPut("/email", UpdateCurrentUserEmail);
-
-        group.MapGet("/{userId}", GetUserProfileById);
-        group.MapPost("/upload-image", UploadProfileImage)
+        //endpoints som kräver inloggning
+        authGroup.MapGet("", GetCurrentUserProfile);
+        authGroup.MapPut("", UpdateCurrentUserProfile);
+        authGroup.MapPut("/email", UpdateCurrentUserEmail);
+        authGroup.MapPost("/upload-image", UploadProfileImage)
             .DisableAntiforgery()
             .Accepts<IFormFile>("multipart/form-data")
             .Produces<string>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .WithDescription("Ladda upp eller ändra profilbild för inloggad användare");
-        group.MapGet("/image", GetProfileImage);
-        app.MapGet("/image/{userId}", GetPublicProfileImage);
+        authGroup.MapGet("/image", GetProfileImage);
 
+        //publika endpoints
+        publicGroup.MapGet("/{userId}", GetUserProfileById);
+        publicGroup.MapGet("/image/{userId}", GetPublicProfileImage);
     }
 
     private static async Task<IResult> GetCurrentUserProfile(
