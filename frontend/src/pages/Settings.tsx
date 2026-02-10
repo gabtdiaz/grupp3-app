@@ -9,11 +9,17 @@ import { SettingsInput } from "../components/settings/SettingsInput";
 import { SettingsSelect } from "../components/settings/SettingsSelect";
 import { SettingsPrivacy } from "../components/settings/SettingsPrivacy";
 import { SettingsLogout } from "../components/settings/SettingsLogout";
+import { SettingsDeleteAccount } from "../components/settings/SettingsDeleteAccount";
 import BottomNav from "../components/layout/BottomNav";
 import ProfileHeader from "../components/profile/ProfileHeader";
 
 import { useProfile } from "../hooks/useProfile";
-import { updateUserProfile, updateEmail, changePassword } from "../api/profile";
+import {
+  updateUserProfile,
+  updateEmail,
+  changePassword,
+  deleteAccount,
+} from "../api/profile";
 
 type PrivacyDraft = {
   showGender: boolean;
@@ -185,6 +191,18 @@ const handleAvatarChange = async (file: File) => {
   const handleLogout = () => {
     logout();
     navigate("/", { replace: true });
+  };
+
+  const handleDelete = async (password: string) => {
+    try {
+      await deleteAccount(password);
+
+      // Rensa auth + redirect
+      logout();
+      navigate("/", { replace: true });
+    } catch (err) {
+      throw err;
+    }
   };
 
   const handleSaveGender = async (nextGender: string) => {
@@ -401,6 +419,7 @@ const handleAvatarChange = async (file: File) => {
         </SettingsSection>
 
         <SettingsLogout onLogout={handleLogout} />
+        <SettingsDeleteAccount onDeleteAccount={handleDelete} />
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">
