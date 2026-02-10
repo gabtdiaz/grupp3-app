@@ -18,6 +18,7 @@ export interface Event {
   isActive: boolean;
   createdBy: string; // "Anna A."
   createdByUserId: number;
+  createdByProfileImageUrl?: string; // Arrangörens profilbild
   createdAt: string;
   isFull: boolean; // Helper från backend
   participants: Participant[];

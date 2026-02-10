@@ -17,6 +17,7 @@ public class EventDto
     public int CurrentParticipants { get; set; }  // Antal deltagare - NY   
     public bool IsActive { get; set; } //om eventet är aktivt
     public int CreatedByUserId { get; set; } 
+    public string? CreatedByProfileImageUrl { get; set; } // Arrangörens profilbild
     public string CreatedBy { get; set; } = string.Empty; //namn på skaparen
     public DateTime CreatedAt { get; set; } //datun när den är skapad
     public bool IsFull => MaxParticipants > 0 && CurrentParticipants >= MaxParticipants; 
