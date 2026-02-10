@@ -114,9 +114,11 @@ public static class CommentEndpoints
                 Id = c.Id,
                 Content = c.Content,
                 CreatedAt = c.CreatedAt,
-                AuthorId = c.UserId,
-                AuthorName = $"{c.User.FirstName} {c.User.LastName.Substring(0, 1)}.",
-                AuthorImageUrl = c.User.ProfileImageUrl,
+                AuthorId = c.UserId ?? 0,
+                AuthorName = c.User != null 
+                    ? $"{c.User.FirstName} {c.User.LastName.Substring(0, 1)}." 
+                    : "[Konto raderat]",
+                AuthorImageUrl = c.User != null ? c.User.ProfileImageUrl : null,
                 ParentCommentId = c.ParentCommentId,
                 Replies = new List<CommentDto>()
             })
