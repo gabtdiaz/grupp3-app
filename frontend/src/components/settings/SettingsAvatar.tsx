@@ -1,65 +1,42 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 
 interface SettingsAvatarProps {
-  avatarUrl: string;
-  name: string;
-  onAvatarChange: (url: string) => void;
+  onAvatarChange: (file: File) => void;
 }
 
-export const SettingsAvatar: React.FC<SettingsAvatarProps> = ({
-  avatarUrl,
-  name,
-  onAvatarChange,
-}) => {
+export const SettingsAvatar: React.FC<SettingsAvatarProps> = ({ onAvatarChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Create a URL for the uploaded file
-      const url = URL.createObjectURL(file);
-      onAvatarChange(url);
-
-      // In production, you would upload this to your server:
-      // const formData = new FormData();
-      // formData.append('avatar', file);
-      // await uploadAvatar(formData);
-    }
-  };
+  const [uploading, setUploading] = useState(false);
 
   const handleClick = () => {
     fileInputRef.current?.click();
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      // Skicka filen upp till parent
+      await onAvatarChange(file);
+    } catch (err) {
+      console.error("Fel vid uppladdning:", err);
+      alert("Kunde inte ladda upp bilden");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center py-6">
-      <div onClick={handleClick} className="relative">
-        {/* Avatar */}
-        <div className="w-24 h-24 rounded-full bg-gray-200 border-2 border-gray-300 overflow-hidden">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-500 text-3xl">
-              {name.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
-
-        {/* Camera Icon */}
-        <div className="absolute bottom-0 right-0 bg-red-400 rounded-full p-2 border-2 border-white">
-          <img
-            src="/icons/camera-icon.svg"
-            alt="Change avatar"
-            className="w-4 h-4"
-          />
-        </div>
-      </div>
-
-      {/* Hidden file input */}
+    <div className="flex justify-center py-4">
+      <button
+        onClick={handleClick}
+        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+        disabled={uploading}
+      >
+        {uploading ? "Laddar upp..." : "Byt profilbild"}
+      </button>
       <input
         ref={fileInputRef}
         type="file"
@@ -67,11 +44,6 @@ export const SettingsAvatar: React.FC<SettingsAvatarProps> = ({
         onChange={handleFileChange}
         className="hidden"
       />
-
-      {/* Helper text */}
-      <p className="text-sm text-gray-500 mt-3">
-        Klicka för att ändra profilbild
-      </p>
     </div>
   );
 };

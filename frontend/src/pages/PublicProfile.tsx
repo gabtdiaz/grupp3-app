@@ -18,7 +18,7 @@ export default function PublicUserProfile() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getUserProfileById(parseInt(userId!));
+        const data = await getUserProfileById(parseInt(userId!, 10));
         setProfile(data);
       } catch (err: any) {
         console.error("Failed to fetch user profile:", err);
@@ -57,7 +57,8 @@ export default function PublicUserProfile() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header profile={profile} />
+      {/* Skickar isPublic=true så ProfileHeader hämtar via userId */}
+      <Header profile={profile} isPublic={true} />
       <Info profile={profile} showSettings={false} />
 
       <div
