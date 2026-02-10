@@ -4,7 +4,8 @@ import { type UserProfile, type PublicProfile } from "../../api/profile";
 
 type ProfileHeaderProps = {
   profile?: UserProfile | PublicProfile | null;
-  isPublic?: boolean; // true om det är en publik profil
+  isPublic?: boolean; // true = när man tittar på någon annans profil
+  avatarUrl?: string | null; 
 };
 
 export default function ProfileHeader({
@@ -17,46 +18,53 @@ export default function ProfileHeader({
   const firstName =
     profile && "firstName" in profile
       ? profile.firstName
-      : profile?.displayName?.[0];
+      : profile?.displayName?.split(" ")[0]; // bättre fallback
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfileImage = async () => {
-      if (!profile) return;
+      if (!profile?.id) return;
 
       try {
         let url: string;
         const headers: Record<string, string> = {};
 
-        if (isPublic && profile.id) {
-          // Publik profil → hämta med id
+        if (isPublic) {
+          // publik profil
           url = `http://localhost:5011/api/profile/image/${profile.id}?${Date.now()}`;
+          console.log("🔍 Hämtar publik profilbild:", url);
         } else {
-          // Egen profil → hämta med token
+          // inloggad användare 
           const token = localStorage.getItem("auth_token");
-          if (!token) return;
+          if (!token) {
+            console.warn("Ingen auth_token hittad — visar fallbackbild.");
+            return;
+          }
           url = `http://localhost:5011/api/profile/image?${Date.now()}`;
           headers["Authorization"] = `Bearer ${token}`;
+          console.log("Hämtar egen profilbild:", url);
         }
 
         const res = await fetch(url, { headers });
 
         if (!res.ok) {
-          setImageSrc(null); // fallback
+          console.warn("Ingen bild hittades (HTTP", res.status, ")");
+          setImageSrc(null);
           return;
         }
 
         const blob = await res.blob();
-        setImageSrc(URL.createObjectURL(blob));
+        const objectUrl = URL.createObjectURL(blob);
+        setImageSrc(objectUrl);
       } catch (err) {
         console.error("Fel vid hämtning av profilbild:", err);
-        setImageSrc(null); // fallback
+        setImageSrc(null);
       }
     };
 
     fetchProfileImage();
-  }, [profile, isPublic]);
+  }, [profile?.id, isPublic]);
 
   const hasValidImage = !!imageSrc;
 

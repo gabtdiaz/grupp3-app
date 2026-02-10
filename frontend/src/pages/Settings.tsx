@@ -100,9 +100,6 @@ const handleAvatarChange = async (file: File) => {
 };
 
 
-
-
-
   const handleSaveBio = async (nextBio: string) => {
     if (!profile) return;
 
@@ -313,11 +310,12 @@ const handleAvatarChange = async (file: File) => {
 
   return (
     <div className="min-h-screen bg-white pb-20">
-      <ProfileHeader profile={profile} />
+      <ProfileHeader profile={profile} avatarUrl={avatarUrl} />
       <SettingsHeader />
 
       <div className="px-4 py-6 space-y-6">
-        <SettingsAvatar onAvatarChange={handleAvatarChange} />
+        <SettingsAvatar 
+        onAvatarChange={handleAvatarChange} />
 
 
         <SettingsBio
