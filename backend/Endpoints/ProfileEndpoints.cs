@@ -28,7 +28,8 @@ public static class ProfileEndpoints
             .WithDescription("Ladda upp eller ändra profilbild för inloggad användare");
         group.MapGet("/image", GetProfileImage);
 
-        app.MapGet("/image/{userId}", GetPublicProfileImage);
+        group.MapGet("/image/{userId}", GetPublicProfileImage)
+     .AllowAnonymous(); // publik endpoint
 
         group.MapDelete("", DeleteCurrentUserAccount);
 
