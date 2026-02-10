@@ -7,8 +7,8 @@ pool:
   vmImage: windows-latest
 
 variables:
-  AZURE_SERVICE_CONNECTION: "FriendZoneConnection"
-  WEBAPP_NAME: "friendzone-app"
+  AZURE_SERVICE_CONNECTION: "FriendZoneConnection1"
+  WEBAPP_NAME: "friendzone"
 
 steps:
   # Frontend
@@ -36,7 +36,6 @@ steps:
   - script: dotnet build backend.sln --configuration Release --no-restore
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
-
 
   # Publish and Deploy
   - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
