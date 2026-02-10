@@ -10,6 +10,7 @@ import { SettingsSelect } from "../components/settings/SettingsSelect";
 import { SettingsPrivacy } from "../components/settings/SettingsPrivacy";
 import { SettingsLogout } from "../components/settings/SettingsLogout";
 import BottomNav from "../components/layout/BottomNav";
+import ProfileHeader from "../components/profile/ProfileHeader";
 
 import { useProfile } from "../hooks/useProfile";
 import { updateUserProfile, updateEmail, changePassword } from "../api/profile";
@@ -24,6 +25,10 @@ export const Settings: React.FC = () => {
   const { profile, loading, error, refetch } = useProfile();
   const navigate = useNavigate();
   const { logout } = useAuth();
+
+ // Avatar URL för headern
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
 
   // Bio UI state
   const [bioDraft, setBioDraft] = useState("");
@@ -50,8 +55,53 @@ export const Settings: React.FC = () => {
         showAge: !!profile.showAge,
         showCity: !!profile.showCity,
       });
+      setAvatarUrl("/api/profile/image?" + Date.now());
     }
   }, [profile]);
+
+const handleAvatarChange = async (file: File) => {
+  const token = localStorage.getItem("auth_token");
+  if (!token) {
+    alert("Ingen inloggning hittades. Logga in igen.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    // visar att uppladdning pågår
+    console.log("Laddar upp profilbild...");
+
+    const response = await fetch("http://localhost:5011/api/profile/upload-image", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Fel vid uppladdning: ${response.status} ${text}`);
+    }
+
+    // allt har gått bra
+    console.log("Profilbild uppladdad!");
+    alert("Profilbild uppladdad!");
+
+    // uppdatera bilden direkt i UI:t
+    setAvatarUrl(`http://localhost:5011/api/profile/image?${Date.now()}`);
+    await refetch();
+  } catch (err) {
+    console.error("Fel vid uppladdning:", err);
+    alert("Kunde inte ladda upp bilden");
+  }
+};
+
+
+
+
 
   const handleSaveBio = async (nextBio: string) => {
     if (!profile) return;
@@ -260,16 +310,15 @@ export const Settings: React.FC = () => {
     showCity: !!profile.showCity,
   };
 
+
   return (
     <div className="min-h-screen bg-white pb-20">
+      <ProfileHeader profile={profile} />
       <SettingsHeader />
 
       <div className="px-4 py-6 space-y-6">
-        <SettingsAvatar
-          avatarUrl={profile.profileImageUrl ?? ""}
-          name={`${profile.firstName} ${profile.lastName}`}
-          onAvatarChange={() => {}}
-        />
+        <SettingsAvatar onAvatarChange={handleAvatarChange} />
+
 
         <SettingsBio
           bio={bioDraft}
