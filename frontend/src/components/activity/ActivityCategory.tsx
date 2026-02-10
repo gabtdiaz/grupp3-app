@@ -1,3 +1,4 @@
+// ActivityCategory.tsx
 interface ActivityCategoryProps {
   name: string;
   icon: string;
@@ -23,7 +24,7 @@ export default function ActivityCategory({
         ${
           isSelected
             ? "bg-[#FF7070] scale-105 shadow-lg"
-            : "bg-white hover:bg-gray-50 hover:scale-102"
+            : "bg-white"
         }
       `}
     >
