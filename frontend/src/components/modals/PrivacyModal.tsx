@@ -21,7 +21,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-2xl"
+            className="text-gray-500 text-2xl"
           >
             ×
           </button>
