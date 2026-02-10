@@ -12,33 +12,54 @@ variables:
   buildConfiguration: "Release"
 
 steps:
-  # Frontend
+  # ========================================
+  # FRONTEND BUILD
+  # ========================================
   - task: NodeTool@0
     inputs:
       versionSpec: "22.x"
     displayName: "Install Node.js"
 
-  - script: |
-      npm install
-      npm run build
-    displayName: "Frontend: Install and build"
+  - script: npm install
+    displayName: "Install Frontend Dependencies"
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
-    # Backend
+  - script: npm run build
+    displayName: "Build Frontend"
+    workingDirectory: "$(Build.SourcesDirectory)/frontend"
+
+  # Debug: Kolla att dist skapades
+  - powershell: |
+      Write-Host "=== Checking frontend build output ==="
+      if (Test-Path "$(Build.SourcesDirectory)/frontend/dist") {
+        Write-Host "✓ dist folder EXISTS"
+        Get-ChildItem "$(Build.SourcesDirectory)/frontend/dist"
+      } else {
+        Write-Host "✗ dist folder DOES NOT EXIST"
+        Write-Host "=== Listing frontend folder ==="
+        Get-ChildItem "$(Build.SourcesDirectory)/frontend"
+      }
+    displayName: "Debug: Verify frontend build"
+
+  # ========================================
+  # BACKEND BUILD
+  # ========================================
   - task: UseDotNet@2
     inputs:
       version: "9.x"
     displayName: "Install .NET 9"
 
   - script: dotnet restore backend.sln
-    displayName: "Restore backend"
+    displayName: "Restore Backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  - script: dotnet build backend.sln --configuration Release --no-restore
-    displayName: "Build backend"
+  - script: dotnet build backend.sln --configuration $(buildConfiguration) --no-restore
+    displayName: "Build Backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  # Copy frontend to WWWROOT
+  # ========================================
+  # COPY FRONTEND TO WWWROOT
+  # ========================================
   - task: CopyFiles@2
     displayName: "Copy Frontend to wwwroot"
     inputs:
@@ -47,51 +68,44 @@ steps:
       TargetFolder: "$(Build.SourcesDirectory)/backend/wwwroot"
       OverWrite: true
 
-  # Debug: Visa att frontend kopierades
   - powershell: |
-      Write-Host "Checking wwwroot contents:"
+      Write-Host "=== Checking wwwroot contents ==="
       Get-ChildItem "$(Build.SourcesDirectory)/backend/wwwroot" -Recurse
     displayName: "Verify wwwroot has frontend files"
 
-  # Publish and Deploy
+  # ========================================
+  # PUBLISH BACKEND
+  # ========================================
   - script: dotnet publish backend.sln -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/publish
-    displayName: "Backend: Publish (includes wwwroot)"
+    displayName: "Publish Backend (includes wwwroot)"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  # Debug: Visa publish-innehåll
   - powershell: |
-      Write-Host "Checking publish folder:"
-      Get-ChildItem "$(Build.ArtifactStagingDirectory)/publish" -Recurse
-    displayName: "Verify publish folder contents"
+      Write-Host "=== Checking publish folder ==="
+      Get-ChildItem "$(Build.ArtifactStagingDirectory)/publish/wwwroot" -ErrorAction SilentlyContinue
+    displayName: "Verify publish has wwwroot"
 
-  # Zip backend-publish-mappen
+  # ========================================
+  # ZIP FOR DEPLOYMENT
+  # ========================================
   - task: ArchiveFiles@2
-    displayName: "Zip for deployment"
+    displayName: "Create deployment package"
     inputs:
       rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
       includeRootFolder: false
       archiveType: "zip"
       archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
 
-  # List files för debug
   - powershell: Get-ChildItem "$(Build.ArtifactStagingDirectory)"
-    displayName: "List files before deploy"
+    displayName: "List staging directory"
 
-  # Deploy
+  # ========================================
+  # DEPLOY TO AZURE
+  # ========================================
   - task: AzureWebApp@1
-    displayName: "Deploy to Azure"
+    displayName: "Deploy to Azure App Service"
     inputs:
       azureSubscription: "$(AZURE_SERVICE_CONNECTION)"
       appType: "webApp"
       appName: "$(WEBAPP_NAME)"
       package: "$(Build.ArtifactStagingDirectory)/app.zip"
-
-  # # E2E Tests
-  # - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
-  #   displayName: "Run E2E tests"
-  #   workingDirectory: "$(Build.SourcesDirectory)"
-  #   env:
-  #     CI: "true"
-  #     E2E_BASE_URL: "$(E2E_BASE_URL)"
-  #     E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
-  #     E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"
