@@ -9,101 +9,55 @@ pool:
 variables:
   AZURE_SERVICE_CONNECTION: "FriendZoneConnection1"
   WEBAPP_NAME: "friendzone"
-  buildConfiguration: "Release"
 
 steps:
-  # ========================================
-  # FRONTEND BUILD
-  # ========================================
+  # Frontend
   - task: NodeTool@0
     inputs:
       versionSpec: "22.x"
     displayName: "Install Node.js"
 
-  - script: npm install
-    displayName: "Install Frontend Dependencies"
+  - script: |
+      npm install
+      npm run build
+    displayName: "Frontend: Install and build"
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
-  - script: npm run build
-    displayName: "Build Frontend"
-    workingDirectory: "$(Build.SourcesDirectory)/frontend"
-
-  # Debug: Kolla att dist skapades
-  - powershell: |
-      Write-Host "=== Checking frontend build output ==="
-      if (Test-Path "$(Build.SourcesDirectory)/frontend/dist") {
-        Write-Host "✓ dist folder EXISTS"
-        Get-ChildItem "$(Build.SourcesDirectory)/frontend/dist"
-      } else {
-        Write-Host "✗ dist folder DOES NOT EXIST"
-        Write-Host "=== Listing frontend folder ==="
-        Get-ChildItem "$(Build.SourcesDirectory)/frontend"
-      }
-    displayName: "Debug: Verify frontend build"
-
-  # ========================================
-  # BACKEND BUILD
-  # ========================================
+    # Backend
   - task: UseDotNet@2
     inputs:
       version: "9.x"
     displayName: "Install .NET 9"
 
   - script: dotnet restore backend.sln
-    displayName: "Restore Backend"
+    displayName: "Restore backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  - script: dotnet build backend.sln --configuration $(buildConfiguration) --no-restore
-    displayName: "Build Backend"
+  - script: dotnet build backend.sln --configuration Release --no-restore
+    displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  # ========================================
-  # COPY FRONTEND TO WWWROOT
-  # ========================================
-  - task: CopyFiles@2
-    displayName: "Copy Frontend to wwwroot"
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/frontend/dist"
-      Contents: "**"
-      TargetFolder: "$(Build.SourcesDirectory)/backend/wwwroot"
-      OverWrite: true
-
-  - powershell: |
-      Write-Host "=== Checking wwwroot contents ==="
-      Get-ChildItem "$(Build.SourcesDirectory)/backend/wwwroot" -Recurse
-    displayName: "Verify wwwroot has frontend files"
-
-  # ========================================
-  # PUBLISH BACKEND
-  # ========================================
-  - script: dotnet publish backend.sln -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/publish
-    displayName: "Publish Backend (includes wwwroot)"
+  # Publish and Deploy
+  - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
+    displayName: "Backend: Publish"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  - powershell: |
-      Write-Host "=== Checking publish folder ==="
-      Get-ChildItem "$(Build.ArtifactStagingDirectory)/publish/wwwroot" -ErrorAction SilentlyContinue
-    displayName: "Verify publish has wwwroot"
-
-  # ========================================
-  # ZIP FOR DEPLOYMENT
-  # ========================================
+  # Zip backend-publish-mappen
   - task: ArchiveFiles@2
-    displayName: "Create deployment package"
+    displayName: "Zip for deployment"
     inputs:
       rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
       includeRootFolder: false
       archiveType: "zip"
       archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
 
+  # List files för debug
   - powershell: Get-ChildItem "$(Build.ArtifactStagingDirectory)"
-    displayName: "List staging directory"
+    displayName: "List files before deploy"
 
-  # ========================================
-  # DEPLOY TO AZURE
-  # ========================================
+  # Deploy
   - task: AzureWebApp@1
-    displayName: "Deploy to Azure App Service"
+    displayName: "Deploy to Azure"
     inputs:
       azureSubscription: "$(AZURE_SERVICE_CONNECTION)"
       appType: "webApp"

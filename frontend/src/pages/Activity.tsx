@@ -16,6 +16,7 @@ export default function Activity() {
   );
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Initialize filter state
   const [filters, setFilters] = useState<FilterOptions>({
@@ -50,6 +51,18 @@ export default function Activity() {
 
   // Comprehensive filtering function
   const filteredEvents = events.filter((event) => {
+    // Search filter (searches in title and description)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesTitle = event.title?.toLowerCase().includes(query);
+      const matchesDescription = event.description
+        ?.toLowerCase()
+        .includes(query);
+      if (!matchesTitle && !matchesDescription) {
+        return false;
+      }
+    }
+
     // Category filter from header (priority)
     if (selectedCategoryId && event.categoryId !== selectedCategoryId) {
       return false;
@@ -127,6 +140,10 @@ export default function Activity() {
     setFilters(newFilters);
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {showSuccessMessage && (
@@ -135,7 +152,7 @@ export default function Activity() {
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                 clipRule="evenodd"
               />
             </svg>
@@ -154,6 +171,8 @@ export default function Activity() {
         <Header
           selectedCategoryId={selectedCategoryId}
           onCategoryClick={handleCategoryClick}
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
         />
       </div>
 
