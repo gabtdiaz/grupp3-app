@@ -126,16 +126,18 @@ class EventService {
   /**
    * POST /api/events/upload-image - Ladda upp bild till event
    */
-    async uploadEventImage(formData: FormData): Promise<{ imageUrl: string }> {
+  async uploadEventImage(formData: FormData): Promise<{ imageUrl: string }> {
     const response = await api.post<{ imageUrl: string }>(
       "/api/events/upload-image",
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
-      }
+      },
     );
     return response.data;
-   * DELETE /api/events/{eventId}/participants/{userId} - Ta bort deltagare från event (endast creator)
+  }
+
+  /* DELETE /api/events/{eventId}/participants/{userId} - Ta bort deltagare från event (endast creator)
    */
   async removeParticipant(eventId: number, userId: number): Promise<void> {
     await api.delete(`/api/events/${eventId}/participants/${userId}`);
