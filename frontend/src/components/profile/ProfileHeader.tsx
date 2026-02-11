@@ -41,7 +41,7 @@ export default function ProfileHeader({
 
         if (isPublic) {
           // publik profil
-          url = `/api/profile/image/${profile.id}`;
+          url = `http://localhost:5011/api/profile/image/${profile.id}`;
           console.log("🔍 Hämtar publik profilbild:", url);
         } else {
           // inloggad användare
@@ -50,7 +50,7 @@ export default function ProfileHeader({
             setImageLoading(false);
             return;
           }
-          url = `/api/profile/image`;
+          url = `http://localhost:5011/api/profile/image`;
           headers["Authorization"] = `Bearer ${token}`;
           console.log("Hämtar egen profilbild:", url);
         }
