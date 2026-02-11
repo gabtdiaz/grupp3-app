@@ -218,10 +218,11 @@ export const ActivityDetail: React.FC = () => {
 
       {/* Header with title and tabs */}
       <ActivityDetailHeader
-        title={event.title}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        imageUrl={event.imageUrl || ""} 
+        eventId={event.id}
+  title={event.title}
+  imageUrl={event.imageUrl} 
+  activeTab={activeTab}
+  onTabChange={setActiveTab}
       />
 
 
