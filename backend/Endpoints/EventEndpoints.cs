@@ -325,7 +325,7 @@ public static class EventEndpoints
             CreatedAt = e.CreatedAt,
             CreatedByUserId = e.CreatedByUserId,
             CreatedBy = $"{user.FirstName} {user.LastName[0]}.",
-            CreatedByProfileImageUrl = user.ProfileImageUrl,
+            CreatedByProfileImageUrl =  $"/api/profile/image/{e.CreatedByUserId}",
             Participants = participants,
             IsUserParticipating = isUserParticipating
         };

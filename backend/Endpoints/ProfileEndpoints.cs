@@ -72,7 +72,7 @@ public static class ProfileEndpoints
             Age = CalculateAge(currentUser.DateOfBirth),
             Gender = currentUser.Gender.ToString(),
             City = currentUser.City,
-            ProfileImageUrl = currentUser.ProfileImageUrl,
+            ProfileImageUrl = $"/api/profile/image/{currentUser.Id}", // dynamisk url
             Bio = currentUser.Bio,
             Interests = currentUser.Interests,
             CreatedAt = currentUser.CreatedAt,
@@ -123,7 +123,6 @@ public static class ProfileEndpoints
         currentUser.City = updateDto.City;
         currentUser.Bio = updateDto.Bio;
         currentUser.Interests = updateDto.Interests;
-        currentUser.ProfileImageUrl = updateDto.ProfileImageUrl;
         if (Enum.TryParse<Gender>(updateDto.Gender, out var gender))
         {
             currentUser.Gender = gender;
@@ -152,7 +151,7 @@ public static class ProfileEndpoints
             Age = CalculateAge(currentUser.DateOfBirth),
             Gender = currentUser.Gender.ToString(),
             City = currentUser.City,
-            ProfileImageUrl = currentUser.ProfileImageUrl,
+            ProfileImageUrl = $"/api/profile/image/{currentUser.Id}",
             Bio = currentUser.Bio,
             Interests = currentUser.Interests,
             CreatedAt = currentUser.CreatedAt,
@@ -250,7 +249,7 @@ public static class ProfileEndpoints
             Age = userProfile.ShowAge ? age : null,
             Gender = userProfile.ShowGender ? userProfile.Gender.ToString() : null,
             City = userProfile.ShowCity ? userProfile.City : null,
-            ProfileImageUrl = userProfile.ProfileImageUrl,
+            ProfileImageUrl = $"/api/profile/image/{userProfile.Id}",
             Bio = userProfile.Bio,
             Interests = userProfile.Interests,
         };
