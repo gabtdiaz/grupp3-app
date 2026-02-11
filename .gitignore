@@ -12,7 +12,6 @@ obj/
 *.dll
 *.exe
 *.pdb
-wwwroot/
 
 # Sensitive files
 /.env
@@ -95,7 +94,7 @@ coverage/
 .fake
 
 node_modules/
-dist/
+
 
 # Vite
 .vite/
