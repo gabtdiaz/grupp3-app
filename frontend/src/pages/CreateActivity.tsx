@@ -318,7 +318,7 @@ export default function CreateActivity() {
           />
         </div>
 
-        {/* Bild URL */}
+        {/* Bild */}
        <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Ladda upp bild (valfri)
@@ -343,7 +343,7 @@ export default function CreateActivity() {
                 setFormData((prev) => ({
                   ...prev,
                   imageFile: file,
-                  imageUrl: URL.createObjectURL(file), // 🔹 Förhandsvisning direkt
+                  imageUrl: URL.createObjectURL(file),
                 }));
               }
             }}
@@ -351,10 +351,10 @@ export default function CreateActivity() {
 
           {formData.imageUrl && (
             <img
-              src={formData.imageUrl}
-              alt="Förhandsvisning"
-              className="mt-4 w-32 h-32 rounded-lg object-cover mx-auto"
-            />
+  src={formData.imageUrl}
+  alt="Förhandsvisning"
+  className="mt-4 w-18 h-18 rounded-full object-cover mx-auto"
+/>
           )}
         </div>
 

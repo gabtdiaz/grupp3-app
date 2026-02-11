@@ -41,6 +41,7 @@ export default function ActivityFeed({
           {dateEvents.map((event) => (
             <ActivityCard
               key={event.id}
+              eventId={event.id} 
               title={event.title}
               description={event.description || ""}
               participants={event.currentParticipants}

@@ -1,4 +1,5 @@
 interface ActivityCardProps {
+  eventId: number;
   title: string;
   description: string;
   participants: number;
@@ -9,6 +10,7 @@ interface ActivityCardProps {
 }
 
 export default function ActivityCard({
+  eventId,
   title,
   description,
   participants,
@@ -17,8 +19,12 @@ export default function ActivityCard({
   isFull = false,
   onClick,
 }: ActivityCardProps) {
-  const hasValidImage =
-    imageSrc && imageSrc !== "string" && imageSrc.trim() !== "";
+  const src =
+    imageSrc && imageSrc.trim() !== ""
+      ? imageSrc.startsWith("http")
+        ? imageSrc
+        : `http://localhost:5011/${imageSrc}`
+      : `http://localhost:5011/api/events/${eventId}/image`;
 
   return (
     <div
@@ -26,22 +32,19 @@ export default function ActivityCard({
       onClick={onClick}
     >
       <div className="w-18 h-18 rounded-full border shrink-0 overflow-hidden flex items-center justify-center bg-gray-200">
-  {hasValidImage ? (
-    <img
-      src={
-        imageSrc!.startsWith("http")
-          ? imageSrc
-          : `http://localhost:5011${imageSrc}`
-      }
-      alt={title}
-      className="w-full h-full object-cover"
-    />
-  ) : (
-    <span className="text-gray-500 text-2xl font-bold">
-      {title?.[0]?.toUpperCase()}
-    </span>
-  )}
-</div>
+        <img
+          src={src}
+          alt={title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+            const parent = (e.target as HTMLElement).parentElement;
+            if (parent) {
+              parent.innerHTML = `<span style="font-size:24px; font-weight:600; color:#555;">${title.charAt(0).toUpperCase()}</span>`;
+            }
+          }}
+        />
+      </div>
 
       <div className="flex-1 min-w-0">
         <h3 className="font-futura text-lg mb-1">{title}</h3>

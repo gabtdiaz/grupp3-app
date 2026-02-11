@@ -140,6 +140,22 @@ class EventService {
   return response.data;
 }
 
+/**
+   * GET /api/events/{id}/image - hämta bild till event
+   */
+async getEventImage(eventId: number, token: string): Promise<string> {
+  const res = await fetch(`${window.location.origin}/api/events/${eventId}/image`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Could not fetch image");
+
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
+
   /* DELETE /api/events/{eventId}/participants/{userId} - Ta bort deltagare från event (endast creator)
    */
   async removeParticipant(eventId: number, userId: number): Promise<void> {
