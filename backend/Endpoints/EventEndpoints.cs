@@ -31,7 +31,7 @@ public static class EventEndpoints
     .Produces(StatusCodes.Status404NotFound)
     .WithDescription("Ladda upp bild för ett event");
 
-        group.MapGet("/{eventId}/image", GetEventImage);
+        app.MapGet("/api/events/{id}/image", GetEventImage);
     }
 
     private static async Task<IResult> UploadEventImage(
