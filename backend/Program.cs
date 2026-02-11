@@ -50,6 +50,16 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod()
                   .AllowCredentials();
         }
+        else
+        {
+            policy.WithOrigins(
+                "https://friendzone.azurewebsites.net", 
+                "https://www.friendzone.azurewebsites.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+        }
     });
 });
 
