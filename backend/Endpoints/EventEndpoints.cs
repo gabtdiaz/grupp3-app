@@ -23,6 +23,40 @@ public static class EventEndpoints
         group.MapPost("/", CreateEvent); //POST skapa nytt event
         group.MapPut("/{id}", UpdateEvent);//PUT uppdaterar event
         group.MapDelete("/{id}", DeleteEvent);//DELETE tar bort ett event
+        group.MapPost("/upload-image", UploadEventImage)
+    .DisableAntiforgery()
+    .Accepts<IFormFile>("multipart/form-data")
+    .Produces(StatusCodes.Status200OK)
+    .Produces(StatusCodes.Status400BadRequest)
+    .WithDescription("Ladda upp bild för event");
+    }
+
+    private static async Task<IResult> UploadEventImage(
+        IFormFile file,
+        ILogger<Program> logger)
+    {
+        if (file == null || file.Length == 0)
+            return Results.BadRequest("Ingen fil uppladdad.");
+
+        var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png" };
+        if (!allowedTypes.Contains(file.ContentType))
+            return Results.BadRequest("Endast JPG eller PNG-filer tillåtna.");
+
+        var uploadsFolder = Path.Combine("wwwroot", "uploads", "events");
+        Directory.CreateDirectory(uploadsFolder);
+
+        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var imageUrl = $"/uploads/events/{fileName}";
+        logger.LogInformation("Event image uploaded: {FileName}", fileName);
+
+        return Results.Ok(new { imageUrl });
     }
 
     // POST /api/events skapa nytt event
@@ -46,7 +80,7 @@ public static class EventEndpoints
         if (currentUser == null)
             return Results.NotFound("User not found");
 
-    // Validera att category finns
+        // Validera att category finns
         var categoryExists = await context.Categories.AnyAsync(c => c.Id == dto.CategoryId && c.IsActive);
         if (!categoryExists)
         {
@@ -89,11 +123,11 @@ public static class EventEndpoints
     // VIKTIGT: Filtrerar bort events baserat på ålder och kön
     // Men VISAR events som är fulla (användare kan se men inte joina)
     private static async Task<IResult> GetAllEvents(
-        ApplicationDbContext context, 
-        EventRestrictionService restrictionService, 
-        ClaimsPrincipal user, 
-        ILogger<Program> logger, 
-        int? categoryId = null, 
+        ApplicationDbContext context,
+        EventRestrictionService restrictionService,
+        ClaimsPrincipal user,
+        ILogger<Program> logger,
+        int? categoryId = null,
         string? city = null)
     {
         var userId = user.GetUserIdOrThrow();
@@ -107,7 +141,7 @@ public static class EventEndpoints
             .AsQueryable();
 
         // Filtrering baserat på category
-         if (categoryId.HasValue)
+        if (categoryId.HasValue)
         {
             query = query.Where(e => e.CategoryId == categoryId.Value);
         }
@@ -131,7 +165,7 @@ public static class EventEndpoints
         events = events
             .Where(e => restrictionService.IsEventVisibleToUser(currentUser, e))
             .ToList();
-        
+
         logger.LogInformation("User {UserId}: {EventCount} events visible after filtering", userId, events.Count);
 
         var dtos = events.Select(e => MapToEventDto(e, e.CreatedBy, userId)).ToList();
@@ -148,15 +182,15 @@ public static class EventEndpoints
         var currentUserId = userIdClaim != null ? int.Parse(userIdClaim) : (int?)null;
 
         var e = await context.Events
-            .Include(ev => ev.Category) 
+            .Include(ev => ev.Category)
             .Include(ev => ev.CreatedBy)
             .Include(ev => ev.Participants)
-            .ThenInclude(ep => ep.User) 
+            .ThenInclude(ep => ep.User)
             .FirstOrDefaultAsync(ev => ev.Id == id);
 
         if (e == null)
         {
-            logger.LogWarning("Event {EventId} not found", id); 
+            logger.LogWarning("Event {EventId} not found", id);
             return Results.NotFound();
         }
 
@@ -165,10 +199,10 @@ public static class EventEndpoints
 
     // PUT /api/events/{id} uppdaterar event
     private static async Task<IResult> UpdateEvent(
-        int id, 
-        UpdateEventDto dto, 
+        int id,
+        UpdateEventDto dto,
         ClaimsPrincipal user,
-        ApplicationDbContext context, 
+        ApplicationDbContext context,
         ILogger<Program> logger)
     {
         if (!MiniValidator.TryValidate(dto, out var errors))
@@ -240,7 +274,7 @@ public static class EventEndpoints
             return Results.NotFound();
         }
 
-         // VIKTIGT: Kontrollera att användaren är creator
+        // VIKTIGT: Kontrollera att användaren är creator
         if (e.CreatedByUserId != userId)
         {
             logger.LogWarning("User {UserId} attempted to delete event {EventId} created by user {CreatorId}",
@@ -248,7 +282,7 @@ public static class EventEndpoints
             return Results.Forbid();
         }
 
-         // Soft delete (sätt IsActive = false istället för att ta bort helt)
+        // Soft delete (sätt IsActive = false istället för att ta bort helt)
         e.IsActive = false;
         e.UpdatedAt = DateTime.UtcNow;
         await context.SaveChangesAsync();
@@ -259,19 +293,19 @@ public static class EventEndpoints
 
     // Mappar Event-entitet till EventDto med participants och IsUserParticipating
     private static EventDto MapToEventDto(Event e, User user, int? currentUserId = null)
-{
-    var participants = e.Participants
-        .Where(ep => ep.User != null)
-        .Select(ep => new ParticipantDto
-        {
-            UserId = ep.UserId,
-            UserName = $"{ep.User.FirstName} {ep.User.LastName[0]}.",
-            ProfileImageUrl = ep.User.ProfileImageUrl
-        })
-        .ToList();
+    {
+        var participants = e.Participants
+            .Where(ep => ep.User != null)
+            .Select(ep => new ParticipantDto
+            {
+                UserId = ep.UserId,
+                UserName = $"{ep.User.FirstName} {ep.User.LastName[0]}.",
+                ProfileImageUrl = ep.User.ProfileImageUrl
+            })
+            .ToList();
 
-    var isUserParticipating = currentUserId.HasValue && 
-        e.Participants.Any(ep => ep.UserId == currentUserId.Value);
+        var isUserParticipating = currentUserId.HasValue &&
+            e.Participants.Any(ep => ep.UserId == currentUserId.Value);
         return new EventDto
         {
             Id = e.Id,
@@ -282,18 +316,18 @@ public static class EventEndpoints
             EndDateTime = e.EndDateTime,
             ImageUrl = e.ImageUrl,
             CategoryId = e.CategoryId,
-            Category = e.Category?.DisplayName ?? "Unknown",              
+            Category = e.Category?.DisplayName ?? "Unknown",
             GenderRestriction = e.GenderRestriction.ToString(),
             MaxParticipants = e.MaxParticipants,
             CurrentParticipants = e.Participants.Count, // Tillagt: Antal deltagare
             MinimumAge = e.MinimumAge,
             IsActive = e.IsActive,
             CreatedAt = e.CreatedAt,
-            CreatedByUserId = e.CreatedByUserId, 
+            CreatedByUserId = e.CreatedByUserId,
             CreatedBy = $"{user.FirstName} {user.LastName[0]}.",
             CreatedByProfileImageUrl = user.ProfileImageUrl,
             Participants = participants,
-            IsUserParticipating = isUserParticipating 
+            IsUserParticipating = isUserParticipating
         };
     }
 }

@@ -10,7 +10,7 @@ const genderRestrictions = [
   { value: 1, label: "Alla" },
   { value: 2, label: "Endast män" },
   { value: 3, label: "Endast kvinnor" },
-];
+];  
 
 export default function CreateActivity() {
   const navigate = useNavigate();
@@ -320,20 +320,50 @@ export default function CreateActivity() {
           />
         </div>
 
-        {/* Bild URL (optional) */}
+        {/* Bild URL */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Bild URL (valfri)
-          </label>
-          <input
-            type="url"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            placeholder="https://..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Ladda upp bild (valfri)
+  </label>
+
+  {/* Knappen */}
+  <button
+    type="button"
+    onClick={() => document.getElementById("image-upload")?.click()}
+    className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition"
+  >
+    Välj bild
+  </button>
+
+  {/* Själva file-input, hidden */}
+  <input
+    type="file"
+    id="image-upload"
+    accept="image/*"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      const response = await eventService.uploadEventImage(fd);
+      setFormData((prev) => ({
+        ...prev,
+        imageUrl: response.imageUrl,
+      }));
+    }}
+    className="hidden"
+  />
+
+      {formData.imageUrl && (
+      <img
+      src={formData.imageUrl ? `http://localhost:5011${formData.imageUrl}` : ""}
+      alt="Förhandsvisning"
+      className="mt-4 w-32 h-32 rounded-full object-cover mx-auto"
+    />
+      )}
+    </div>
 
         {/* Submit Button */}
         <button

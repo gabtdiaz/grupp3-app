@@ -221,7 +221,9 @@ export const ActivityDetail: React.FC = () => {
         title={event.title}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        imageUrl={event.imageUrl || ""} 
       />
+
 
       {/* Content Area */}
       {activeTab === "information" ? (
