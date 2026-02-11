@@ -29,6 +29,7 @@ export default function CreateActivity() {
     endDate: "",
     endTime: "",
     imageUrl: "",
+    imageFile: null as File | null,
     category: 2, // Social som default
     maxParticipants: 10,
     genderRestriction: 1, // Alla som default
@@ -61,51 +62,48 @@ export default function CreateActivity() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validering
-    if (!formData.title.trim()) {
-      setError("Titel är obligatorisk");
-      return;
-    }
-    if (!formData.city.trim()) {
-      setError("Plats är obligatorisk");
-      return;
-    }
-    if (!formData.startDate || !formData.startTime) {
-      setError("Starttid är obligatorisk");
-      return;
-    }
+    // Enkel validering
+    if (!formData.title.trim()) return setError("Titel är obligatorisk");
+    if (!formData.city.trim()) return setError("Plats är obligatorisk");
+    if (!formData.startDate || !formData.startTime)
+      return setError("Starttid är obligatorisk");
 
     // Skapa ISO datetime strings
     const startDateTime = `${formData.startDate}T${formData.startTime}:00.000Z`;
     let endDateTime: string | undefined;
-
-    if (formData.endDate && formData.endTime) {
+    if (formData.endDate && formData.endTime)
       endDateTime = `${formData.endDate}T${formData.endTime}:00.000Z`;
-    }
 
     try {
       setLoading(true);
 
+      // Skapa event först
       const eventData = {
         title: formData.title,
         description: formData.description || undefined,
         location: formData.city,
         startDateTime,
         endDateTime,
-        imageUrl: formData.imageUrl || undefined,
         categoryId: formData.category,
         maxParticipants: formData.maxParticipants,
         genderRestriction: formData.genderRestriction,
         minimumAge: formData.minimumAge,
       };
 
-      await eventService.createEvent(eventData);
+      const createdEvent = await eventService.createEvent(eventData);
 
-      // Aktivitet skapad, visa meddelande och gå till activity feed
+      // Ladda upp bild om användaren valt en
+      if (formData.imageFile) {
+        const fd = new FormData();
+        fd.append("file", formData.imageFile);
+        await eventService.uploadEventImage(createdEvent.id, fd);
+      }
+
+      // Navigera tillbaka till feed
       navigate("/activity", {
         state: {
           message: "Aktivitet skapad!",
@@ -115,7 +113,7 @@ export default function CreateActivity() {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          "Kunde inte skapa activity. Försök igen.",
+          "Kunde inte skapa aktiviteten. Försök igen.",
       );
       console.error("Error creating activity:", err);
     } finally {
@@ -321,49 +319,44 @@ export default function CreateActivity() {
         </div>
 
         {/* Bild URL */}
-        <div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Ladda upp bild (valfri)
-  </label>
+       <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Ladda upp bild (valfri)
+          </label>
 
-  {/* Knappen */}
-  <button
-    type="button"
-    onClick={() => document.getElementById("image-upload")?.click()}
-    className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition"
-  >
-    Välj bild
-  </button>
+          <button
+            type="button"
+            onClick={() => document.getElementById("image-upload")?.click()}
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition"
+          >
+            Välj bild
+          </button>
 
-  {/* Själva file-input, hidden */}
-  <input
-    type="file"
-    id="image-upload"
-    accept="image/*"
-    onChange={async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+          <input
+            type="file"
+            id="image-upload"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return; {
+                setFormData((prev) => ({
+                  ...prev,
+                  imageFile: file,
+                  imageUrl: URL.createObjectURL(file), // 🔹 Förhandsvisning direkt
+                }));
+              }
+            }}
+          />
 
-      const fd = new FormData();
-      fd.append("file", file);
-
-      const response = await eventService.uploadEventImage(fd);
-      setFormData((prev) => ({
-        ...prev,
-        imageUrl: response.imageUrl,
-      }));
-    }}
-    className="hidden"
-  />
-
-      {formData.imageUrl && (
-      <img
-      src={formData.imageUrl ? `http://localhost:5011${formData.imageUrl}` : ""}
-      alt="Förhandsvisning"
-      className="mt-4 w-32 h-32 rounded-full object-cover mx-auto"
-    />
-      )}
-    </div>
+          {formData.imageUrl && (
+            <img
+              src={formData.imageUrl}
+              alt="Förhandsvisning"
+              className="mt-4 w-32 h-32 rounded-lg object-cover mx-auto"
+            />
+          )}
+        </div>
 
         {/* Submit Button */}
         <button

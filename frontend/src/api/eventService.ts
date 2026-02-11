@@ -57,7 +57,7 @@ class EventService {
    */
   async getAllEvents(categoryId?: number, city?: string): Promise<Event[]> {
     const params = new URLSearchParams();
-    if (categoryId) params.append("categoryId", categoryId.toString());
+    if (categoryId) params.append("categoryId", categoryId.toString()); 
     if (city) params.append("city", city);
     const url = `/api/events${params.toString() ? `?${params}` : ""}`;
     const response = await api.get<Event[]>(url);
@@ -126,16 +126,19 @@ class EventService {
   /**
    * POST /api/events/upload-image - Ladda upp bild till event
    */
-  async uploadEventImage(formData: FormData): Promise<{ imageUrl: string }> {
-    const response = await api.post<{ imageUrl: string }>(
-      "/api/events/upload-image",
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
-    );
-    return response.data;
-  }
+  async uploadEventImage(
+  eventId: number,
+  formData: FormData
+): Promise<{ message: string }> {
+  const response = await api.post<{ message: string }>(
+    `/api/events/upload-image/${eventId}`,
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  return response.data;
+}
 
   /* DELETE /api/events/{eventId}/participants/{userId} - Ta bort deltagare från event (endast creator)
    */
