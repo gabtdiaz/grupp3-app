@@ -90,7 +90,7 @@ export default function ProfileHeader({
       }
     };
   }, [profile?.id, isPublic]);
-  //h
+  // tom
   const hasValidImage = !!imageSrc;
 
   return (
