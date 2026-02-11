@@ -62,7 +62,11 @@ public static class EventEndpoints
 
         logger.LogInformation("Event {EventId} uploaded image", eventId);
 
-        return Results.Ok(new { message = "Bild uppladdad." });
+        return Results.Ok(new
+        {
+            message = "Bild uppladdad.",
+            imageUrl = $"/api/events/{eventId}/image"
+        });
     }
 
     private static async Task<IResult> GetEventImage(int id, ApplicationDbContext context)
