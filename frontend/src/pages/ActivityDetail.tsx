@@ -4,12 +4,12 @@ import { ActivityDetailHeader } from "../components/activity-detail/ActivityDeta
 import { ActivityDetailHost } from "../components/activity-detail/ActivityDetailHost";
 import { ActivityDetailMeta } from "../components/activity-detail/ActivityDetailMeta";
 import { ActivityDetailDescription } from "../components/activity-detail/ActivityDetailDescription";
-import { ActivityDetailAttendees } from "../components/activity-detail/ActivityDetailAttendees";
+import ActivityDetailAttendees from "../components/activity-detail/ActivityDetailAttendees";
 import { ActivityDetailJoinButton } from "../components/activity-detail/ActivityDetailJoinButton";
 import { ActivityDetailComments } from "../components/activity-detail/ActivityDetailComments";
 import DeleteActivityModal from "../components/modals/DeleteActivityModal";
+import { ActivityDetailRemoveParticipantModal } from "../components/activity-detail/ActivityDetailRemoveParticipantModal";
 
-// import type { Comment } from "../components/activity-detail/ActivityDetailComments";
 import BottomNav from "../components/layout/BottomNav";
 import { useParams } from "react-router-dom";
 import { useEvent } from "../hooks/useEvent";
@@ -26,6 +26,8 @@ export const ActivityDetail: React.FC = () => {
   const [isJoined, setIsJoined] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [isRemovingParticipant, setIsRemovingParticipant] = useState(false);
 
   // Fetch eventId from URL
   const { id } = useParams<{ id: string }>();
@@ -186,22 +188,34 @@ export const ActivityDetail: React.FC = () => {
     }
   };
 
-  // Kontrollera om användaren är skaparen
-  const isCreator = currentUser && event.createdByUserId === currentUser.id;
+  const handleRemoveParticipant = async (userId: string) => {
+    if (!eventId || isRemovingParticipant) return;
+
+    try {
+      setIsRemovingParticipant(true);
+      await eventService.removeParticipant(eventId, Number(userId));
+      await refetch();
+    } catch (err) {
+      console.error("Failed to remove participant", err);
+      alert("Kunde inte ta bort deltagare");
+    } finally {
+      setIsRemovingParticipant(false);
+    }
+  };
+
+  const isCreator = !!currentUser && event.createdByUserId === currentUser.id;
 
   return (
     <div className="min-h-screen bg-white">
       <div className="bg-white px-6 py-4">
         <div className="flex items-center justify-between">
           {/*Tillbakaknapp*/}
-          <button
-            onClick={() => navigate(-1)}
-            className="text-gray-600 hover:text-gray-800"
-          >
+          <button onClick={() => navigate(-1)} className="text-gray-600">
             ← Tillbaka
           </button>
         </div>
       </div>
+
       {/* Header with title and tabs */}
       <ActivityDetailHeader
         title={event.title}
@@ -233,23 +247,23 @@ export const ActivityDetail: React.FC = () => {
           />
 
           {/* Attendees */}
-          <ActivityDetailAttendees attendees={attendees} />
+          <ActivityDetailAttendees
+            attendees={attendees}
+            isCreator={isCreator}
+            onManageClick={() => setShowParticipantsModal(true)}
+          />
 
           {/* Join Button eller Delete Button */}
           <div className="fixed bottom-14 left-0 right-0 px-4 z-40">
             {isCreator ? (
-              // TA BORT-KNAPP (endast för skaparen)
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="w-full py-4 rounded-lg text-white font-futura"
-                style={{
-                  backgroundColor: "#DC2626", // Röd färg
-                }}
+                style={{ backgroundColor: "#DC2626" }}
               >
                 Ta bort aktivitet
               </button>
             ) : (
-              // Join knapp för andra användare
               <ActivityDetailJoinButton
                 onJoin={handleJoin}
                 isJoined={isJoined}
@@ -271,7 +285,7 @@ export const ActivityDetail: React.FC = () => {
             <ActivityDetailComments
               comments={comments}
               onAddComment={handleAddComment}
-              onDeleteComment={handleDeleteComment} // ← Lägg till
+              onDeleteComment={handleDeleteComment}
               currentUserId={currentUser?.id || 0}
               hostId={event.createdBy}
             />
@@ -285,6 +299,15 @@ export const ActivityDetail: React.FC = () => {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteEvent}
         eventTitle={event.title}
+      />
+
+      {/* Remove Participant Modal */}
+      <ActivityDetailRemoveParticipantModal
+        isOpen={showParticipantsModal}
+        onClose={() => setShowParticipantsModal(false)}
+        attendees={attendees}
+        onRemoveParticipant={handleRemoveParticipant}
+        isRemoving={isRemovingParticipant}
       />
 
       <div className="fixed bottom-0 left-0 right-0 h-10 z-50">

@@ -22,22 +22,22 @@ export default function Header({
   return (
     <div className="relative flex h-full w-full flex-col">
       {/* Top section with title and create button */}
-      <div className="flex items-center justify-between px-6 pt-10">
+      <div className="flex items-center justify-between px-6 pt-8">
         <h1 className="font-futura text-2xl text-white">AKTIVITETER</h1>
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md"
           onClick={() => navigate("/activity/create")}
         >
           <img
             src="/icons/create-event-icon.svg"
             alt="Create event"
-            className="h-7 w-7"
+            className="h-6 w-6"
           />
         </button>
       </div>
 
       {/* Search bar */}
-      <div className="px-6 pt-13">
+      <div className="px-4 py-3">
         <div className="relative flex h-9 w-full rounded-full bg-white/20 p-0.5">
           <input
             type="text"
