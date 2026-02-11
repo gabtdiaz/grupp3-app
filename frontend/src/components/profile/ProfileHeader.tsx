@@ -20,6 +20,13 @@ export default function ProfileHeader({
   //  Använd profileImageUrl direkt från backend!
   const profileImageUrl = profile?.profileImageUrl || null;
 
+  // ✅ DEBUG - lägg till detta!
+  console.log("🖼️ ProfileHeader DEBUG:");
+  console.log("  - profile:", profile);
+  console.log("  - profileImageUrl:", profileImageUrl);
+  console.log("  - externalProfile:", externalProfile);
+  console.log("  - ownProfile:", ownProfile);
+
   return (
     <div
       className="relative h-52 bg-no-repeat bg-left-top"
