@@ -17,6 +17,7 @@ public static class EventParticipationEndpoints
         group.MapPost("/{id}/join", JoinEvent);
         group.MapDelete("/{id}/leave", LeaveEvent);
         group.MapGet("/me/joined", GetMyJoinedEvents);
+        group.MapDelete("/{eventId}/participants/{userId}", RemoveParticipant);
     }
 
     /// POST /api/events/{id}/join - Joina ett event
@@ -55,15 +56,15 @@ public static class EventParticipationEndpoints
         // Kolla om användaren kan joina
         var currentParticipantsCount = eventToJoin.Participants.Count;
         var (canJoin, status, message) = restrictionService.CanUserJoinEvent(
-            currentUser, 
-            eventToJoin, 
+            currentUser,
+            eventToJoin,
             currentParticipantsCount,
             hasAlreadyJoined
         );
 
         if (!canJoin)
         {
-            logger.LogWarning("User {UserId} cannot join event {EventId}: {Status} - {Message}", 
+            logger.LogWarning("User {UserId} cannot join event {EventId}: {Status} - {Message}",
                 userId, id, status, message);
             return Results.BadRequest(new { message, status = status.ToString() });
         }
@@ -82,8 +83,8 @@ public static class EventParticipationEndpoints
 
         logger.LogInformation("User {UserId} successfully joined event {EventId}", userId, id);
 
-        return Results.Ok(new 
-        { 
+        return Results.Ok(new
+        {
             message = "Du har joinat eventet!",
             eventId = id,
             joinedAt = participant.JoinedAt
@@ -153,5 +154,63 @@ public static class EventParticipationEndpoints
         logger.LogInformation("User {UserId} has joined {EventCount} events", userId, joinedEvents.Count);
 
         return Results.Ok(joinedEvents);
+    }
+
+    /// DELETE /api/events/{eventId}/participants/{userId} - Remove a participant (creator only)
+    private static async Task<IResult> RemoveParticipant(
+        int eventId,
+        int userId,
+        ClaimsPrincipal user,
+        ApplicationDbContext context,
+        ILogger<Program> logger)
+    {
+        var currentUserId = user.GetUserIdOrThrow();
+        logger.LogInformation("User {CurrentUserId} attempting to remove user {UserId} from event {EventId}",
+            currentUserId, userId, eventId);
+
+        // Verify the event exists and get the creator
+        var eventToModify = await context.Events
+            .FirstOrDefaultAsync(e => e.Id == eventId);
+
+        if (eventToModify == null)
+        {
+            logger.LogWarning("Event {EventId} not found", eventId);
+            return Results.NotFound(new { message = "Event finns inte" });
+        }
+
+        // Only the event creator can remove participants
+        if (eventToModify.CreatedByUserId != currentUserId)
+        {
+            logger.LogWarning("User {CurrentUserId} is not the creator of event {EventId}",
+                currentUserId, eventId);
+            return Results.Forbid();
+        }
+
+        // Don't allow creator to remove themselves
+        if (userId == currentUserId)
+        {
+            logger.LogWarning("User {CurrentUserId} attempted to remove themselves from their own event",
+                currentUserId);
+            return Results.BadRequest(new { message = "Du kan inte ta bort dig själv som arrangör" });
+        }
+
+        // Find the participant
+        var participant = await context.EventParticipants
+            .FirstOrDefaultAsync(ep => ep.EventId == eventId && ep.UserId == userId);
+
+        if (participant == null)
+        {
+            logger.LogWarning("User {UserId} is not a participant of event {EventId}", userId, eventId);
+            return Results.NotFound(new { message = "Användaren är inte med i eventet" });
+        }
+
+        // Remove the participant
+        context.EventParticipants.Remove(participant);
+        await context.SaveChangesAsync();
+
+        logger.LogInformation("User {CurrentUserId} successfully removed user {UserId} from event {EventId}",
+            currentUserId, userId, eventId);
+
+        return Results.Ok(new { message = "Deltagare borttagen" });
     }
 }
