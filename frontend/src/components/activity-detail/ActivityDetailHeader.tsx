@@ -7,6 +7,8 @@ interface ActivityDetailHeaderProps {
   imageUrl?: string | null; 
 }
 
+//hej
+
 export const ActivityDetailHeader: React.FC<ActivityDetailHeaderProps> = ({
   title,
   imageUrl,
