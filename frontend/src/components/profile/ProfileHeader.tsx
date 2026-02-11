@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useProfile } from "../../hooks/useProfile";
 import { type UserProfile, type PublicProfile } from "../../api/profile";
 
