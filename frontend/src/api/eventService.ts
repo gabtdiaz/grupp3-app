@@ -123,6 +123,20 @@ class EventService {
     const response = await api.get<JoinedEvent[]>("/api/events/me/joined");
     return response.data;
   }
+
+  /**
+   * POST /api/events/upload-image - Ladda upp bild till event
+   */
+    async uploadEventImage(formData: FormData): Promise<{ imageUrl: string }> {
+    const response = await api.post<{ imageUrl: string }>(
+      "/api/events/upload-image",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
+  }
 }
 
 export default new EventService();
