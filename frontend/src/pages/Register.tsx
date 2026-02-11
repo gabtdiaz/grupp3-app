@@ -120,7 +120,7 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
                 />
               </div>
-               {error && (
+              {error && (
                 <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
               )}
 
@@ -271,9 +271,9 @@ export default function RegisterPage() {
                   className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 >
                   <option value="">Välj</option>
-                  <option value="0">Man</option>
-                  <option value="1">Kvinna</option>
-                  <option value="2">Annat</option>
+                  <option value="1">Man</option>
+                  <option value="2">Kvinna</option>
+                  <option value="3">Annat</option>
                 </select>
                 {fieldErrors.gender && (
                   <p className="text-red-500 text-sm mt-1">

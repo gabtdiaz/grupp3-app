@@ -59,7 +59,6 @@ class EventService {
     const params = new URLSearchParams();
     if (categoryId) params.append("categoryId", categoryId.toString());
     if (city) params.append("city", city);
-
     const url = `/api/events${params.toString() ? `?${params}` : ""}`;
     const response = await api.get<Event[]>(url);
     return response.data;
@@ -136,6 +135,10 @@ class EventService {
       }
     );
     return response.data;
+   * DELETE /api/events/{eventId}/participants/{userId} - Ta bort deltagare från event (endast creator)
+   */
+  async removeParticipant(eventId: number, userId: number): Promise<void> {
+    await api.delete(`/api/events/${eventId}/participants/${userId}`);
   }
 }
 

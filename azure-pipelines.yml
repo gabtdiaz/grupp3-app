@@ -1,3 +1,79 @@
+# trigger:
+#   branches:
+#     include:
+#       - main
+
+# pool:
+#   vmImage: windows-latest
+
+# variables:
+#   AZURE_SERVICE_CONNECTION: "FriendZoneConnection1"
+#   WEBAPP_NAME: "friendzone"
+
+# steps:
+#   # Frontend
+#   - task: NodeTool@0
+#     inputs:
+#       versionSpec: "22.x"
+#     displayName: "Install Node.js"
+
+#   - script: |
+#       npm install
+#       npm run build
+#     displayName: "Frontend: Install and build"
+#     workingDirectory: "$(Build.SourcesDirectory)/frontend"
+
+#     # Backend
+#   - task: UseDotNet@2
+#     inputs:
+#       version: "9.x"
+#     displayName: "Install .NET 9"
+
+#   - script: dotnet restore backend.sln
+#     displayName: "Restore backend"
+#     workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+#   - script: dotnet build backend.sln --configuration Release --no-restore
+#     displayName: "Build backend"
+#     workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+#   # Publish and Deploy
+#   - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
+#     displayName: "Backend: Publish"
+#     workingDirectory: "$(Build.SourcesDirectory)/backend"
+
+#   # Zip backend-publish-mappen
+#   - task: ArchiveFiles@2
+#     displayName: "Zip for deployment"
+#     inputs:
+#       rootFolderOrFile: "$(Build.ArtifactStagingDirectory)/publish"
+#       includeRootFolder: false
+#       archiveType: "zip"
+#       archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+
+#   # List files för debug
+#   - powershell: Get-ChildItem "$(Build.ArtifactStagingDirectory)"
+#     displayName: "List files before deploy"
+
+#   # Deploy
+#   - task: AzureWebApp@1
+#     displayName: "Deploy to Azure"
+#     inputs:
+#       azureSubscription: "$(AZURE_SERVICE_CONNECTION)"
+#       appType: "webApp"
+#       appName: "$(WEBAPP_NAME)"
+#       package: "$(Build.ArtifactStagingDirectory)/app.zip"
+
+#   # E2E TESTS 
+#   - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
+#     displayName: "Run E2E tests"
+#     workingDirectory: "$(Build.SourcesDirectory)"
+#     env:
+#       CI: "true"
+#       E2E_BASE_URL: "$(E2E_BASE_URL)"
+#       E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
+#       E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"
+
 trigger:
   branches:
     include:
@@ -9,9 +85,12 @@ pool:
 variables:
   AZURE_SERVICE_CONNECTION: "FriendZoneConnection1"
   WEBAPP_NAME: "friendzone"
+  E2E_BASE_URL: "https://friendzone.azurewebsites.net"
 
 steps:
-  # Frontend
+  # ======================
+  # FRONTEND
+  # ======================
   - task: NodeTool@0
     inputs:
       versionSpec: "22.x"
@@ -23,7 +102,9 @@ steps:
     displayName: "Frontend: Install and build"
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
-    # Backend
+  # ======================
+  # BACKEND
+  # ======================
   - task: UseDotNet@2
     inputs:
       version: "9.x"
@@ -37,7 +118,39 @@ steps:
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  # Publish and Deploy
+  # ======================
+  # E2E TESTS (BEFORE DEPLOY)
+  # ======================
+
+  # 1) Build E2E test project (creates playwright.ps1)
+  - script: dotnet build FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
+    displayName: "Build E2E tests"
+    workingDirectory: "$(Build.SourcesDirectory)"
+
+  # 2) Install Playwright browsers
+  - powershell: |
+      pwsh FriendZone.E2E.Tests/bin/Release/net9.0/playwright.ps1 install chromium
+    displayName: "Install Playwright Chromium"
+    workingDirectory: "$(Build.SourcesDirectory)"
+
+  - powershell: |
+     Write-Host "E2E_BASE_URL = '$(E2E_BASE_URL)'"
+    displayName: "Debug: Print E2E_BASE_URL"
+
+
+  # 3) Run E2E tests
+  - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release --no-build
+    displayName: "Run E2E tests (pre-deploy)"
+    workingDirectory: "$(Build.SourcesDirectory)"
+    env:
+      CI: "true"
+      E2E_BASE_URL: "$(E2E_BASE_URL)"
+      E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
+      E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"
+
+  # ======================
+  # PUBLISH (ONLY IF TESTS PASS)
+  # ======================
   - script: dotnet publish backend.sln -c Release -o $(Build.ArtifactStagingDirectory)/publish
     displayName: "Backend: Publish"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
@@ -55,7 +168,9 @@ steps:
   - powershell: Get-ChildItem "$(Build.ArtifactStagingDirectory)"
     displayName: "List files before deploy"
 
-  # Deploy
+  # ======================
+  # DEPLOY TO AZURE
+  # ======================
   - task: AzureWebApp@1
     displayName: "Deploy to Azure"
     inputs:
@@ -64,14 +179,3 @@ steps:
       appName: "$(WEBAPP_NAME)"
       package: "$(Build.ArtifactStagingDirectory)/app.zip"
 
-  # ========================================
-  # E2E TESTS (kommenterad)
-  # ========================================
-  # - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
-  #   displayName: "Run E2E tests"
-  #   workingDirectory: "$(Build.SourcesDirectory)"
-  #   env:
-  #     CI: "true"
-  #     E2E_BASE_URL: "$(E2E_BASE_URL)"
-  #     E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
-  #     E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"

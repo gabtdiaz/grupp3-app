@@ -32,9 +32,8 @@ export const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
- // Avatar URL för headern
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
+  // Avatar URL för headern
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Bio UI state
   const [bioDraft, setBioDraft] = useState("");
@@ -65,46 +64,48 @@ export const Settings: React.FC = () => {
     }
   }, [profile]);
 
-const handleAvatarChange = async (file: File) => {
-  const token = localStorage.getItem("auth_token");
-  if (!token) {
-    alert("Ingen inloggning hittades. Logga in igen.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    // visar att uppladdning pågår
-    console.log("Laddar upp profilbild...");
-
-    const response = await fetch("http://localhost:5011/api/profile/upload-image", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Fel vid uppladdning: ${response.status} ${text}`);
+  const handleAvatarChange = async (file: File) => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      alert("Ingen inloggning hittades. Logga in igen.");
+      return;
     }
 
-    // allt har gått bra
-    console.log("Profilbild uppladdad!");
-    alert("Profilbild uppladdad!");
+    const formData = new FormData();
+    formData.append("file", file);
 
-    // uppdatera bilden direkt i UI:t
-    setAvatarUrl(`http://localhost:5011/api/profile/image?${Date.now()}`);
-    await refetch();
-  } catch (err) {
-    console.error("Fel vid uppladdning:", err);
-    alert("Kunde inte ladda upp bilden");
-  }
-};
+    try {
+      // visar att uppladdning pågår
+      console.log("Laddar upp profilbild...");
 
+      const response = await fetch(
+        "http://localhost:5011/api/profile/upload-image",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Fel vid uppladdning: ${response.status} ${text}`);
+      }
+
+      // allt har gått bra
+      console.log("Profilbild uppladdad!");
+      alert("Profilbild uppladdad!");
+
+      // uppdatera bilden direkt i UI:t
+      setAvatarUrl(`http://localhost:5011/api/profile/image?${Date.now()}`);
+      await refetch();
+    } catch (err) {
+      console.error("Fel vid uppladdning:", err);
+      alert("Kunde inte ladda upp bilden");
+    }
+  };
 
   const handleSaveBio = async (nextBio: string) => {
     if (!profile) return;
@@ -291,10 +292,10 @@ const handleAvatarChange = async (file: File) => {
   };
 
   const pronounOptions = [
-    { value: "Man", label: "Man" },
-    { value: "Kvinna", label: "Kvinna" },
-    { value: "Annat", label: "Annat" },
-    { value: "VillInteUppge", label: "Vill inte uppge" },
+    { value: "1", label: "Man" },
+    { value: "2", label: "Kvinna" },
+    { value: "3", label: "Annat" },
+    { value: "4", label: "Vill inte uppge" },
   ];
 
   const cityOptions = [
@@ -325,16 +326,13 @@ const handleAvatarChange = async (file: File) => {
     showCity: !!profile.showCity,
   };
 
-
   return (
     <div className="min-h-screen bg-white pb-20">
       <ProfileHeader profile={profile} avatarUrl={avatarUrl} />
       <SettingsHeader />
 
       <div className="px-4 py-6 space-y-6">
-        <SettingsAvatar 
-        onAvatarChange={handleAvatarChange} />
-
+        <SettingsAvatar onAvatarChange={handleAvatarChange} />
 
         <SettingsBio
           bio={bioDraft}
