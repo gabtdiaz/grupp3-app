@@ -13,7 +13,6 @@ export interface FilterOptions {
     max: number | null;
   };
 
-  // NEW: enable/disable age filtering
   useAgeRestriction: boolean;
 
   minimumAge: {
