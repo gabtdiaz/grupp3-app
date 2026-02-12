@@ -23,18 +23,26 @@ public static class EventEndpoints
         group.MapPost("/", CreateEvent); //POST skapa nytt event
         group.MapPut("/{id}", UpdateEvent);//PUT uppdaterar event
         group.MapDelete("/{id}", DeleteEvent);//DELETE tar bort ett event
-        group.MapPost("/upload-image", UploadEventImage)
+        group.MapPost("/upload-image/{eventId}", UploadEventImage)
     .DisableAntiforgery()
     .Accepts<IFormFile>("multipart/form-data")
     .Produces(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status400BadRequest)
-    .WithDescription("Ladda upp bild för event");
+    .Produces(StatusCodes.Status404NotFound)
+    .WithDescription("Ladda upp bild för ett event");
+
+        app.MapGet("/api/events/{id}/image", GetEventImage);
     }
 
     private static async Task<IResult> UploadEventImage(
-        IFormFile file,
-        ILogger<Program> logger)
+    int eventId,
+    IFormFile file,
+    ApplicationDbContext context,
+    ILogger<Program> logger)
     {
+        var e = await context.Events.FindAsync(eventId);
+        if (e == null) return Results.NotFound("Event not found");
+
         if (file == null || file.Length == 0)
             return Results.BadRequest("Ingen fil uppladdad.");
 
@@ -42,22 +50,34 @@ public static class EventEndpoints
         if (!allowedTypes.Contains(file.ContentType))
             return Results.BadRequest("Endast JPG eller PNG-filer tillåtna.");
 
-        var uploadsFolder = Path.Combine("wwwroot", "uploads", "events");
-        Directory.CreateDirectory(uploadsFolder);
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms);
 
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        var filePath = Path.Combine(uploadsFolder, fileName);
+        // Spara filen i databasen
+        e.EventImageData = ms.ToArray();
+        e.EventImageFileType = file.ContentType;
+        e.UpdatedAt = DateTime.UtcNow;
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        await context.SaveChangesAsync();
+
+        logger.LogInformation("Event {EventId} uploaded image", eventId);
+
+        return Results.Ok(new
         {
-            await file.CopyToAsync(stream);
-        }
-
-        var imageUrl = $"/uploads/events/{fileName}";
-        logger.LogInformation("Event image uploaded: {FileName}", fileName);
-
-        return Results.Ok(new { imageUrl });
+            message = "Bild uppladdad.",
+            imageUrl = $"/api/events/{eventId}/image"
+        });
     }
+
+    private static async Task<IResult> GetEventImage(int id, ApplicationDbContext context)
+    {
+        var e = await context.Events.FindAsync(id);
+        if (e == null || e.EventImageData == null)
+            return Results.NotFound();
+
+        return Results.File(e.EventImageData, e.EventImageFileType ?? "image/jpeg");
+    }
+
 
     // POST /api/events skapa nytt event
     private static async Task<IResult> CreateEvent(
@@ -325,7 +345,7 @@ public static class EventEndpoints
             CreatedAt = e.CreatedAt,
             CreatedByUserId = e.CreatedByUserId,
             CreatedBy = $"{user.FirstName} {user.LastName[0]}.",
-            CreatedByProfileImageUrl = user.ProfileImageUrl,
+            CreatedByProfileImageUrl =  $"/api/profile/image/{e.CreatedByUserId}",
             Participants = participants,
             IsUserParticipating = isUserParticipating
         };

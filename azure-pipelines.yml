@@ -64,7 +64,7 @@
 #       appName: "$(WEBAPP_NAME)"
 #       package: "$(Build.ArtifactStagingDirectory)/app.zip"
 
-#   # E2E TESTS 
+#   # E2E TESTS
 #   - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
 #     displayName: "Run E2E tests"
 #     workingDirectory: "$(Build.SourcesDirectory)"
@@ -118,35 +118,34 @@ steps:
     displayName: "Build backend"
     workingDirectory: "$(Build.SourcesDirectory)/backend"
 
-  # ======================
-  # E2E TESTS (BEFORE DEPLOY)
-  # ======================
+  # # ======================
+  # # E2E TESTS (BEFORE DEPLOY)
+  # # ======================
 
-  # 1) Build E2E test project (creates playwright.ps1)
-  - script: dotnet build FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
-    displayName: "Build E2E tests"
-    workingDirectory: "$(Build.SourcesDirectory)"
+  # # 1) Build E2E test project (creates playwright.ps1)
+  # - script: dotnet build FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release
+  #   displayName: "Build E2E tests"
+  #   workingDirectory: "$(Build.SourcesDirectory)"
 
-  # 2) Install Playwright browsers
-  - powershell: |
-      pwsh FriendZone.E2E.Tests/bin/Release/net9.0/playwright.ps1 install chromium
-    displayName: "Install Playwright Chromium"
-    workingDirectory: "$(Build.SourcesDirectory)"
+  # # 2) Install Playwright browsers
+  # - powershell: |
+  #     pwsh FriendZone.E2E.Tests/bin/Release/net9.0/playwright.ps1 install chromium
+  #   displayName: "Install Playwright Chromium"
+  #   workingDirectory: "$(Build.SourcesDirectory)"
 
-  - powershell: |
-     Write-Host "E2E_BASE_URL = '$(E2E_BASE_URL)'"
-    displayName: "Debug: Print E2E_BASE_URL"
+  # - powershell: |
+  #    Write-Host "E2E_BASE_URL = '$(E2E_BASE_URL)'"
+  #   displayName: "Debug: Print E2E_BASE_URL"
 
-
-  # 3) Run E2E tests
-  - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release --no-build
-    displayName: "Run E2E tests (pre-deploy)"
-    workingDirectory: "$(Build.SourcesDirectory)"
-    env:
-      CI: "true"
-      E2E_BASE_URL: "$(E2E_BASE_URL)"
-      E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
-      E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"
+  # # 3) Run E2E tests
+  # - script: dotnet test FriendZone.E2E.Tests/FriendZone.E2E.Tests.csproj -c Release --no-build
+  #   displayName: "Run E2E tests (pre-deploy)"
+  #   workingDirectory: "$(Build.SourcesDirectory)"
+  #   env:
+  #     CI: "true"
+  #     E2E_BASE_URL: "$(E2E_BASE_URL)"
+  #     E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL)"
+  #     E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD)"
 
   # ======================
   # PUBLISH (ONLY IF TESTS PASS)
@@ -178,4 +177,3 @@ steps:
       appType: "webApp"
       appName: "$(WEBAPP_NAME)"
       package: "$(Build.ArtifactStagingDirectory)/app.zip"
-

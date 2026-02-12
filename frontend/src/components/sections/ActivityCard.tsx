@@ -1,4 +1,5 @@
 interface ActivityCardProps {
+  eventId: number;
   title: string;
   description: string;
   participants: number;
@@ -9,6 +10,7 @@ interface ActivityCardProps {
 }
 
 export default function ActivityCard({
+  eventId,
   title,
   description,
   participants,
@@ -17,8 +19,12 @@ export default function ActivityCard({
   isFull = false,
   onClick,
 }: ActivityCardProps) {
-  const hasValidImage =
-    imageSrc && imageSrc !== "string" && imageSrc.trim() !== "";
+  const src =
+    imageSrc && imageSrc.trim() !== ""
+      ? imageSrc.startsWith("http")
+        ? imageSrc
+        : `http://localhost:5011/${imageSrc}`
+      : `http://localhost:5011/api/events/${eventId}/image`;
 
   return (
     <div

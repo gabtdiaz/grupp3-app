@@ -22,7 +22,7 @@ public class UpdateProfileDto
     [MaxLength(500, ErrorMessage = "Interests cannot exceed 500 characters")]
     public string Interests { get; set; } = string.Empty;
 
-    public string? ProfileImageUrl { get; set; }
+    // public string? ProfileImageUrl { get; set; }
 
     [Required(ErrorMessage = "Gender is required")]
     public string Gender { get; set; } = string.Empty;
