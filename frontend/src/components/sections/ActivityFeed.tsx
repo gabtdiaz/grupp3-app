@@ -24,7 +24,7 @@ export default function ActivityFeed({
           className="text-gray-400 text-xl"
           style={{ fontFamily: "'Segoe Print', cursive" }}
         >
-          Här är det tomt just nu :
+          Här är det tomt just nu
         </p>
       </div>
     );

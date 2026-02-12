@@ -69,7 +69,7 @@ export const SettingsSelect: React.FC<SettingsSelectProps> = ({
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-3 py-1.5 bg-red-400 text-white rounded-lg text-sm font-medium"
+                  className="px-3 py-1.5 bg-light-green text-white rounded-lg text-sm font-medium"
                 >
                   Spara
                 </button>
@@ -82,7 +82,7 @@ export const SettingsSelect: React.FC<SettingsSelectProps> = ({
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="ml-4 text-sm text-red-400 font-medium"
+            className="ml-4 text-sm text-gray-400 font-medium"
           >
             Ändra
           </button>

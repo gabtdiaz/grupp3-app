@@ -83,7 +83,9 @@ export const ActivityDetailCommentInput: React.FC<
         onClick={handleSubmit}
         disabled={!text.trim()}
         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-          text.trim() ? "bg-[#FF6B6B] text-white" : "bg-gray-200 text-gray-400"
+          text.trim()
+            ? "bg-light-green text-white"
+            : "bg-gray-200 text-gray-400"
         }`}
       >
         Skicka

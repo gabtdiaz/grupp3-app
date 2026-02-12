@@ -79,7 +79,7 @@ export default function Info({
           type="button"
           onClick={() => navigate("/settings")}
           aria-label="Öppna inställningar"
-          className="absolute top-4 right-4 w-7 h-7 rounded-full"
+          className="absolute -top-5 right-5 w-5 h-5 rounded-full"
         >
           <img src="/icons/settings-icon.svg" alt="" className="w-7 h-7" />
         </button>

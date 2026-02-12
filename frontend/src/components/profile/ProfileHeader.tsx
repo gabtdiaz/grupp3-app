@@ -1,9 +1,12 @@
 import { useProfile } from "../../hooks/useProfile";
 import { type UserProfile, type PublicProfile } from "../../api/profile";
+import ProfileHeaderBanner from "./ProfileHeaderBanner";
+import ProfileAvatar from "./ProfileAvatar";
 
 type ProfileHeaderProps = {
   profile?: UserProfile | PublicProfile | null;
   isPublic?: boolean;
+  avatarUrl?: string | null;
 };
 
 export default function ProfileHeader({
@@ -19,6 +22,47 @@ export default function ProfileHeader({
 
   //  Använd profileImageUrl direkt från backend!
   const profileImageUrl = profile?.profileImageUrl || null;
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (!profile?.id) return;
+
+      try {
+        let url: string;
+        const headers: Record<string, string> = {};
+
+        if (isPublic) {
+          url = `http://localhost:5011/api/profile/image/${profile.id}?${Date.now()}`;
+        } else {
+          const token = localStorage.getItem("auth_token");
+          if (!token) return;
+          url = `http://localhost:5011/api/profile/image?${Date.now()}`;
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(url, { headers });
+        if (!res.ok) {
+          setImageSrc(null);
+          return;
+        }
+
+        const blob = await res.blob();
+        setImageSrc(URL.createObjectURL(blob));
+      } catch {
+        setImageSrc(null);
+      }
+    };
+
+    fetchProfileImage();
+  }, [profile?.id, isPublic]);
+
+  const initial = firstName?.[0]?.toUpperCase() ?? "?";
+
+  return (
+    // Outer: no overflow-hidden so avatar can hang below the banner
+    <div className="relative h-52 pb-12 bg-[#faf4ee]">
+      <ProfileHeaderBanner />
+      <ProfileAvatar imageSrc={imageSrc} initial={initial} />
 
   // ✅ DEBUG - lägg till detta!
   console.log("🖼️ ProfileHeader DEBUG:");
@@ -54,6 +98,7 @@ export default function ProfileHeader({
           </div>
         )}
       </div>
+
     </div>
   );
 }

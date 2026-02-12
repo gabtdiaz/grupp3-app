@@ -185,19 +185,7 @@ export default function Activity() {
         />
       </div>
 
-      <div
-        className={`flex-1 flex pb-10 ${isEmpty ? "" : "bg-white"}`}
-        style={
-          isEmpty
-            ? {
-                backgroundImage: "url('/activity-feed-background.png')",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center 20%",
-                backgroundSize: "90%",
-              }
-            : undefined
-        }
-      >
+      <div className="flex-1 flex pb-10 bg-white">
         {loading ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-gray-500">Laddar events...</p>

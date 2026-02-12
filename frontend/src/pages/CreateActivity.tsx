@@ -10,7 +10,7 @@ const genderRestrictions = [
   { value: 1, label: "Alla" },
   { value: 2, label: "Endast män" },
   { value: 3, label: "Endast kvinnor" },
-];  
+];
 
 export default function CreateActivity() {
   const navigate = useNavigate();
@@ -126,10 +126,7 @@ export default function CreateActivity() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-gray-600 hover:text-gray-800"
-          >
+          <button onClick={() => navigate(-1)} className="text-gray-600">
             ← Tillbaka
           </button>
           <h1 className="text-xl font-semibold">Skapa Activity</h1>
@@ -318,43 +315,52 @@ export default function CreateActivity() {
           />
         </div>
 
-        {/* Bild */}
-       <div>
+        {/* Bild URL */}
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Ladda upp bild (valfri)
           </label>
 
+          {/* Knappen */}
           <button
             type="button"
             onClick={() => document.getElementById("image-upload")?.click()}
-            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition"
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 transition"
           >
             Välj bild
           </button>
 
+          {/* Själva file-input, hidden */}
           <input
             type="file"
             id="image-upload"
             accept="image/*"
-            className="hidden"
             onChange={async (e) => {
               const file = e.target.files?.[0];
-              if (!file) return; {
-                setFormData((prev) => ({
-                  ...prev,
-                  imageFile: file,
-                  imageUrl: URL.createObjectURL(file),
-                }));
-              }
+              if (!file) return;
+
+              const fd = new FormData();
+              fd.append("file", file);
+
+              const response = await eventService.uploadEventImage(fd);
+              setFormData((prev) => ({
+                ...prev,
+                imageUrl: response.imageUrl,
+              }));
             }}
+            className="hidden"
           />
 
           {formData.imageUrl && (
             <img
-  src={formData.imageUrl}
-  alt="Förhandsvisning"
-  className="mt-4 w-18 h-18 rounded-full object-cover mx-auto"
-/>
+              src={
+                formData.imageUrl
+                  ? `http://localhost:5011${formData.imageUrl}`
+                  : ""
+              }
+              alt="Förhandsvisning"
+              className="mt-4 w-32 h-32 rounded-full object-cover mx-auto"
+            />
           )}
         </div>
 
@@ -363,9 +369,7 @@ export default function CreateActivity() {
           type="submit"
           disabled={loading}
           className={`w-full py-4 rounded-lg font-semibold text-white transition-colors ${
-            loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500"
           }`}
         >
           {loading ? "Skapar..." : "Skapa Activity"}

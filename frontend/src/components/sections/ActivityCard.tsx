@@ -31,23 +31,26 @@ export default function ActivityCard({
       className="relative flex items-center gap-4 px-6 py-3 bg-white"
       onClick={onClick}
     >
-      <div className="w-18 h-18 rounded-full border shrink-0 overflow-hidden flex items-center justify-center bg-gray-200">
-        <img
-          src={src}
-          alt={title}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-            const parent = (e.target as HTMLElement).parentElement;
-            if (parent) {
-              parent.innerHTML = `<span style="font-size:24px; font-weight:600; color:#555;">${title.charAt(0).toUpperCase()}</span>`;
+      <div className="w-18 h-18 rounded-full border-gray-300 shrink-0 overflow-hidden flex items-center justify-center bg-gray-200">
+        {hasValidImage ? (
+          <img
+            src={
+              imageSrc!.startsWith("http")
+                ? imageSrc
+                : `http://localhost:5011${imageSrc}`
             }
-          }}
-        />
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-gray-500 text-2xl font-bold">
+            {title?.[0]?.toUpperCase()}
+          </span>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className="font-futura text-lg mb-1">{title}</h3>
+        <h3 className="text-lg mb-1">{title}</h3>
         <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
       </div>
 
