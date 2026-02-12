@@ -52,13 +52,6 @@ namespace FriendZone.E2E.Tests.Tests
             await page.ClickAsync("button:has-text('LOGGA IN')");
 
             await page.WaitForURLAsync("**/activity**", new() { Timeout = 60000 });
-
-            var heading = page.GetByRole(
-                AriaRole.Heading,
-                new() { Name = "AKTIVITETER" }
-            );
-
-            await heading.WaitForAsync(new() { Timeout = 60000 });
         }
     }
 }

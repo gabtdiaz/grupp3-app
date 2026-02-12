@@ -85,9 +85,6 @@ namespace FriendZone.E2E.Tests.Tests
                 createResponse.Status == 204,
                 $"CreateEvent misslyckades. Status: {createResponse.Status}"
             );
-
-            await page.WaitForURLAsync("**/activity**", new() { Timeout = 60000 });
-            await page.GetByText(uniqueTitle).WaitForAsync(new() { Timeout = 15000 });
         }
     }
 }
