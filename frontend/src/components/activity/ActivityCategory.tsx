@@ -16,16 +16,12 @@ export default function ActivityCategory({
     <button
       onClick={onClick}
       className={`
-        w-18 h-18
+        w-17 h-17
         flex flex-col items-center justify-center
         rounded-md
         shadow-md
         transition-all duration-200
-        ${
-          isSelected
-            ? "bg-[#FF7070] scale-105 shadow-lg"
-            : "bg-white"
-        }
+        ${isSelected ? "bg-light-green shadow-sm" : "bg-white"}
       `}
     >
       <img
@@ -36,8 +32,8 @@ export default function ActivityCategory({
         }`}
       />
       <span
-        className={`text-sm font-futura transition-colors duration-200 ${
-          isSelected ? "text-white font-semibold" : "text-gray-800"
+        className={`text-xs font-bold  transition-colors duration-200 ${
+          isSelected ? "text-white font-semibold" : ""
         }`}
       >
         {name}

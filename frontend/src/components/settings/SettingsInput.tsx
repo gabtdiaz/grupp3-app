@@ -166,7 +166,7 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({
                         alt={
                           showOldPassword ? "Hide password" : "Show password"
                         }
-                        className="w-5 h-5 opacity-70 transition-opacity"
+                        className="w-4 h-4 opacity-70 transition-opacity"
                       />
                     </button>
                   </div>
@@ -196,7 +196,7 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({
                         alt={
                           showNewPassword ? "Hide password" : "Show password"
                         }
-                        className="w-5 h-5 opacity-70 transition-opacity"
+                        className="w-4 h-4 opacity-70 transition-opacity"
                       />
                     </button>
                   </div>
@@ -230,7 +230,7 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({
                             ? "Hide password"
                             : "Show password"
                         }
-                        className="w-5 h-5 opacity-70 transition-opacity"
+                        className="w-4 h-4 opacity-70 transition-opacity"
                       />
                     </button>
                   </div>
@@ -275,7 +275,7 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="px-3 py-1.5 bg-red-400 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
+                  className="px-3 py-1.5 bg-light-green text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
                   disabled={saving}
                 >
                   {saving ? "Sparar..." : "Spara"}
@@ -294,7 +294,7 @@ export const SettingsInput: React.FC<SettingsInputProps> = ({
               setLocalError("");
               setIsEditing(true);
             }}
-            className="ml-4 text-sm text-red-400 font-medium"
+            className="ml-4 text-sm text-gray-400 font-medium"
           >
             Ändra
           </button>

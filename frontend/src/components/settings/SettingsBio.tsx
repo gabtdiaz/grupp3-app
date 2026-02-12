@@ -64,7 +64,7 @@ export const SettingsBio: React.FC<SettingsBioProps> = ({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="text-sm text-red-400 font-medium"
+            className="text-sm text-gray-400 font-medium"
           >
             Redigera
           </button>

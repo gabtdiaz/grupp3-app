@@ -221,9 +221,8 @@ export const ActivityDetail: React.FC = () => {
         title={event.title}
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        imageUrl={event.imageUrl || ""} 
+        imageUrl={event.imageUrl || ""}
       />
-
 
       {/* Content Area */}
       {activeTab === "information" ? (
@@ -256,11 +255,11 @@ export const ActivityDetail: React.FC = () => {
           />
 
           {/* Join Button eller Delete Button */}
-          <div className="fixed bottom-14 left-0 right-0 px-4 z-40">
+          <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 px-4 z-40">
             {isCreator ? (
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="w-full py-4 rounded-lg text-white font-futura"
+                className="w-full py-4 rounded-lg text-white"
                 style={{ backgroundColor: "#DC2626" }}
               >
                 Ta bort aktivitet

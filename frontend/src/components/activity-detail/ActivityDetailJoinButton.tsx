@@ -11,9 +11,9 @@ export const ActivityDetailJoinButton: React.FC<
   return (
     <button
       onClick={onJoin}
-      className="w-full py-4 rounded-lg text-white font-futura"
+      className="flex justify-center items-center w-80 py-4 px-3 rounded text-white"
       style={{
-        backgroundColor: isJoined ? "#BDBDBD" : "#FF7070",
+        backgroundColor: isJoined ? "#BDBDBD" : "#7c9370",
       }}
     >
       {isJoined ? "GÅ UR" : "GÅ MED"}

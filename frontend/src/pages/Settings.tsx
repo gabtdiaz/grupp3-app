@@ -75,7 +75,6 @@ export const Settings: React.FC = () => {
     formData.append("file", file);
 
     try {
-      // visar att uppladdning pågår
       console.log("Laddar upp profilbild...");
 
       const response = await fetch(
@@ -94,11 +93,9 @@ export const Settings: React.FC = () => {
         throw new Error(`Fel vid uppladdning: ${response.status} ${text}`);
       }
 
-      // allt har gått bra
       console.log("Profilbild uppladdad!");
       alert("Profilbild uppladdad!");
 
-      // uppdatera bilden direkt i UI:t
       setAvatarUrl(`http://localhost:5011/api/profile/image?${Date.now()}`);
       await refetch();
     } catch (err) {
@@ -198,34 +195,10 @@ export const Settings: React.FC = () => {
     try {
       await deleteAccount(password);
 
-      // Rensa auth + redirect
       logout();
       navigate("/", { replace: true });
     } catch (err) {
       throw err;
-    }
-  };
-
-  const handleSaveGender = async (nextGender: string) => {
-    if (!profile) return;
-
-    try {
-      await updateUserProfile({
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        city: profile.city,
-        bio: profile.bio ?? "",
-        interests: profile.interests ?? "",
-        profileImageUrl: profile.profileImageUrl ?? null,
-        gender: nextGender,
-        showGender: profile.showGender,
-        showAge: profile.showAge,
-        showCity: profile.showCity,
-      });
-
-      await refetch();
-    } catch (err: any) {
-      console.error("Failed to update gender:", err);
     }
   };
 
@@ -329,9 +302,8 @@ export const Settings: React.FC = () => {
   return (
     <div className="min-h-screen bg-white pb-20">
       <ProfileHeader profile={profile} avatarUrl={avatarUrl} />
-      <SettingsHeader />
 
-      <div className="px-4 py-6 space-y-6">
+      <div className="px-4 py-12 space-y-6 ">
         <SettingsAvatar onAvatarChange={handleAvatarChange} />
 
         <SettingsBio
@@ -362,12 +334,20 @@ export const Settings: React.FC = () => {
         </SettingsSection>
 
         <SettingsSection title="Personlig information">
-          <SettingsSelect
-            label="Kön"
-            value={String(profile.gender)}
-            options={pronounOptions}
-            onChange={handleSaveGender}
-          />
+          <div className="px-4 py-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Kön
+            </label>
+            <p className="text-gray-900">
+              {pronounOptions.find(
+                (opt) => Number(opt.value) === Number(profile.gender),
+              )?.label ?? "–"}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Kan inte ändras av säkerhetsskäl
+            </p>
+          </div>
+
           <SettingsSelect
             label="Stad"
             value={profile.city}

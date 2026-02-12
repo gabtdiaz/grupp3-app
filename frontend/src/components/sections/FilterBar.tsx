@@ -30,7 +30,7 @@ export default function FilterBar({
     <>
       <div className="relative flex items-center justify-content-between h-full">
         {/* Centered location selector */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
           <img
             src="/icons/location-icon.svg"
             alt="Location"
@@ -53,7 +53,7 @@ export default function FilterBar({
           className="ml-auto relative"
           onClick={() => setIsFilterModalOpen(true)}
         >
-          <img src="/icons/filter-icon.svg" alt="Filter" className="w-5 h-5" />
+          <img src="/icons/filter-icon.svg" alt="Filter" className="w-4 h-4" />
           {activeFilterCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-400 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
               {activeFilterCount}

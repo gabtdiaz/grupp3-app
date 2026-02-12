@@ -5,6 +5,39 @@ import { TermsModal } from "../components/modals/TermsModal";
 import { PrivacyModal } from "../components/modals/PrivacyModal";
 import { useState } from "react";
 
+const WAVES = [
+  {
+    color: "#fde3c8",
+    path: "M0,20 C100,5 200,35 320,18 C400,8 480,28 560,20 L560,50 L0,50 Z",
+    bottom: 52,
+  },
+  {
+    color: "#f9c89a",
+    path: "M0,26 C90,10 210,40 330,22 C420,10 490,32 560,24 L560,50 L0,50 Z",
+    bottom: 36,
+  },
+  {
+    color: "#f0a96e",
+    path: "M0,30 C110,14 220,44 350,26 C430,14 500,34 560,28 L560,50 L0,50 Z",
+    bottom: 20,
+  },
+  {
+    color: "#e8933a",
+    path: "M0,34 C120,18 230,46 360,30 C440,18 508,38 560,32 L560,50 L0,50 Z",
+    bottom: 4,
+  },
+];
+
+const STEP_TITLES: Record<number, { title: string; subtitle?: string }> = {
+  1: { title: "Vad heter du?" },
+  2: { title: "Och din e-post" },
+  3: {
+    title: "Välj ett lösenord",
+    subtitle: "En mix av stora/små bokstäver och siffror gör det extra säkert",
+  },
+  4: { title: "Lite mer om dig" },
+};
+
 export default function RegisterPage() {
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
@@ -25,28 +58,58 @@ export default function RegisterPage() {
     handleSubmit,
   } = useMultiStepForm();
 
+  const { title, subtitle } = STEP_TITLES[step] ?? { title: "" };
+
   return (
     <>
-      <div
-        className="fixed inset-0 -z-10 bg-no-repeat"
-        style={{
-          backgroundImage: `url("/login-background.png")`,
-          backgroundSize: "26rem",
-        }}
-      />
+      {/* ── Wave header ── */}
+      <div className="relative h-82 w-full overflow-hidden bg-orange-300/90 shrink-0 -mb-1">
+        {/* Step title */}
+        <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center">
+          <h1 className="text-3xl font-[Spicy_Rice] text-white">{title}</h1>
+          {subtitle && (
+            <p className="mt-1 text-sm font-[Spicy_Rice] text-white/80">
+              {subtitle}
+            </p>
+          )}
+        </div>
 
-      <div className="flex items-center min-h-screen pt-20">
-        <div className="bg-white rounded-3xl p-8 w-full">
+        {/* Mountain waves */}
+        {WAVES.map((wave, i) => (
+          <svg
+            key={i}
+            className="absolute left-0 w-full"
+            style={{ bottom: wave.bottom, height: 52 }}
+            viewBox="0 0 560 50"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path d={wave.path} fill={wave.color} />
+          </svg>
+        ))}
+
+        {/* Final cream wave */}
+        <svg
+          className="absolute bottom-0 left-0 w-full"
+          style={{ height: 52 }}
+          viewBox="0 0 560 50"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0,28 C130,10 260,46 390,28 C460,18 520,36 560,28 L560,50 L0,50 Z"
+            fill="#faf4ee"
+          />
+        </svg>
+      </div>
+
+      {/* ── Form section ── */}
+      <div className="flex items-start bg-[#faf4ee] pt-6 min-h-screen">
+        <div className="bg-[#faf4ee] px-8 w-full mx-3">
           {step === 1 && (
             <>
-              <div className="fixed top-39 left-26 text-center">
-                <h1 className="text-4xl font-[Spicy_Rice] text-white">
-                  Vad heter du?
-                </h1>
-              </div>
-
               <div className="mb-6">
-                <label className="block text-gray-600 text-sm mb-2">
+                <label className="block text-gray-600 text-sm ">
                   Ditt förnamn
                 </label>
                 <input
@@ -54,7 +117,7 @@ export default function RegisterPage() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 />
                 {fieldErrors.firstName && (
                   <p className="text-red-500 text-sm mt-1">
@@ -63,8 +126,8 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              <div className="mb-8">
-                <label className="block text-gray-600 text-sm mb-2">
+              <div className="mb-6">
+                <label className="block text-gray-600 text-sm">
                   Ditt efternamn
                 </label>
                 <input
@@ -72,7 +135,7 @@ export default function RegisterPage() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 />
                 {fieldErrors?.lastName && (
                   <p className="text-red-500 text-sm mb-4 text-center">
@@ -80,19 +143,21 @@ export default function RegisterPage() {
                   </p>
                 )}
               </div>
+
               {error && (
                 <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
               )}
+
               <div className="flex gap-4">
                 <button
                   onClick={() => navigate("/")}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   AVBRYT
                 </button>
                 <button
                   onClick={handleNext}
-                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-light-green text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   FORTSÄTT
                 </button>
@@ -102,14 +167,8 @@ export default function RegisterPage() {
 
           {step === 2 && (
             <>
-              <div className="fixed top-39 left-26 text-center">
-                <h1 className="text-4xl font-[Spicy_Rice] text-white">
-                  Och din e-post
-                </h1>
-              </div>
-
-              <div className="mb-8 py-3">
-                <label className="block text-gray-600 text-sm mb-2">
+              <div className="mb-6">
+                <label className="block text-gray-600 text-sm">
                   Din e-postadress
                 </label>
                 <input
@@ -117,9 +176,10 @@ export default function RegisterPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 />
               </div>
+
               {error && (
                 <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
               )}
@@ -127,13 +187,13 @@ export default function RegisterPage() {
               <div className="flex gap-4">
                 <button
                   onClick={handleBack}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   TILLBAKA
                 </button>
                 <button
                   onClick={handleNext}
-                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-light-green text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   FORTSÄTT
                 </button>
@@ -143,28 +203,8 @@ export default function RegisterPage() {
 
           {step === 3 && (
             <>
-              <div className="fixed top-30 left-6 text-center">
-                <h1 className="text-4xl font-[Spicy_Rice] text-white">
-                  Välj ett lösenord
-                </h1>
-              </div>
-
-              <div className="fixed top-45 left-17 text-center">
-                <h1 className="font-[Spicy_Rice] text-white">
-                  Ett starkt lösenord gör ditt konto extra säkert
-                </h1>
-              </div>
-
-              <div className="fixed top-55 left-7">
-                <h1 className="font-[Spicy_Rice] text-white">
-                  Använd en mix av stora och små bokstäver
-                  <br />
-                  och siffror
-                </h1>
-              </div>
-
               <div className="mb-6">
-                <label className="block text-gray-600 text-sm mb-2">
+                <label className="block text-gray-600 text-sm">
                   Ditt lösenord
                 </label>
                 <input
@@ -172,7 +212,7 @@ export default function RegisterPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 />
                 {fieldErrors.password && (
                   <p className="text-red-500 text-sm mt-1">
@@ -181,8 +221,8 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              <div className="mb-8">
-                <label className="block text-gray-600 text-sm mb-2">
+              <div className="mb-6">
+                <label className="block text-gray-600 text-sm">
                   Repetera lösenord
                 </label>
                 <input
@@ -190,7 +230,7 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 />
                 {fieldErrors.confirmPassword && (
                   <p className="text-red-500 text-sm mt-1">
@@ -198,37 +238,33 @@ export default function RegisterPage() {
                   </p>
                 )}
               </div>
+
               <div className="flex gap-4">
                 <button
                   onClick={handleBack}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   TILLBAKA
                 </button>
                 <button
                   onClick={handleNext}
-                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-light-green disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   FORTSÄTT
                 </button>
               </div>
             </>
           )}
+
           {step === 4 && (
             <>
-              <div className="fixed top-39 left-26 text-center">
-                <h1 className="text-4xl font-[Spicy_Rice] text-white">
-                  Lite mer om dig
-                </h1>
-              </div>
-
               <div className="mb-6">
-                <label className="block text-gray-600 text-sm mb-2">Stad</label>
+                <label className="block text-gray-600 text-sm">Stad</label>
                 <select
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 >
                   <option value="">Välj stad</option>
                   {cities.map((city) => (
@@ -245,7 +281,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="mb-6">
-                <label className="block text-gray-600 text-sm mb-2">
+                <label className="block text-gray-600 text-sm">
                   Födelsedatum
                 </label>
                 <input
@@ -253,7 +289,7 @@ export default function RegisterPage() {
                   name="dateOfBirth"
                   value={formData.dateOfBirth}
                   onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700"
+                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
                 />
                 {fieldErrors.dateOfBirth && (
                   <p className="text-red-500 text-sm mt-1">
@@ -262,8 +298,8 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              <div className="mb-8">
-                <label className="block text-gray-600 text-sm mb-2">Kön</label>
+              <div className="mb-6">
+                <label className="block text-gray-600 text-sm">Kön</label>
                 <select
                   name="gender"
                   value={formData.gender}
@@ -282,15 +318,14 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              {/* Checkboxes för villkor */}
-              <div className="mb-6 space-y-3">
-                <div className="flex items-start gap-2">
+            <div className="mb-6">
+                <div className="flex items-start gap-2 mb-2">
                   <input
                     type="checkbox"
                     id="termsAccepted"
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-1 accent-[#ffffff]"
+                    className="mt-1 accent-white"
                   />
                   <label
                     htmlFor="termsAccepted"
@@ -300,7 +335,7 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={() => setIsTermsModalOpen(true)}
-                      className="text-[#000000] font-bold hover:underline"
+                      className="text-black font-bold"
                     >
                       användarvillkoren
                     </button>
@@ -313,7 +348,7 @@ export default function RegisterPage() {
                     id="privacyAccepted"
                     checked={privacyAccepted}
                     onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                    className="mt-1 accent-[#ffffff]"
+                    className="mt-1 accent-white"
                   />
                   <label
                     htmlFor="privacyAccepted"
@@ -323,7 +358,7 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={() => setIsPrivacyModalOpen(true)}
-                      className="text-[#000000] font-bold hover:underline"
+                      className="text-black font-bold"
                     >
                       integritetspolicyn
                     </button>
@@ -345,15 +380,14 @@ export default function RegisterPage() {
               <div className="flex gap-4">
                 <button
                   onClick={handleBack}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   TILLBAKA
                 </button>
-
                 <button
                   onClick={() => handleSubmit(termsAccepted, privacyAccepted)}
                   disabled={isSubmitting || !termsAccepted || !privacyAccepted}
-                  className="flex-1 bg-[#FF7070] hover:bg-[#DB4949] disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
+                  className="flex-1 bg-light-green disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
                 >
                   {isSubmitting ? "REGISTRERAR..." : "REGISTRERA"}
                 </button>

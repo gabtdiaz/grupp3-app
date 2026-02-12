@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Header from "../components/profile/ProfileHeader";
+import ProfileHeader from "../components/profile/ProfileHeader";
 import Info from "../components/profile/Info";
 import NavigationTabs from "../components/sections/NavigationTabs";
 import ActivityFeed from "../components/sections/ActivityFeed";
@@ -72,26 +72,14 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <ProfileHeader />
       <Info />
 
       <div className="px-6 mt-8 border-b border-gray-200">
         <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      <div
-        className="flex-1 flex pb-10"
-        style={
-          isEmpty
-            ? {
-                backgroundImage: "url('/activity-feed-background.png')",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center 20%",
-                backgroundSize: "90%",
-              }
-            : undefined
-        }
-      >
+      <div className="flex-1 flex pb-10 bg-white">
         {loading ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-gray-500">Laddar aktiviteter...</p>

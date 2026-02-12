@@ -87,7 +87,7 @@ export const ActivityDetailCommentItem: React.FC<
             onClick={handleProfileClick}
             className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
           >
-            <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden hover:border-blue-500 transition-colors cursor-pointer">
+            <div className="w-10 h-10 rounded-full bg-gray-200 border border-gray-300 overflow-hidden transition-colors cursor-pointer">
               {comment.authorImageUrl ? (
                 <img
                   src={comment.authorImageUrl}
@@ -112,7 +112,7 @@ export const ActivityDetailCommentItem: React.FC<
             {comment.authorId ? (
               <button
                 onClick={handleProfileClick}
-                className="text-gray-900 hover:underline cursor-pointer focus:outline-none"
+                className="text-gray-900 cursor-pointer focus:outline-none"
               >
                 {comment.authorName}
               </button>
@@ -170,7 +170,7 @@ export const ActivityDetailCommentItem: React.FC<
                     onDelete(comment.id);
                   }
                 }}
-                className="text-xs text-gray-500 hover:text-red-700"
+                className="text-xs text-gray-500"
               >
                 radera
               </button>

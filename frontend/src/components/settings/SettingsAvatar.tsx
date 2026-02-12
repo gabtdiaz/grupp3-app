@@ -4,7 +4,9 @@ interface SettingsAvatarProps {
   onAvatarChange: (file: File) => void;
 }
 
-export const SettingsAvatar: React.FC<SettingsAvatarProps> = ({ onAvatarChange }) => {
+export const SettingsAvatar: React.FC<SettingsAvatarProps> = ({
+  onAvatarChange,
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -29,10 +31,10 @@ export const SettingsAvatar: React.FC<SettingsAvatarProps> = ({ onAvatarChange }
   };
 
   return (
-    <div className="flex flex-col items-start px-4 py-4 space-y-2">
+    <div className="flex flex-col items-start pt-7  space-y-2">
       <button
         onClick={handleClick}
-        className="bg-light-green text-white px-4 py-2 rounded shadow hover:bg-green-600 transition-colors duration-200"
+        className="bg-light-green text-white px-4 py-2 rounded shadow transition-colors duration-200"
         disabled={uploading}
       >
         {uploading ? "Laddar upp..." : "Byt profilbild"}

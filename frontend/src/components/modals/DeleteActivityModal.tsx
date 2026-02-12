@@ -37,7 +37,7 @@ export default function DeleteEventModal({
           {/* Avbryt */}
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 transition-colors"
           >
             Avbryt
           </button>
@@ -45,7 +45,7 @@ export default function DeleteEventModal({
           {/* Radera */}
           <button
             onClick={onConfirm}
-            className="flex-1 px-4 py-3 bg-red-600 rounded-lg font-medium text-white hover:bg-red-700 transition-colors"
+            className="flex-1 px-4 py-3 bg-red-600 rounded-lg font-medium text-white transition-colors"
           >
             Ta bort
           </button>

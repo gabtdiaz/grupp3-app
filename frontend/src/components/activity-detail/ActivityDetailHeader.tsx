@@ -17,7 +17,7 @@ export const ActivityDetailHeader: React.FC<ActivityDetailHeaderProps> = ({
     <div className="bg-white">
       {/* Title Section */}
       <div className="px-4 pt-6 pb-4 flex flex-col items-center">
-        <h1 className="text-center font-futura text-2xl">{title}</h1>
+        <h1 className="text-center text-2xl">{title}</h1>
 
         {/* 🔹 Rund eventbild under rubriken */}
         <div className="mt-4 w-30 h-30 flex items-center justify-center bg-white rounded-full overflow-hidden border border-gray-200">
