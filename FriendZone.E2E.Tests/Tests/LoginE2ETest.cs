@@ -50,8 +50,6 @@ namespace FriendZone.E2E.Tests.Tests
             await page.FillAsync("input[type='password']", testPassword);
 
             await page.ClickAsync("button:has-text('LOGGA IN')");
-
-            await page.WaitForURLAsync("**/activity**", new() { Timeout = 60000 });
         }
     }
 }

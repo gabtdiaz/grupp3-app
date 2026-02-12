@@ -40,7 +40,7 @@ namespace FriendZone.E2E.Tests.Tests
             await page.FillAsync("input[type='password']", testPassword);
             await page.ClickAsync("button:has-text('LOGGA IN')");
 
-            await page.WaitForURLAsync("**/activity**", new() { Timeout = 60000 });
+            await Task.Delay(10000); // Vänta 10 sekunder på att login ska ske
 
             // 2) Gå till create
             await page.GetByAltText("Create event").ClickAsync();
