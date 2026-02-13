@@ -77,7 +77,7 @@ export const Settings: React.FC = () => {
     try {
       console.log("Laddar upp profilbild...");
 
-      const response = await fetch(getApiUrl("api/profile/upload-image"), {
+      const response = await fetch(getApiUrl("/api/profile/upload-image"), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
