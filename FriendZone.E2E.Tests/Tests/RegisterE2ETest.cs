@@ -44,7 +44,7 @@ public class RegisterE2ETest
 
         await page.SelectOptionAsync("select[name='city']", "Stockholm");
         await page.FillAsync("input[name='dateOfBirth']", "1995-05-20");
-        await page.SelectOptionAsync("select[name='gender']", "0");
+        await page.SelectOptionAsync("select[name='gender']", "1");
 
         await page.CheckAsync("#termsAccepted");
         await page.CheckAsync("#privacyAccepted");
@@ -142,7 +142,7 @@ public class RegisterE2ETest
 
             await page1.SelectOptionAsync("select[name='city']", "Stockholm");
             await page1.FillAsync("input[name='dateOfBirth']", "1995-05-20");
-            await page1.SelectOptionAsync("select[name='gender']", "0");
+            await page1.SelectOptionAsync("select[name='gender']", "1");
             await page1.CheckAsync("#termsAccepted");
             await page1.CheckAsync("#privacyAccepted");
 
@@ -180,7 +180,7 @@ public class RegisterE2ETest
 
             await page2.SelectOptionAsync("select[name='city']", "Stockholm");
             await page2.FillAsync("input[name='dateOfBirth']", "1995-05-20");
-            await page2.SelectOptionAsync("select[name='gender']", "0");
+            await page2.SelectOptionAsync("select[name='gender']", "1");
             await page2.CheckAsync("#termsAccepted");
             await page2.CheckAsync("#privacyAccepted");
 
@@ -232,7 +232,7 @@ public class RegisterE2ETest
 
         await page.SelectOptionAsync("select[name='city']", "Stockholm");
         await page.FillAsync("input[name='dateOfBirth']", "2012-01-01");
-        await page.SelectOptionAsync("select[name='gender']", "0");
+        await page.SelectOptionAsync("select[name='gender']", "1");
 
         await page.CheckAsync("#termsAccepted");
         await page.CheckAsync("#privacyAccepted");

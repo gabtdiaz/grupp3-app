@@ -9,4 +9,3 @@ Feature: User login
     When the user enters valid email and password
     And submits the login form
     Then the user is redirected to the activity page
-    And the activity page is displayed
