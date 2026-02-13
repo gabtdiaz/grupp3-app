@@ -1,4 +1,3 @@
-// FilterModal.tsx
 import { useState, useEffect } from "react";
 import { useCategories } from "../../hooks/useCategories";
 import { useCities } from "../../hooks/useCities";
@@ -15,6 +14,8 @@ export interface FilterOptions {
 
   useAgeRestriction: boolean;
 
+  // Keep the same shape (min/max) for compatibility,
+  // but we’ll only control `min` via a single slider.
   minimumAge: {
     min: number;
     max: number;
@@ -69,7 +70,6 @@ export default function FilterModal({
   };
 
   const handleGenderToggle = (gender: string) => {
-    // Toggle: if the same gender is clicked again, deselect it.
     setFilters((prev) => ({
       ...prev,
       genderRestriction: prev.genderRestriction === gender ? null : gender,
@@ -84,8 +84,7 @@ export default function FilterModal({
       availableOnly: false,
       maxParticipants: { min: null, max: null },
 
-      useAgeRestriction: false, // NEW
-
+      useAgeRestriction: false,
       minimumAge: { min: 18, max: 100 },
     };
     setFilters(defaultFilters);
@@ -101,7 +100,7 @@ export default function FilterModal({
     filters.cities.length +
     (filters.genderRestriction ? 1 : 0) +
     (filters.availableOnly ? 1 : 0) +
-    (filters.useAgeRestriction ? 1 : 0); // NEW
+    (filters.useAgeRestriction ? 1 : 0);
 
   return (
     <>
@@ -149,7 +148,7 @@ export default function FilterModal({
                   onClick={() => handleCategoryToggle(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     filters.categories.includes(category.id)
-                      ? "bg-red-400 text-white"
+                      ? "bg-light-green text-white"
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
@@ -169,7 +168,7 @@ export default function FilterModal({
                   onClick={() => handleCityToggle(city.name)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     filters.cities.includes(city.name)
-                      ? "bg-red-400 text-white"
+                      ? "bg-light-green text-white"
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
@@ -191,7 +190,7 @@ export default function FilterModal({
                   onClick={() => handleGenderToggle(option.value)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     filters.genderRestriction === option.value
-                      ? "bg-red-400 text-white"
+                      ? "bg-light-green text-white"
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
@@ -201,23 +200,33 @@ export default function FilterModal({
             </div>
           </div>
 
-          {/* Available only */}
+          {/* Available only (toggle) */}
           <div>
             <label className="flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-700">
                 Visa endast events med lediga platser
               </span>
-              <input
-                type="checkbox"
-                checked={filters.availableOnly}
-                onChange={(e) =>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={filters.availableOnly}
+                onClick={() =>
                   setFilters((prev) => ({
                     ...prev,
-                    availableOnly: e.target.checked,
+                    availableOnly: !prev.availableOnly,
                   }))
                 }
-                className="w-5 h-5 rounded accent-red-400 ocus:ring-1 focus:ring-red-400"
-              />
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                  filters.availableOnly ? "bg-light-green" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                    filters.availableOnly ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
             </label>
           </div>
 
@@ -404,44 +413,61 @@ export default function FilterModal({
             </div>
           </div>
 
-          {/* Age restriction */}
+          {/* Age restriction (CreateActivity-style: toggle + single slider for min age) */}
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-semibold text-gray-700">
                 Åldersintervall
               </h3>
 
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label className="flex items-center gap-2 text-sm text-gray-500">
                 <span>Använd</span>
-                <input
-                  type="checkbox"
-                  checked={filters.useAgeRestriction}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      useAgeRestriction: e.target.checked,
-                    }))
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={filters.useAgeRestriction}
+                  onClick={() =>
+                    setFilters((prev) => {
+                      const nextUse = !prev.useAgeRestriction;
+                      return {
+                        ...prev,
+                        useAgeRestriction: nextUse,
+                        minimumAge: nextUse
+                          ? { ...prev.minimumAge, max: 100 }
+                          : prev.minimumAge,
+                      };
+                    })
                   }
-                  className="w-5 h-5 rounded accent-red-400 focus:ring-red-400"
-                />
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                    filters.useAgeRestriction ? "bg-light-green" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                      filters.useAgeRestriction
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                    }`}
+                  />
+                </button>
               </label>
             </div>
 
             <p
-              className={`text-sm mb-2 ${
+              className={`text-sm mb-3 ${
                 filters.useAgeRestriction ? "text-gray-700" : "text-gray-400"
               }`}
             >
               {filters.useAgeRestriction
-                ? `Åldersintervall: ${filters.minimumAge.min} - ${filters.minimumAge.max}`
-                : "Aktivera för att välja åldersintervall"}
+                ? `Minimiålder: ${filters.minimumAge.min} år`
+                : "Aktivera för att välja minimiålder"}
             </p>
 
             <div
-              className={`space-y-2 ${
+              className={`space-y-2 transition-opacity ${
                 filters.useAgeRestriction
-                  ? ""
-                  : "opacity-50 pointer-events-none"
+                  ? "opacity-100"
+                  : "opacity-40 pointer-events-none"
               }`}
             >
               <input
@@ -454,28 +480,7 @@ export default function FilterModal({
                   const nextMin = parseInt(e.target.value, 10);
                   setFilters((prev) => ({
                     ...prev,
-                    minimumAge: {
-                      min: nextMin,
-                      max: Math.max(prev.minimumAge.max, nextMin),
-                    },
-                  }));
-                }}
-                className="w-full accent-light-green"
-              />
-              <input
-                type="range"
-                min="18"
-                max="100"
-                value={filters.minimumAge.max}
-                disabled={!filters.useAgeRestriction}
-                onChange={(e) => {
-                  const nextMax = parseInt(e.target.value, 10);
-                  setFilters((prev) => ({
-                    ...prev,
-                    minimumAge: {
-                      min: Math.min(prev.minimumAge.min, nextMax),
-                      max: nextMax,
-                    },
+                    minimumAge: { min: nextMin, max: 100 },
                   }));
                 }}
                 className="w-full accent-light-green"
@@ -488,7 +493,7 @@ export default function FilterModal({
         <div className="px-6 py-4 border-t border-gray-200 bg-white">
           <button
             onClick={handleApply}
-            className="w-full bg-red-400 text-white font-semibold py-4 rounded-lg transition-colors"
+            className="w-full bg-light-green text-white font-semibold py-4 rounded-lg transition-colors"
           >
             Visa resultat
           </button>
@@ -510,12 +515,8 @@ export default function FilterModal({
         }
 
         @keyframes slideUp {
-          from {
-            transform: translateY(100%);
-          }
-          to {
-            transform: translateY(0);
-          }
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
         .animate-slideUp {
           animation: slideUp 0.3s ease-out;

@@ -5,15 +5,15 @@ import ActivityHeaderBanner from "./ActivityHeaderBanner";
 import ActivitySearchBar from "./ActivitySearchBar";
 
 interface ActivityHeaderProps {
-  selectedCategoryId: number | null;
-  onCategoryClick: (categoryId: number) => void;
+  selectedCategoryIds: number[];
+  onCategoryToggle: (categoryId: number) => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
 }
 
 export default function ActivityHeader({
-  selectedCategoryId,
-  onCategoryClick,
+  selectedCategoryIds,
+  onCategoryToggle,
   searchQuery,
   onSearchChange,
 }: ActivityHeaderProps) {
@@ -42,7 +42,7 @@ export default function ActivityHeader({
 
         <ActivitySearchBar value={searchQuery} onChange={onSearchChange} />
 
-        {/* Categories — pushed to bottom of the banner */}
+        {/* Categories */}
         <div className="mt-auto overflow-x-auto overflow-y-hidden px-4 pb-5">
           <div className="flex min-w-max gap-6">
             {loading ? (
@@ -55,8 +55,8 @@ export default function ActivityHeader({
                   key={category.id}
                   name={category.displayName}
                   icon={category.iconUrl}
-                  isSelected={selectedCategoryId === category.id}
-                  onClick={() => onCategoryClick(category.id)}
+                  isSelected={selectedCategoryIds.includes(category.id)}
+                  onClick={() => onCategoryToggle(category.id)}
                 />
               ))
             )}
