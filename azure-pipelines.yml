@@ -102,6 +102,23 @@ steps:
     displayName: "Frontend: Install and build"
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
+  # Copy frontend build to backend wwwroot
+  - powershell: |
+      $source = "$(Build.SourcesDirectory)/frontend/dist/*"
+      $destination = "$(Build.SourcesDirectory)/backend/wwwroot"
+
+      # Remove old files from wwwroot (except files that should persist)
+      if (Test-Path $destination) {
+        Get-ChildItem -Path $destination -Recurse | Remove-Item -Force -Recurse
+      }
+
+      # Copy new frontend build
+      Copy-Item -Path $source -Destination $destination -Recurse -Force
+
+      Write-Host "Frontend files copied to backend/wwwroot"
+      Get-ChildItem -Path $destination
+    displayName: "Copy frontend build to backend wwwroot"
+
   # ======================
   # BACKEND
   # ======================
