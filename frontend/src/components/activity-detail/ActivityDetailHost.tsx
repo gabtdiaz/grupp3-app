@@ -1,5 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Avatar } from "../common/Avatar";
+import { getImageUrl } from "../../api/api";
 
 interface ActivityDetailHostProps {
   hostId: string;
@@ -26,17 +28,12 @@ export const ActivityDetailHost: React.FC<ActivityDetailHostProps> = ({
       {/* Host Card */}
       <button onClick={handleHostClick} className="flex items-center gap-4">
         {/* Profile Image */}
-        <div className="shrink-0">
-          {hostImageUrl ? (
-            <img
-              src={hostImageUrl}
-              alt={hostName}
-              className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full border-2 border-gray-300" />
-          )}
-        </div>
+        <Avatar
+          src={getImageUrl(hostImageUrl)}
+          alt={hostName}
+          size="lg"
+          className="border-2 border-gray-200"
+        />
 
         {/* Host Info */}
         <div className="flex-1">

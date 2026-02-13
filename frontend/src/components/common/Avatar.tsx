@@ -22,20 +22,19 @@ export const Avatar: React.FC<AvatarProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
 
-  // Hämta initial från namn
   const getInitial = (name: string): string => {
     return name.charAt(0).toUpperCase();
   };
 
   const initial = getInitial(alt);
 
-  // Om ingen src ELLER om bilden failade att ladda
+  // Fallback: Grå bakgrund med initial (som ni hade innan)
   if (!src || imageError) {
     return (
       <div
-        className={`${sizeClasses[size]} ${className} rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center`}
+        className={`${sizeClasses[size]} ${className} rounded-full bg-gray-200 flex items-center justify-center`}
       >
-        <span className="text-white font-semibold">{initial}</span>
+        <span className="text-gray-600 font-semibold">{initial}</span>
       </div>
     );
   }

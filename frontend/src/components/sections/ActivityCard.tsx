@@ -1,3 +1,6 @@
+import { getImageUrl } from "../../api/api";
+import { EventImage } from "../common/EventImage";
+
 interface ActivityCardProps {
   eventId: number;
   title: string;
@@ -19,12 +22,9 @@ export default function ActivityCard({
   isFull = false,
   onClick,
 }: ActivityCardProps) {
-  const src =
-    imageSrc && imageSrc.trim() !== ""
-      ? imageSrc.startsWith("http")
-        ? imageSrc
-        : `http://localhost:5011/${imageSrc}`
-      : `http://localhost:5011/api/events/${eventId}/image`;
+  const eventImageUrl = imageSrc
+    ? getImageUrl(imageSrc)
+    : getImageUrl(`/api/events/${eventId}/image`);
 
   return (
     <div
@@ -32,7 +32,8 @@ export default function ActivityCard({
       onClick={onClick}
     >
       <div className="w-18 h-18 rounded-full border-gray-300 shrink-0 overflow-hidden flex items-center justify-center bg-gray-200">
-        <img src={src} alt={title} className="w-full h-full object-cover" />
+        {/* Event Image med EventImage-komponent */}
+        <EventImage src={eventImageUrl} alt={title} size="md" shape="circle" />
       </div>
 
       <div className="flex-1 min-w-0">
