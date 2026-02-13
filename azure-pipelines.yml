@@ -97,13 +97,12 @@ steps:
     displayName: "Install Node.js"
 
   - script: |
-      npm install
-      npm run build
+      npm install && npm run build
     displayName: "Frontend: Install and build"
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
   # ======================
-  # KOPIERA FRONTEND TILL BACKEND
+  # KOPIERA FRONTEND TILL BACKEND/
   # ======================
   - task: CopyFiles@2
     displayName: "Copy React build to backend wwwroot"
