@@ -320,7 +320,7 @@ public static class EventEndpoints
             {
                 UserId = ep.UserId,
                 UserName = $"{ep.User.FirstName} {ep.User.LastName[0]}.",
-                ProfileImageUrl = ep.User.ProfileImageUrl
+                ProfileImageUrl = $"/api/profile/image/{ep.UserId}"
             })
             .ToList();
 

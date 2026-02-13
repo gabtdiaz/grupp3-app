@@ -49,3 +49,26 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// API Base URL beroende på miljö
+export const API_BASE_URL = import.meta.env.DEV
+  ? "http://localhost:5011" // ← Din backend port
+  : ""; // Production = same origin
+
+// Helper för att bygga full URL
+export function getApiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
+
+// Helper för bild-URLs (kan behöva token)
+export function getImageUrl(path: string | null | undefined): string {
+  if (!path) return "";
+
+  // Om redan full URL
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  // Lägg till base URL
+  return `${API_BASE_URL}${path}`;
+}

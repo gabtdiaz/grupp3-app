@@ -1,10 +1,12 @@
 import React from "react";
+import { getImageUrl } from "../../api/api";
+import { EventImage } from "../common/EventImage";
 
 interface ActivityDetailHeaderProps {
   eventId: number;
   title: string;
   activeTab?: "information" | "kommentarer";
-  imageUrl?: string | null; 
+  imageUrl?: string | null;
   onTabChange?: (tab: "information" | "kommentarer") => void;
 }
 
@@ -15,11 +17,9 @@ export const ActivityDetailHeader: React.FC<ActivityDetailHeaderProps> = ({
   activeTab = "information",
   onTabChange,
 }) => {
-  const src = imageUrl
-    ? imageUrl.startsWith("http")
-      ? imageUrl
-      : `${window.location.origin}/${imageUrl}`
-    : `http://localhost:5011/api/events/${eventId}/image`;
+  const eventImageUrl = imageUrl
+    ? getImageUrl(imageUrl)
+    : getImageUrl(`/api/events/${eventId}/image`);
 
   return (
     <div className="bg-white">
@@ -27,29 +27,16 @@ export const ActivityDetailHeader: React.FC<ActivityDetailHeaderProps> = ({
       <div className="px-4 pt-6 pb-4 flex flex-col items-center">
         <h1 className="text-center text-2xl">{title}</h1>
 
-        {/* Rund eventbild under rubriken */}
-        <div className="w-28 h-28 flex items-center justify-center rounded-full border border-gray-300 bg-white overflow-hidden shadow-sm">
-          {src ? (
-            <img
-              src={src}
-              alt={title}
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-                const parent = (e.target as HTMLElement).parentElement;
-                if (parent) {
-                  parent.innerHTML = `<span style="font-size:36px; font-weight:600; color:#555;">${title.charAt(0).toUpperCase()}</span>`;
-                }
-              }}
-            />
-          ) : (
-            <span className="text-gray-500 text-4xl font-semibold">
-              {title.charAt(0).toUpperCase()}
-            </span>
-          )}
+        {/* Rund eventbild under rubriken - Använd EventImage-komponenten! */}
+        <div className="mt-4">
+          <EventImage
+            src={eventImageUrl}
+            alt={title}
+            size="md"
+            shape="circle"
+            className="!h-28 !w-28 border border-gray-300 shadow-sm"
+          />
         </div>
-
-
       </div>
 
       {/* Tabs Section */}
@@ -67,9 +54,7 @@ export const ActivityDetailHeader: React.FC<ActivityDetailHeaderProps> = ({
         <button
           onClick={() => onTabChange?.("kommentarer")}
           className={`flex-1 py-3 text-sm font-medium transition-all ${
-            activeTab === "kommentarer"
-              ? "border-b"
-              : "text-gray-400"
+            activeTab === "kommentarer" ? "border-b" : "text-gray-400"
           }`}
         >
           KOMMENTARER

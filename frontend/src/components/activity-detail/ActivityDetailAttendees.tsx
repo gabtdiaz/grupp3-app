@@ -1,5 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "../../api/api";
+import { Avatar } from "../common/Avatar";
 
 interface Attendee {
   id: string;
@@ -53,15 +55,12 @@ export const ActivityDetailAttendees: React.FC<
                 className="flex-shrink-0"
                 type="button"
               >
-                {attendee.imageUrl ? (
-                  <img
-                    src={attendee.imageUrl}
-                    alt={attendee.name}
-                    className="h-14 w-14 rounded-full object-cover border-2 border-gray-200"
-                  />
-                ) : (
-                  <div className="h-14 w-14 rounded-full bg-gray-200 border-2 border-gray-300" />
-                )}
+                <Avatar
+                  src={getImageUrl(attendee.imageUrl)}
+                  alt={attendee.name}
+                  size="md"
+                  className="border-2 border-gray-200"
+                />
               </button>
             ))
           )}
