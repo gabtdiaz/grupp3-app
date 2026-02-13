@@ -9,7 +9,7 @@ import { ActivityDetailJoinButton } from "../components/activity-detail/Activity
 import { ActivityDetailComments } from "../components/activity-detail/ActivityDetailComments";
 import DeleteActivityModal from "../components/modals/DeleteActivityModal";
 import { ActivityDetailRemoveParticipantModal } from "../components/activity-detail/ActivityDetailRemoveParticipantModal";
-
+import { getImageUrl } from "../api/api";
 import BottomNav from "../components/layout/BottomNav";
 import { useParams } from "react-router-dom";
 import { useEvent } from "../hooks/useEvent";
@@ -233,7 +233,7 @@ export const ActivityDetail: React.FC = () => {
             hostId={event.createdByUserId?.toString() || event.createdBy}
             hostName={event.createdBy}
             hostRole="Arrangör"
-            hostImageUrl={event.createdByProfileImageUrl || ""}
+            hostImageUrl={getImageUrl(event.createdByProfileImageUrl || "")}
           />
 
           {/* Meta Information */}
