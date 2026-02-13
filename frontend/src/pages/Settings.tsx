@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { SettingsHeader } from "../components/settings/SettingsHeader";
+//import { SettingsHeader } from "../components/settings/SettingsHeader";
 import { SettingsAvatar } from "../components/settings/SettingsAvatar";
 import { SettingsBio } from "../components/settings/SettingsBio";
 import { SettingsSection } from "../components/settings/SettingsSection";
