@@ -34,13 +34,16 @@ namespace FriendZone.E2E.Tests.Tests
 
             // 1) Logga in
             await page.GotoAsync($"{baseUrl}/login");
-            await page.Locator("input[type='email']").WaitForAsync(new() { Timeout = 15000 });
+            await page.Locator("input[type='email']").WaitForAsync(new() { Timeouct = 15000 });
 
             await page.FillAsync("input[type='email']", testEmail);
             await page.FillAsync("input[type='password']", testPassword);
             await page.ClickAsync("button:has-text('LOGGA IN')");
 
             await page.WaitForURLAsync("**/activity**", new() { Timeout = 60000 });
+
+        var heading = page.GetByRole(AriaRole.Heading, new() { Name = "AKTIVITETER" });
+        await heading.WaitForAsync(new() { Timeout = 60000 });
           //  await Task.Delay(10000); // Vänta 10 sekunder på att login ska ske
 
             // 2) Gå till create
