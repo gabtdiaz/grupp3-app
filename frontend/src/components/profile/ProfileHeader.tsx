@@ -3,6 +3,7 @@ import { useProfile } from "../../hooks/useProfile";
 import { type UserProfile, type PublicProfile } from "../../api/profile";
 import ProfileHeaderBanner from "./ProfileHeaderBanner";
 import ProfileAvatar from "./ProfileAvatar";
+import { getApiUrl } from "../../api/api";
 
 type ProfileHeaderProps = {
   profile?: UserProfile | PublicProfile | null;
@@ -30,11 +31,11 @@ export default function ProfileHeader({
         let url: string;
         const headers: Record<string, string> = {};
         if (isPublic) {
-          url = `http://localhost:5011/api/profile/image/${profile.id}?${Date.now()}`;
+          url = getApiUrl(`/api/profile/image/${profile.id}?${Date.now()}`);
         } else {
           const token = localStorage.getItem("auth_token");
           if (!token) return;
-          url = `http://localhost:5011/api/profile/image?${Date.now()}`;
+          url = getApiUrl(`/api/profile/image?${Date.now()}`);
           headers["Authorization"] = `Bearer ${token}`;
         }
         const res = await fetch(url, { headers });
