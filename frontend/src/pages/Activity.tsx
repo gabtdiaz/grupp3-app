@@ -120,7 +120,7 @@ export default function Activity() {
     return true;
   });
 
-  const isEmpty = !loading && filteredEvents.length === 0;
+  //const isEmpty = !loading && filteredEvents.length === 0;
 
   const handleCardClick = (eventId: number) => {
     navigate(`/activity/${eventId}`);
