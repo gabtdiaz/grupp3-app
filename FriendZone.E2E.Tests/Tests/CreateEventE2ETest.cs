@@ -19,10 +19,10 @@ namespace FriendZone.E2E.Tests.Tests
                 StringComparison.OrdinalIgnoreCase
             );
 
-            var testEmail = Environment.GetEnvironmentVariable("E2E_TEST_EMAIL")
+            var testEmail = Environment.GetEnvironmentVariable("E2E_TEST_EMAIL2")
                             ?? throw new InvalidOperationException("Saknar E2E_TEST_EMAIL env-var.");
 
-            var testPassword = Environment.GetEnvironmentVariable("E2E_TEST_PASSWORD")
+            var testPassword = Environment.GetEnvironmentVariable("E2E_TEST_PASSWORD2")
                                ?? throw new InvalidOperationException("Saknar E2E_TEST_PASSWORD env-var.");
 
             using var playwright = await Playwright.CreateAsync();
@@ -43,7 +43,8 @@ namespace FriendZone.E2E.Tests.Tests
             await Task.Delay(10000); // Vänta 10 sekunder på att login ska ske
 
             // 2) Gå till create
-            await page.GetByAltText("Create event").ClickAsync();
+            // await page.GetByAltText("Create event").ClickAsync();
+            await page.Locator("button:has(img[alt='Create event'])").ClickAsync();
             await page.WaitForURLAsync("**/activity/create**", new() { Timeout = 15000 });
 
             // 3) Unik titel

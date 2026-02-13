@@ -21,12 +21,12 @@ namespace FriendZone.E2E.Tests.Tests
             );
 
             // Fast test-user (läggs som env-vars, inte i koden)
-            var testEmail = Environment.GetEnvironmentVariable("E2E_TEST_EMAIL")
+            var testEmail = Environment.GetEnvironmentVariable("E2E_TEST_EMAIL2")
                             ?? throw new InvalidOperationException(
                                 "Saknar E2E_TEST_EMAIL env-var."
                             );
 
-            var testPassword = Environment.GetEnvironmentVariable("E2E_TEST_PASSWORD")
+            var testPassword = Environment.GetEnvironmentVariable("E2E_TEST_PASSWORD2")
                                ?? throw new InvalidOperationException(
                                    "Saknar E2E_TEST_PASSWORD env-var."
                                );

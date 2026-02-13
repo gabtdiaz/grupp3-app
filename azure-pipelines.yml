@@ -68,8 +68,8 @@ steps:
     env:
       CI: "true"
       E2E_BASE_URL: "$(E2E_BASE_URL)"
-      E2E_TEST_EMAIL: "$(E2E_TEST_EMAIL2)"
-      E2E_TEST_PASSWORD: "$(E2E_TEST_PASSWORD2)"
+      E2E_TEST_EMAIL2: "$(E2E_TEST_EMAIL2)"
+      E2E_TEST_PASSWORD2: "$(E2E_TEST_PASSWORD2)"
 
   # ======================
   # PUBLISH (ONLY IF TESTS PASS)
