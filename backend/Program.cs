@@ -101,7 +101,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// CORS (bara i development)
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("AllowFrontend");
@@ -111,8 +110,6 @@ app.UseRateLimiting();
 app.UseSecurityHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Servera statiska filer (React-appen från wwwroot)
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
@@ -125,7 +122,6 @@ app.MapProfileEndpoints();
 app.MapCommentEndpoints();
 app.MapCitiesEndpoints();
 app.MapHealthChecks("/health");
-
-app.MapFallbackToFile("index.html");  // React Router fallback
+app.MapFallbackToFile("index.html");
 
 app.Run();
