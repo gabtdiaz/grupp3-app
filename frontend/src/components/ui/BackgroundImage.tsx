@@ -1,3 +1,4 @@
+// BackgroundImage.tsx
 export const BackgroundImage = () => {
   return (
     <div
@@ -8,8 +9,12 @@ export const BackgroundImage = () => {
           url("/phone-background.svg"),
           url("/index-background.png")
         `,
-        backgroundSize: "auto 18rem, contain, cover",
-        backgroundPosition: "top -1rem center, center, center",
+        backgroundSize: "clamp(10rem, 45vw, 18rem) auto, contain, cover",
+        backgroundPosition: `
+          center calc(env(safe-area-inset-top) + var(--logo-offset)),
+          center,
+          center
+        `,
       }}
     />
   );
