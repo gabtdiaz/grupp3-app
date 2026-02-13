@@ -102,7 +102,7 @@ steps:
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
   # ======================
-  # KOPIERA FRONTEND TILL BACKEND
+  # KOPIERA FRONTEND TILL BACKEND/
   # ======================
   - task: CopyFiles@2
     displayName: "Copy React build to backend wwwroot"
