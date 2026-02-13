@@ -4,7 +4,7 @@ import type { Event } from "../api/eventService";
 
 export const useEvents = (categoryId?: number, city?: string) => {
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchEvents = async () => {

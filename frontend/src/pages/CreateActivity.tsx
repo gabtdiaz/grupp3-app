@@ -62,7 +62,7 @@ export default function CreateActivity() {
     }));
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -335,17 +335,13 @@ export default function CreateActivity() {
             type="file"
             id="image-upload"
             accept="image/*"
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-
-              const fd = new FormData();
-              fd.append("file", file);
-
-              const response = await eventService.uploadEventImage(fd);
               setFormData((prev) => ({
                 ...prev,
-                imageUrl: response.imageUrl,
+                imageFile: file,
+                imageUrl: URL.createObjectURL(file), // for local preview only
               }));
             }}
             className="hidden"
@@ -353,11 +349,7 @@ export default function CreateActivity() {
 
           {formData.imageUrl && (
             <img
-              src={
-                formData.imageUrl
-                  ? `http://localhost:5011${formData.imageUrl}`
-                  : ""
-              }
+              src={formData.imageUrl}
               alt="Förhandsvisning"
               className="mt-4 w-32 h-32 rounded-full object-cover mx-auto"
             />

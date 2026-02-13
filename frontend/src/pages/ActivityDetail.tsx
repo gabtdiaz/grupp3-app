@@ -218,6 +218,7 @@ export const ActivityDetail: React.FC = () => {
 
       {/* Header with title and tabs */}
       <ActivityDetailHeader
+        eventId={eventId!}
         title={event.title}
         activeTab={activeTab}
         onTabChange={setActiveTab}

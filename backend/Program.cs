@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 // Application Insights
-builder.Services.AddApplicationInsightsTelemetry(); 
+builder.Services.AddApplicationInsightsTelemetry();
 
 // Register services
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -25,7 +25,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-    // Rules for token validation
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -53,7 +52,7 @@ builder.Services.AddCors(options =>
         else
         {
             policy.WithOrigins(
-                "https://friendzone.azurewebsites.net", 
+                "https://friendzone.azurewebsites.net",
                 "https://www.friendzone.azurewebsites.net"
             )
             .AllowAnyHeader()
@@ -73,6 +72,14 @@ builder.Services.AddRateLimiting(builder.Configuration);
 builder.Services.AddScoped<AgeValidationService>();
 builder.Services.AddScoped<EventRestrictionService>();
 
+// JSON serialization - fix circular reference crash when serializing EF navigation properties
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>();
 
@@ -87,6 +94,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 // HSTS (production only)
 if (!app.Environment.IsDevelopment())
 {
@@ -116,7 +124,6 @@ app.MapEventParticipationEndpoints();
 app.MapProfileEndpoints();
 app.MapCommentEndpoints();
 app.MapCitiesEndpoints();
-
 app.MapHealthChecks("/health");
 
 app.MapFallbackToFile("index.html");  // React Router fallback

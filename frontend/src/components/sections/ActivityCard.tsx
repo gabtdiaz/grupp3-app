@@ -32,21 +32,7 @@ export default function ActivityCard({
       onClick={onClick}
     >
       <div className="w-18 h-18 rounded-full border-gray-300 shrink-0 overflow-hidden flex items-center justify-center bg-gray-200">
-        {hasValidImage ? (
-          <img
-            src={
-              imageSrc!.startsWith("http")
-                ? imageSrc
-                : `http://localhost:5011${imageSrc}`
-            }
-            alt={title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span className="text-gray-500 text-2xl font-bold">
-            {title?.[0]?.toUpperCase()}
-          </span>
-        )}
+        <img src={src} alt={title} className="w-full h-full object-cover" />
       </div>
 
       <div className="flex-1 min-w-0">
