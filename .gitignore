@@ -103,3 +103,5 @@ vite.config.ts.timestamp-*
 
 # Build artifacts
 *.tsbuildinfo
+# Backend wwwroot (genereras av pipeline)
+backend/wwwroot/
