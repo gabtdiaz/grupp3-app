@@ -7,7 +7,7 @@ public class StrongPasswordAttribute : ValidationAttribute
 {
     public StrongPasswordAttribute()
     {
-        ErrorMessage = "Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number.";
+        ErrorMessage = "Lösenordet måste vara minst 8 tecken långt och innehålla minst en versal, en gemen och en siffra.";
     }
 
     public override bool IsValid(object? value)
