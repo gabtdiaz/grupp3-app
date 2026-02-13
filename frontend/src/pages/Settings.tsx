@@ -12,7 +12,7 @@ import { SettingsLogout } from "../components/settings/SettingsLogout";
 import { SettingsDeleteAccount } from "../components/settings/SettingsDeleteAccount";
 import BottomNav from "../components/layout/BottomNav";
 import ProfileHeader from "../components/profile/ProfileHeader";
-
+import { getApiUrl } from "../api/api";
 import { useProfile } from "../hooks/useProfile";
 import {
   updateUserProfile,
@@ -60,7 +60,7 @@ export const Settings: React.FC = () => {
         showAge: !!profile.showAge,
         showCity: !!profile.showCity,
       });
-      setAvatarUrl("/api/profile/image?" + Date.now());
+      setAvatarUrl(getApiUrl("/api/profile/image?" + Date.now()));
     }
   }, [profile]);
 
@@ -77,16 +77,13 @@ export const Settings: React.FC = () => {
     try {
       console.log("Laddar upp profilbild...");
 
-      const response = await fetch(
-        "http://localhost:5011/api/profile/upload-image",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
+      const response = await fetch(getApiUrl("api/profile/upload-image"), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: formData,
+      });
 
       if (!response.ok) {
         const text = await response.text();
@@ -96,7 +93,7 @@ export const Settings: React.FC = () => {
       console.log("Profilbild uppladdad!");
       alert("Profilbild uppladdad!");
 
-      setAvatarUrl(`http://localhost:5011/api/profile/image?${Date.now()}`);
+      setAvatarUrl(getApiUrl(`/api/profile/image?${Date.now()}`));
       await refetch();
     } catch (err) {
       console.error("Fel vid uppladdning:", err);
