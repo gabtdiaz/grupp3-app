@@ -34,7 +34,7 @@ namespace FriendZone.E2E.Tests.Tests
 
             // 1) Logga in
             await page.GotoAsync($"{baseUrl}/login");
-            await page.Locator("input[type='email']").WaitForAsync(new() { Timeouct = 15000 });
+            await page.Locator("input[type='email']").WaitForAsync(new() { Timeout = 15000 });
 
             await page.FillAsync("input[type='email']", testEmail);
             await page.FillAsync("input[type='password']", testPassword);
