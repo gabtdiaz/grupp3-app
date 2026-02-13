@@ -43,7 +43,7 @@ namespace FriendZone.E2E.Tests.Tests
             await Task.Delay(10000); // Vänta 10 sekunder på att login ska ske
 
             // 2) Gå till create
-            // await page.GetByAltText("Create event").ClickAsync();
+            // await page.GetByAltText("Create event").ClickAsync(); // Fungerar inte, kanske pga att det är en svg?
             await page.Locator("button:has(img[alt='Create event'])").ClickAsync();
             await page.WaitForURLAsync("**/activity/create**", new() { Timeout = 15000 });
 
