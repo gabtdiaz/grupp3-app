@@ -96,22 +96,13 @@ steps:
       versionSpec: "22.x"
     displayName: "Install Node.js"
 
-  - script: |
-      npm install && npm run build
-    displayName: "Frontend: Install and build"
+  - script: npm install
+    displayName: "Frontend: npm install"
     workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
-  # ======================
-  # KOPIERA FRONTEND TILL BACKEND/
-  # ======================
-  - task: CopyFiles@2
-    displayName: "Copy React build to backend wwwroot"
-    inputs:
-      SourceFolder: "$(Build.SourcesDirectory)/frontend/dist"
-      Contents: "**"
-      TargetFolder: "$(Build.SourcesDirectory)/backend/wwwroot"
-      OverWrite: true
-      CleanTargetFolder: true
+  - script: npm run build
+    displayName: "Frontend: npm run build"
+    workingDirectory: "$(Build.SourcesDirectory)/frontend"
 
   # ======================
   # BACKEND
