@@ -1,9 +1,14 @@
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMultiStepForm } from "../hooks/useMultiStepForm";
-import { useCities } from "../hooks/useCities";
-import { TermsModal } from "../components/modals/TermsModal";
-import { PrivacyModal } from "../components/modals/PrivacyModal";
-import { useState } from "react";
+import { StepName } from "../components/register/StepName";
+import { StepEmail } from "../components/register/StepEmail";
+import { StepPassword } from "../components/register/StepPassword";
+import { StepDetails } from "../components/register/StepDetails";
+import ButtonOne from "@/assets/button-one.svg?react";
+import ButtonTwo from "@/assets/button-two.svg?react";
+import ButtonThree from "@/assets/button-three.svg?react";
+import ButtonFour from "@/assets/button-four.svg?react";
 
 const WAVES = [
   {
@@ -33,19 +38,19 @@ const STEP_TITLES: Record<number, { title: string; subtitle?: string }> = {
   2: { title: "Och din e-post" },
   3: {
     title: "Välj ett lösenord",
-    subtitle: "En mix av stora/små bokstäver och siffror gör det extra säkert",
+    subtitle:
+      "Lösenordet måste vara minst 8 tecken långt och innehålla minst en versal, en gemen och en siffra",
   },
   4: { title: "Lite mer om dig" },
 };
 
-export default function RegisterPage() {
-  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
-  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+const HERO_HEIGHT = "clamp(280px, 50vh, 600px)";
+const TITLE_BOTTOM = "clamp(60px, 10vh, 100px)";
 
+export default function RegisterPage() {
   const navigate = useNavigate();
-  const { cities } = useCities();
+  const formScrollRef = useRef<HTMLDivElement | null>(null);
+
   const {
     step,
     formData,
@@ -60,21 +65,65 @@ export default function RegisterPage() {
 
   const { title, subtitle } = STEP_TITLES[step] ?? { title: "" };
 
+  const scrollIntoView = (el: HTMLElement | null) => {
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
+
+  const sharedProps = {
+    formData,
+    fieldErrors,
+    error,
+    onChange: handleChange,
+    onBack: handleBack,
+    scrollIntoView,
+  };
+
+  const STEP_ICONS = [
+    { stepNum: 1, Icon: ButtonOne },
+    { stepNum: 2, Icon: ButtonTwo },
+    { stepNum: 3, Icon: ButtonThree },
+    { stepNum: 4, Icon: ButtonFour },
+  ];
+
   return (
-    <>
-      {/* ── Wave header ── */}
-      <div className="relative h-82 w-full overflow-hidden bg-orange-300/90 shrink-0 -mb-1">
-        {/* Step title */}
-        <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center">
-          <h1 className="text-3xl font-[Spicy_Rice] text-white">{title}</h1>
+    <div className="flex flex-col min-h-screen w-full overflow-x-hidden">
+      {/* Wave header */}
+      <div
+        className="relative w-full overflow-hidden bg-orange-300/90 shrink-0 -mb-px"
+        style={{ height: HERO_HEIGHT }}
+      >
+        {/* Step indicator icons — pinned to top */}
+        <div className="absolute inset-x-0 top-6 flex justify-center gap-3">
+          {STEP_ICONS.map(({ stepNum, Icon }) => {
+            const isActive = stepNum === step;
+            return (
+              <Icon
+                key={stepNum}
+                aria-label={`Step ${stepNum}`}
+                className={`w-10 h-10 transition-all duration-300 ${
+                  isActive
+                    ? "[&_path:nth-child(1)]:fill-[#0f9100] scale-110"
+                    : "scale-100"
+                }`}
+              />
+            );
+          })}
+        </div>
+
+        {/* Title — centered in the middle of the header */}
+        <div
+          className="absolute inset-x-0 top-0 flex flex-col items-center justify-center px-6 text-center"
+          style={{ bottom: TITLE_BOTTOM }}
+        >
+          <h1 className="text-3xl text-white leading-tight">{title}</h1>
           {subtitle && (
-            <p className="mt-1 text-sm font-[Spicy_Rice] text-white/80">
-              {subtitle}
-            </p>
+            <p className="mt-1 text-sm text-white/80 max-w-xs">{subtitle}</p>
           )}
         </div>
 
-        {/* Mountain waves */}
         {WAVES.map((wave, i) => (
           <svg
             key={i}
@@ -88,10 +137,9 @@ export default function RegisterPage() {
           </svg>
         ))}
 
-        {/* Final cream wave */}
         <svg
-          className="absolute bottom-0 left-0 w-full"
-          style={{ height: 52 }}
+          className="absolute -bottom-1 left-0 w-full block"
+          style={{ height: 40 }}
           viewBox="0 0 560 50"
           preserveAspectRatio="none"
           aria-hidden="true"
@@ -103,309 +151,33 @@ export default function RegisterPage() {
         </svg>
       </div>
 
-      {/* ── Form section ── */}
-      <div className="flex items-start bg-[#faf4ee] pt-6 min-h-screen">
-        <div className="bg-[#faf4ee] px-8 w-full mx-3">
+      {/* Form section */}
+      <div
+        ref={formScrollRef}
+        className="flex-1 bg-[#faf4ee] overflow-y-auto"
+        style={{
+          paddingBottom: "max(16px, env(safe-area-inset-bottom) + 220px)",
+        }}
+      >
+        <div className="px-6 pt-6 pb-8 w-full max-w-md mx-auto">
           {step === 1 && (
-            <>
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm ">
-                  Ditt förnamn
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                />
-                {fieldErrors.firstName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.firstName}
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">
-                  Ditt efternamn
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                />
-                {fieldErrors?.lastName && (
-                  <p className="text-red-500 text-sm mb-4 text-center">
-                    {fieldErrors.lastName}
-                  </p>
-                )}
-              </div>
-
-              {error && (
-                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-              )}
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => navigate("/")}
-                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  AVBRYT
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex-1 bg-light-green text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  FORTSÄTT
-                </button>
-              </div>
-            </>
+            <StepName
+              {...sharedProps}
+              onNext={handleNext}
+              onCancel={() => navigate("/")}
+            />
           )}
-
-          {step === 2 && (
-            <>
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">
-                  Din e-postadress
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                />
-              </div>
-
-              {error && (
-                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-              )}
-
-              <div className="flex gap-4">
-                <button
-                  onClick={handleBack}
-                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  TILLBAKA
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex-1 bg-light-green text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  FORTSÄTT
-                </button>
-              </div>
-            </>
-          )}
-
-          {step === 3 && (
-            <>
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">
-                  Ditt lösenord
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                />
-                {fieldErrors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.password}
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">
-                  Repetera lösenord
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                />
-                {fieldErrors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.confirmPassword}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={handleBack}
-                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  TILLBAKA
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex-1 bg-light-green disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  FORTSÄTT
-                </button>
-              </div>
-            </>
-          )}
-
+          {step === 2 && <StepEmail {...sharedProps} onNext={handleNext} />}
+          {step === 3 && <StepPassword {...sharedProps} onNext={handleNext} />}
           {step === 4 && (
-            <>
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">Stad</label>
-                <select
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                >
-                  <option value="">Välj stad</option>
-                  {cities.map((city) => (
-                    <option key={city.id} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
-                {fieldErrors.city && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.city}
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">
-                  Födelsedatum
-                </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                />
-                {fieldErrors.dateOfBirth && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.dateOfBirth}
-                  </p>
-                )}
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-gray-600 text-sm">Kön</label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-300 focus:border-gray-400 outline-none py-2 text-gray-700 bg-transparent"
-                >
-                  <option value="">Välj</option>
-                  <option value="1">Man</option>
-                  <option value="2">Kvinna</option>
-                  <option value="3">Annat</option>
-                </select>
-                {fieldErrors.gender && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldErrors.gender}
-                  </p>
-                )}
-              </div>
-
-            <div className="mb-6">
-                <div className="flex items-start gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    id="termsAccepted"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-1 accent-white"
-                  />
-                  <label
-                    htmlFor="termsAccepted"
-                    className="text-sm text-gray-700"
-                  >
-                    Jag accepterar{" "}
-                    <button
-                      type="button"
-                      onClick={() => setIsTermsModalOpen(true)}
-                      className="text-black font-bold"
-                    >
-                      användarvillkoren
-                    </button>
-                  </label>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    id="privacyAccepted"
-                    checked={privacyAccepted}
-                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                    className="mt-1 accent-white"
-                  />
-                  <label
-                    htmlFor="privacyAccepted"
-                    className="text-sm text-gray-700"
-                  >
-                    Jag accepterar{" "}
-                    <button
-                      type="button"
-                      onClick={() => setIsPrivacyModalOpen(true)}
-                      className="text-black font-bold"
-                    >
-                      integritetspolicyn
-                    </button>
-                  </label>
-                </div>
-
-                {(!termsAccepted || !privacyAccepted) && error && (
-                  <p className="text-red-500 text-sm">
-                    Du måste acceptera både användarvillkoren och
-                    integritetspolicyn
-                  </p>
-                )}
-              </div>
-
-              {error && (
-                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-              )}
-
-              <div className="flex gap-4">
-                <button
-                  onClick={handleBack}
-                  className="flex-1 bg-gray-300 text-gray-700 font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  TILLBAKA
-                </button>
-                <button
-                  onClick={() => handleSubmit(termsAccepted, privacyAccepted)}
-                  disabled={isSubmitting || !termsAccepted || !privacyAccepted}
-                  className="flex-1 bg-light-green disabled:opacity-50 text-white font-bold py-4 rounded-full transition-colors duration-200 shadow-lg uppercase"
-                >
-                  {isSubmitting ? "REGISTRERAR..." : "REGISTRERA"}
-                </button>
-              </div>
-            </>
+            <StepDetails
+              {...sharedProps}
+              isSubmitting={isSubmitting}
+              onSubmit={handleSubmit}
+            />
           )}
         </div>
       </div>
-
-      {/* Modaler */}
-      <TermsModal
-        isOpen={isTermsModalOpen}
-        onClose={() => setIsTermsModalOpen(false)}
-      />
-      <PrivacyModal
-        isOpen={isPrivacyModalOpen}
-        onClose={() => setIsPrivacyModalOpen(false)}
-      />
-    </>
+    </div>
   );
 }

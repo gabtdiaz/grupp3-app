@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -18,17 +18,17 @@ html,
 body,
 #root {
   height: 100%;
-  --logo-offset: clamp(-0rem, -2.6vh, -0.6rem);
+  --logo-offset: clamp(-2rem, -2.6vh, -0.6rem);
 }
 
 @media (max-height: 740px) {
   #root {
-    --logo-offset: clamp(-2.1rem, -4.2vh, -1.2rem);
+    --logo-offset: clamp(-3.4rem, -4.2vh, -2.4rem);
   }
 }
 
 @media (max-height: 650px) {
   #root {
-    --logo-offset: clamp(-2.4rem, -5vh, -1.5rem);
+    --logo-offset: clamp(-3.4rem, -5vh, -2.7rem);
   }
 }
