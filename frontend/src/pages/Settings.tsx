@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+// Settings.tsx (updated order: City -> Age -> Gender)
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-//import { SettingsHeader } from "../components/settings/SettingsHeader";
 import { SettingsAvatar } from "../components/settings/SettingsAvatar";
 import { SettingsBio } from "../components/settings/SettingsBio";
 import { SettingsSection } from "../components/settings/SettingsSection";
@@ -11,7 +11,6 @@ import { SettingsPrivacy } from "../components/settings/SettingsPrivacy";
 import { SettingsLogout } from "../components/settings/SettingsLogout";
 import { SettingsDeleteAccount } from "../components/settings/SettingsDeleteAccount";
 import BottomNav from "../components/layout/BottomNav";
-import ProfileHeader from "../components/profile/ProfileHeader";
 import { getApiUrl } from "../api/api";
 import { useProfile } from "../hooks/useProfile";
 import {
@@ -32,8 +31,9 @@ export const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  // Avatar URL för headern
+  // Avatar shown in SettingsAvatar (blob url)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const prevAvatarUrlRef = useRef<string | null>(null);
 
   // Bio UI state
   const [bioDraft, setBioDraft] = useState("");
@@ -52,17 +52,56 @@ export const Settings: React.FC = () => {
   const [privacyDraft, setPrivacyDraft] = useState<PrivacyDraft | null>(null);
   const [savingPrivacy, setSavingPrivacy] = useState(false);
 
-  useEffect(() => {
-    if (profile) {
-      setBioDraft(profile.bio ?? "");
-      setPrivacyDraft({
-        showGender: !!profile.showGender,
-        showAge: !!profile.showAge,
-        showCity: !!profile.showCity,
+  // ✅ Fetch avatar with auth and set blob url so <img> works
+  const fetchAvatarWithAuth = async () => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(getApiUrl(`/api/profile/image?${Date.now()}`), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-store",
+        },
       });
-      setAvatarUrl(getApiUrl("/api/profile/image?" + Date.now()));
+
+      if (!res.ok) return;
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      if (prevAvatarUrlRef.current) {
+        URL.revokeObjectURL(prevAvatarUrlRef.current);
+      }
+      prevAvatarUrlRef.current = objectUrl;
+      setAvatarUrl(objectUrl);
+    } catch (e) {
+      console.error("Failed to fetch avatar:", e);
     }
+  };
+
+  useEffect(() => {
+    if (!profile) return;
+
+    setBioDraft(profile.bio ?? "");
+    setPrivacyDraft({
+      showGender: !!profile.showGender,
+      showAge: !!profile.showAge,
+      showCity: !!profile.showCity,
+    });
+
+    fetchAvatarWithAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
+
+  useEffect(() => {
+    return () => {
+      if (prevAvatarUrlRef.current) {
+        URL.revokeObjectURL(prevAvatarUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleAvatarChange = async (file: File) => {
     const token = localStorage.getItem("auth_token");
@@ -75,13 +114,9 @@ export const Settings: React.FC = () => {
     formData.append("file", file);
 
     try {
-      console.log("Laddar upp profilbild...");
-
       const response = await fetch(getApiUrl("/api/profile/upload-image"), {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
@@ -90,14 +125,12 @@ export const Settings: React.FC = () => {
         throw new Error(`Fel vid uppladdning: ${response.status} ${text}`);
       }
 
-      console.log("Profilbild uppladdad!");
-      alert("Profilbild uppladdad!");
-
-      setAvatarUrl(getApiUrl(`/api/profile/image?${Date.now()}`));
+      await fetchAvatarWithAuth();
       await refetch();
     } catch (err) {
       console.error("Fel vid uppladdning:", err);
       alert("Kunde inte ladda upp bilden");
+      throw err;
     }
   };
 
@@ -189,14 +222,9 @@ export const Settings: React.FC = () => {
   };
 
   const handleDelete = async (password: string) => {
-    try {
-      await deleteAccount(password);
-
-      logout();
-      navigate("/", { replace: true });
-    } catch (err) {
-      throw err;
-    }
+    await deleteAccount(password);
+    logout();
+    navigate("/", { replace: true });
   };
 
   const handleSaveCity = async (nextCity: string) => {
@@ -286,8 +314,9 @@ export const Settings: React.FC = () => {
     { value: "Eskilstuna", label: "Eskilstuna" },
   ];
 
-  if (loading) return <div className="p-6">Laddar inställningar...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (loading && !profile)
+    return <div className="p-6">Laddar inställningar...</div>;
+  if (error) return <div className="p-6 text-gray-500">{error}</div>;
   if (!profile) return <div className="p-6">Ingen profil hittad</div>;
 
   const effectivePrivacy: PrivacyDraft = privacyDraft ?? {
@@ -296,12 +325,26 @@ export const Settings: React.FC = () => {
     showCity: !!profile.showCity,
   };
 
-  return (
-    <div className="min-h-screen bg-white pb-20">
-      <ProfileHeader profile={profile} avatarUrl={avatarUrl} />
+  const ageLabel = (() => {
+    try {
+      const dob = new Date(profile.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+      return `${age} år`;
+    } catch {
+      return "–";
+    }
+  })();
 
-      <div className="px-4 py-12 space-y-6 ">
-        <SettingsAvatar onAvatarChange={handleAvatarChange} />
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="border-b border-gray-200 pt-10" />
+      <div className="px-4 pt-7 pb-20 space-y-6">
+        <div className="flex justify-center">
+          <SettingsAvatar onAvatarChange={handleAvatarChange} src={avatarUrl} />
+        </div>
 
         <SettingsBio
           bio={bioDraft}
@@ -331,6 +374,28 @@ export const Settings: React.FC = () => {
         </SettingsSection>
 
         <SettingsSection title="Personlig information">
+          {/* ✅ Order changed: City -> Age -> Gender */}
+
+          {/* City */}
+          <SettingsSelect
+            label="Stad"
+            value={profile.city}
+            options={cityOptions}
+            onChange={handleSaveCity}
+          />
+
+          {/* Age */}
+          <div className="px-4 py-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ålder
+            </label>
+            <p className="text-gray-900">{ageLabel}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Kan inte ändras av säkerhetsskäl
+            </p>
+          </div>
+
+          {/* Gender */}
           <div className="px-4 py-3">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Kön
@@ -339,28 +404,6 @@ export const Settings: React.FC = () => {
               {pronounOptions.find(
                 (opt) => Number(opt.value) === Number(profile.gender),
               )?.label ?? "–"}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Kan inte ändras av säkerhetsskäl
-            </p>
-          </div>
-
-          <SettingsSelect
-            label="Stad"
-            value={profile.city}
-            options={cityOptions}
-            onChange={handleSaveCity}
-          />
-          <div className="px-4 py-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Födelsedatum
-            </label>
-            <p className="text-gray-900">
-              {new Date(profile.dateOfBirth).toLocaleDateString("sv-SE", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Kan inte ändras av säkerhetsskäl

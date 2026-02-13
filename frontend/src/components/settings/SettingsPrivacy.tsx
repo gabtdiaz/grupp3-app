@@ -14,7 +14,6 @@ export const SettingsPrivacy: React.FC<SettingsPrivacyProps> = ({
   disabled = false,
 }) => {
   const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Stoppar "refresh" som ofta kommer från form submit eller bubbla till parent
     e.preventDefault();
     e.stopPropagation();
 

@@ -19,7 +19,6 @@ export default function FilterBar({
   const { cities } = useCities();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
-  // Count active filters (excluding city since it's handled separately)
   const activeFilterCount =
     activeFilters.categories.length +
     activeFilters.cities.length +
@@ -29,7 +28,7 @@ export default function FilterBar({
   return (
     <>
       <div className="relative flex items-center justify-content-between h-full">
-        {/* Centered location selector */}
+        {/* Location selector */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
           <img
             src="/icons/location-icon.svg"
@@ -48,14 +47,14 @@ export default function FilterBar({
           </select>
         </div>
 
-        {/* Right-aligned filter button */}
+        {/* Filter button */}
         <button
           className="ml-auto relative"
           onClick={() => setIsFilterModalOpen(true)}
         >
-          <img src="/icons/filter-icon.svg" alt="Filter" className="w-4 h-4" />
+          <img src="/icons/filter-icon.svg" alt="Filter" className="w-5 h-5" />
           {activeFilterCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-400 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="absolute -top-2 -right-2 bg-light-green text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}

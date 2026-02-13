@@ -11,14 +11,11 @@ import { type FilterOptions } from "../components/modals/FilterModal";
 export default function Activity() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null,
-  );
-  const [selectedCity, setSelectedCity] = useState<string>("");
+
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Initialize filter state
+  // Single source of truth for all filters (used by Header, FilterBar, FilterModal)
   const [filters, setFilters] = useState<FilterOptions>({
     categories: [],
     cities: [],
@@ -29,25 +26,61 @@ export default function Activity() {
     minimumAge: { min: 18, max: 100 },
   });
 
+  // Keep dropdown city selection (single city) but sync it into filters.cities
+  const [selectedCity, setSelectedCity] = useState<string>("");
+
   // Fetch events from backend (filtered based on user' age/gender)
   const { events, loading, error } = useEvents();
 
   useEffect(() => {
     if (location.state?.message) {
-      setTimeout(() => {
-        setShowSuccessMessage(true);
-      }, 0);
-      // Hide message after 3 seconds
+      setTimeout(() => setShowSuccessMessage(true), 0);
+
       const timer = setTimeout(() => {
         setShowSuccessMessage(false);
       }, 3000);
 
-      // Clean state so the message doesn't show again on navigation
       window.history.replaceState({}, document.title);
 
       return () => clearTimeout(timer);
     }
   }, [location.state]);
+
+  // Header category toggle (multi-select)
+  const handleCategoryToggle = (categoryId: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(categoryId)
+        ? prev.categories.filter((id) => id !== categoryId)
+        : [...prev.categories, categoryId],
+    }));
+  };
+
+  // City dropdown change (single select) + keep modal in sync
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    setFilters((prev) => ({
+      ...prev,
+      cities: city ? [city] : [],
+    }));
+  };
+
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+
+    // Keep dropdown in sync with modal:
+    // - if exactly one city selected, show it in dropdown
+    // - otherwise clear dropdown (so it doesn't lie)
+    setSelectedCity(newFilters.cities.length === 1 ? newFilters.cities[0] : "");
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleCardClick = (eventId: number) => {
+    navigate(`/activity/${eventId}`);
+  };
 
   // Comprehensive filtering function
   const filteredEvents = events.filter((event) => {
@@ -58,17 +91,10 @@ export default function Activity() {
       const matchesDescription = event.description
         ?.toLowerCase()
         .includes(query);
-      if (!matchesTitle && !matchesDescription) {
-        return false;
-      }
+      if (!matchesTitle && !matchesDescription) return false;
     }
 
-    // Category filter from header (priority)
-    if (selectedCategoryId && event.categoryId !== selectedCategoryId) {
-      return false;
-    }
-
-    // Category filter from modal
+    // Category filter (multi)
     if (
       filters.categories.length > 0 &&
       !filters.categories.includes(event.categoryId)
@@ -76,12 +102,7 @@ export default function Activity() {
       return false;
     }
 
-    // City filter from FilterBar dropdown (priority)
-    if (selectedCity && event.location !== selectedCity) {
-      return false;
-    }
-
-    // City filter from modal
+    // City filter (from dropdown or modal - both live in filters.cities)
     if (filters.cities.length > 0 && !filters.cities.includes(event.location)) {
       return false;
     }
@@ -107,48 +128,21 @@ export default function Activity() {
       if (event.maxParticipants > filters.maxParticipants.max) return false;
     }
 
-    // Minimum age filter (only when enabled)
-    if (filters.useAgeRestriction && event.minimumAge !== null) {
-      if (
-        event.minimumAge < filters.minimumAge.min ||
-        event.minimumAge > filters.minimumAge.max
-      ) {
-        return false;
-      }
+    // Minimum age filter (single min slider in UI)
+    // Keep your previous logic style, but effectively only checks min.
+    if (filters.useAgeRestriction) {
+      const eventMinAge = event.minimumAge ?? 18; // if null/undefined treat as 18
+      if (eventMinAge < filters.minimumAge.min) return false;
     }
 
     return true;
   });
 
-  //const isEmpty = !loading && filteredEvents.length === 0;
-
-  const handleCardClick = (eventId: number) => {
-    navigate(`/activity/${eventId}`);
-  };
-
-  const handleCategoryClick = (categoryId: number) => {
-    setSelectedCategoryId(
-      selectedCategoryId === categoryId ? null : categoryId,
-    );
-  };
-
-  const handleCityChange = (city: string) => {
-    setSelectedCity(city);
-  };
-
-  const handleFiltersChange = (newFilters: FilterOptions) => {
-    setFilters(newFilters);
-  };
-
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       {showSuccessMessage && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fadeIn">
-          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+          <div className="bg-light-green text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
@@ -160,8 +154,9 @@ export default function Activity() {
           </div>
         </div>
       )}
+
       <div
-        className="relative h-56"
+        className="relative h-56 mb-4"
         style={{
           backgroundImage: `url("/activity-header-background.png")`,
           backgroundRepeat: "no-repeat",
@@ -169,8 +164,8 @@ export default function Activity() {
         }}
       >
         <Header
-          selectedCategoryId={selectedCategoryId}
-          onCategoryClick={handleCategoryClick}
+          selectedCategoryIds={filters.categories}
+          onCategoryToggle={handleCategoryToggle}
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
         />

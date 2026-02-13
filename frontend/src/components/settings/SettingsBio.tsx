@@ -101,7 +101,7 @@ export const SettingsBio: React.FC<SettingsBioProps> = ({
               <button
                 type="button"
                 onClick={handleSave}
-                className="px-3 py-1.5 bg-red-400 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
+                className="px-3 py-1.5 bg-light-green text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
                 disabled={saving}
               >
                 {saving ? "Sparar..." : "Spara"}
