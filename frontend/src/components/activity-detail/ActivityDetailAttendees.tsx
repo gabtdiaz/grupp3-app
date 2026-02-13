@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "../../api/api";
 
 interface Attendee {
   id: string;
@@ -55,12 +56,17 @@ export const ActivityDetailAttendees: React.FC<
               >
                 {attendee.imageUrl ? (
                   <img
-                    src={attendee.imageUrl}
+                    src={getImageUrl(attendee.imageUrl)}
                     alt={attendee.name}
                     className="h-14 w-14 rounded-full object-cover border-2 border-gray-200"
                   />
                 ) : (
-                  <div className="h-14 w-14 rounded-full bg-gray-200 border-2 border-gray-300" />
+                  <div className="h-14 w-14 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center">
+                    {/* Fallback bild - visar bokstav om man inte har profilbild */}
+                    <span className="text-gray-400 text-lg font-semibold">
+                      {attendee.name[0]?.toUpperCase()}
+                    </span>
+                  </div>
                 )}
               </button>
             ))
